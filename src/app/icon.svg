@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64" role="img" aria-label="ProfAura">
+  <!-- Favicon = official ProfAura mark. Wohi geometry jo navbar me hai:
+       navy pin + graduation cap + student silhouette + coral orbit + sparkle.
+       Tab me chhota dikhta hai, is liye pin thora bara aur orbit patli hai. -->
+  <defs>
+    <linearGradient id="orbit" x1="0" y1="1" x2="1" y2="0">
+      <stop offset="0%" stop-color="#f4675e" />
+      <stop offset="100%" stop-color="#f59f4a" />
+    </linearGradient>
+  </defs>
+  <ellipse
+    cx="32"
+    cy="33"
+    rx="29"
+    ry="13"
+    transform="rotate(-22 32 33)"
+    fill="none"
+    stroke="url(#orbit)"
+    stroke-width="4"
+    stroke-linecap="round"
+  />
+  <path
+    d="M23 8h20a11 11 0 0 1 11 11v18a11 11 0 0 1-11 11H25l-11 8 2.8-8A11 11 0 0 1 12 37V19A11 11 0 0 1 23 8Z"
+    fill="#1f2a52"
+  />
+  <g fill="#ffffff">
+    <path d="M33 15 45.6 20.2 33 25.4 20.4 20.2 33 15Z" />
+    <path d="M43.6 21.2a1 1 0 0 1 1 1v5.6a1 1 0 0 1-2 0v-5.6a1 1 0 0 1 1-1Z" />
+    <circle cx="43.6" cy="29.6" r="1.7" />
+    <circle cx="33" cy="30.4" r="4.7" />
+    <path d="M33 35.9c5 0 9 3 9 8.3V47H24v-2.8c0-5.3 4-8.3 9-8.3Z" />
+  </g>
+</svg>
