@@ -47,7 +47,17 @@ export function StudentNav({ className }: { className?: string }) {
   const pathname = usePathname();
 
   return (
-    <nav aria-label="Student area" className={className}>
+    <nav
+      aria-label="Student area"
+      className={cn(
+        "md:rounded-xl md:border md:border-indigo-100 md:bg-indigo-50/60 md:p-2.5",
+        className,
+      )}
+    >
+      {/* Desktop panel ka chhota heading - color area ko "designed" dikhata hai. */}
+      <p className="hidden px-2 pb-1.5 pt-1 text-[0.6875rem] font-semibold uppercase tracking-wider text-indigo-500/90 md:block">
+        Menu
+      </p>
       {/* Mobile: horizontal scroll. Desktop: vertical list. */}
       <ul className="-mx-1 flex list-none gap-1.5 overflow-x-auto px-1 pb-1 md:mx-0 md:flex-col md:gap-0.5 md:overflow-visible md:px-0 md:pb-0">
         {STUDENT_NAV.map((item) => {
@@ -66,8 +76,8 @@ export function StudentNav({ className }: { className?: string }) {
                   "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
                   "[&_svg]:size-4 [&_svg]:shrink-0",
                   isActive
-                    ? "border-indigo-200 bg-indigo-50 text-indigo-700 [&_svg]:text-indigo-600"
-                    : "border-border bg-background text-ink-600 hover:bg-ink-50 hover:text-foreground md:bg-transparent [&_svg]:text-ink-400",
+                    ? "border-indigo-200 bg-white text-indigo-700 shadow-sm [&_svg]:text-indigo-600"
+                    : "border-border bg-background text-ink-600 hover:bg-ink-50 hover:text-foreground md:border-transparent md:bg-transparent md:hover:bg-white/70 [&_svg]:text-ink-400",
                 )}
               >
                 <Icon aria-hidden="true" />

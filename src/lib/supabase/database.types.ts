@@ -546,6 +546,39 @@ export type Database = {
         }
         Relationships: []
       }
+      home_images: {
+        Row: {
+          alt_text: string | null
+          created_at: string
+          created_by: string | null
+          id: string
+          is_active: boolean
+          sort_order: number
+          storage_path: string
+          updated_at: string
+        }
+        Insert: {
+          alt_text?: string | null
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          is_active?: boolean
+          sort_order?: number
+          storage_path: string
+          updated_at?: string
+        }
+        Update: {
+          alt_text?: string | null
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          is_active?: boolean
+          sort_order?: number
+          storage_path?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       site_notifications: {
         Row: {
           created_at: string
@@ -1329,6 +1362,25 @@ export type Database = {
       admin_merge_people: {
         Args: { p_canonical_id: string; p_duplicate_id: string; p_reason: string }
         Returns: undefined
+      }
+      admin_add_home_image: {
+        Args: { p_storage_path: string; p_alt_text?: string }
+        Returns: string
+      }
+      admin_delete_home_image: {
+        Args: { p_id: string }
+        Returns: string
+      }
+      admin_home_image_list: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          id: string
+          storage_path: string
+          alt_text: string | null
+          sort_order: number
+          is_active: boolean
+          created_at: string
+        }[]
       }
       admin_notification_list: {
         Args: { p_limit?: number; p_offset?: number }

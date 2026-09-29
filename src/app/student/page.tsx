@@ -128,11 +128,11 @@ export default async function StudentHomePage() {
         </section>
       ) : null}
 
-      <Card className="p-5">
-        <h2 className="font-display text-base font-semibold tracking-tight text-foreground">
+      <Card className="border-red-200/70 bg-red-50 p-5">
+        <h2 className="font-display text-base font-semibold tracking-tight text-red-900">
           Editing a review
         </h2>
-        <p className="mt-1.5 max-w-2xl text-sm leading-relaxed text-muted-foreground">
+        <p className="mt-1.5 max-w-2xl text-sm leading-relaxed text-red-900/70">
           A review can be edited up to {REVIEW_LIMITS.maxEditsPerReview} times, after which it
           locks. The limit is enforced on the server, not in the browser, so it holds no matter how
           a review is submitted.

@@ -1,5 +1,7 @@
 import * as React from "react";
 
+import { GraduationCap } from "lucide-react";
+
 import { SiteFooter } from "@/components/layout/site-footer";
 import { SiteHeader } from "@/components/layout/site-header";
 import { StudentNav } from "@/features/student/student-nav";
@@ -30,11 +32,29 @@ export default async function StudentLayout({ children }: { children: React.Reac
       />
 
       <main id="main-content" className="flex-1 bg-surface">
+        {/* Student-area navbar: rangeen context bar - section ki apni pehchan
+            (global header alag hai, usay haath nahi lagaya). */}
+        <div className="border-b border-indigo-700/20 bg-indigo-600 text-white">
+          <div className="container flex items-center justify-between gap-3 py-3">
+            <span className="flex items-center gap-2 font-display text-sm font-semibold tracking-tight">
+              <GraduationCap aria-hidden="true" className="size-5" />
+              Student area
+            </span>
+            {session.profile?.email ? (
+              <span className="max-w-[55%] truncate rounded-md bg-white/15 px-2.5 py-1 text-xs font-medium">
+                {session.profile.email}
+              </span>
+            ) : null}
+          </div>
+        </div>
+
         <div className="container py-8 md:py-10">
           <div className="flex flex-col gap-6 md:flex-row md:gap-8">
-            <div className="md:w-60 md:shrink-0">
-              <StudentNav className="md:sticky md:top-24" />
-            </div>
+            {/* Sidebar body ke sath scroll na ho: sticky + self-start; lambi ho to
+                apne andar scroll kare (top-24 = global header ke neeche). */}
+            <aside className="md:sticky md:top-24 md:max-h-[calc(100dvh-7rem)] md:w-60 md:shrink-0 md:self-start md:overflow-y-auto">
+              <StudentNav />
+            </aside>
             <div className="min-w-0 flex-1">{children}</div>
           </div>
         </div>

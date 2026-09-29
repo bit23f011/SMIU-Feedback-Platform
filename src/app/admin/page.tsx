@@ -1,7 +1,18 @@
 import type { Metadata } from "next";
 
 import Link from "next/link";
-import { ArrowRight, Flag, MessageSquareText, ShieldCheck, Star, TriangleAlert } from "lucide-react";
+import {
+  ArrowRight,
+  Bell,
+  Flag,
+  Images,
+  ListChecks,
+  MessageSquareText,
+  ShieldCheck,
+  SlidersHorizontal,
+  Star,
+  TriangleAlert,
+} from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
@@ -27,31 +38,37 @@ const SECTIONS = [
     title: "Reviews",
     body: "Approve, reject, hide or feature the text students write. Ratings are never held back.",
     href: "/admin/reviews",
+    icon: Star,
   },
   {
     title: "Reports",
     body: "Work through reports raised against a profile. Accepting one never deletes a profile on its own.",
     href: "/admin/reports",
+    icon: Flag,
   },
   {
     title: "Website feedback",
     body: "Bugs and suggestions about ProfAura itself, kept separate from reviews.",
     href: "/admin/website-feedback",
+    icon: MessageSquareText,
   },
   {
     title: "Notifications",
     body: "Schedule the announcement banner shown across the public site.",
     href: "/admin/notifications",
+    icon: Bell,
   },
   {
     title: "Criteria",
     body: "The questions students rate. Add or retire criteria without touching code.",
     href: "/admin/criteria",
+    icon: ListChecks,
   },
   {
     title: "Settings",
     body: "Platform switches: sign-ups, review submission, editing and the email rule.",
     href: "/admin/settings",
+    icon: SlidersHorizontal,
   },
 ] as const;
 
@@ -67,26 +84,30 @@ function StatCard({ stat, unavailable }: { stat: StatSpec; unavailable: boolean 
   const Icon = stat.icon;
 
   return (
-    <Card interactive className="group relative flex flex-col p-5">
-      <div className="flex items-center gap-2 text-muted-foreground">
-        <Icon aria-hidden="true" className="size-4" />
-        <h2 className="text-sm font-medium">
-          <Link
-            href={stat.href}
-            className="rounded-sm outline-none after:absolute after:inset-0 after:content-[''] focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
-          >
-            {stat.label}
-          </Link>
-        </h2>
-      </div>
+    <Card interactive className="group relative flex w-full flex-col p-5">
+      <span
+        aria-hidden="true"
+        className="flex size-9 items-center justify-center rounded-lg border border-indigo-100 bg-indigo-50 text-indigo-600 [&_svg]:size-4"
+      >
+        <Icon />
+      </span>
 
       {unavailable ? (
-        <p className="mt-3 text-sm text-muted-foreground">Not available right now</p>
+        <p className="mt-4 text-sm text-muted-foreground">Not available right now</p>
       ) : (
-        <p className="mt-2 font-display text-3xl font-semibold tabular-nums tracking-tight text-foreground">
+        <p className="mt-4 font-display text-3xl font-semibold tabular-nums tracking-tight text-foreground">
           {stat.value}
         </p>
       )}
+
+      <h2 className="mt-0.5 text-sm font-medium text-foreground">
+        <Link
+          href={stat.href}
+          className="rounded-sm outline-none after:absolute after:inset-0 after:content-[''] focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+        >
+          {stat.label}
+        </Link>
+      </h2>
 
       <p className="mt-1 text-xs leading-relaxed text-muted-foreground">{stat.hint}</p>
     </Card>
@@ -168,30 +189,39 @@ export default async function AdminHomePage() {
         All sections
       </h2>
       <ul className="mt-4 grid list-none gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        {SECTIONS.map((section) => (
-          <li key={section.href} className="flex">
-            <Card interactive className="group relative flex w-full flex-col p-5">
-              <h3 className="font-display text-base font-semibold tracking-tight text-foreground">
-                <Link
-                  href={section.href}
-                  className="rounded-sm outline-none after:absolute after:inset-0 after:content-[''] focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
-                >
-                  {section.title}
-                </Link>
-              </h3>
-              <p className="mt-1.5 flex-1 text-sm leading-relaxed text-muted-foreground">
-                {section.body}
-              </p>
-              <span className="mt-4 inline-flex items-center gap-1.5 text-sm font-medium text-primary">
-                Open
-                <ArrowRight
+        {SECTIONS.map((section) => {
+          const SectionIcon = section.icon;
+          return (
+            <li key={section.href} className="flex">
+              <Card interactive className="group relative flex w-full flex-col p-5">
+                <span
                   aria-hidden="true"
-                  className="size-4 transition-transform duration-150 ease-out group-hover:translate-x-0.5"
-                />
-              </span>
-            </Card>
-          </li>
-        ))}
+                  className="flex size-9 items-center justify-center rounded-lg border border-indigo-100 bg-indigo-50 text-indigo-600 [&_svg]:size-4"
+                >
+                  <SectionIcon />
+                </span>
+                <h3 className="mt-4 font-display text-base font-semibold tracking-tight text-foreground">
+                  <Link
+                    href={section.href}
+                    className="rounded-sm outline-none after:absolute after:inset-0 after:content-[''] focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                  >
+                    {section.title}
+                  </Link>
+                </h3>
+                <p className="mt-1.5 flex-1 text-sm leading-relaxed text-muted-foreground">
+                  {section.body}
+                </p>
+                <span className="mt-4 inline-flex items-center gap-1.5 text-sm font-medium text-primary">
+                  Open
+                  <ArrowRight
+                    aria-hidden="true"
+                    className="size-4 transition-transform duration-150 ease-out group-hover:translate-x-0.5"
+                  />
+                </span>
+              </Card>
+            </li>
+          );
+        })}
       </ul>
     </div>
   );
