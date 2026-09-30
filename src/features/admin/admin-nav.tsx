@@ -106,7 +106,7 @@ export function AdminNav({ className }: { className?: string }) {
         {ADMIN_NAV.map((group, index) => (
           <li key={group.heading ?? `group-${index}`} className="contents md:block">
             {group.heading ? (
-              <p className="hidden px-3 pb-1 text-[0.6875rem] font-semibold uppercase tracking-wider text-ink-400 md:block">
+              <p className="hidden px-3 pb-1 text-[0.6875rem] font-semibold uppercase tracking-wider text-ink-500 md:block">
                 {group.heading}
               </p>
             ) : null}
@@ -127,7 +127,7 @@ export function AdminNav({ className }: { className?: string }) {
                         "[&_svg]:size-4 [&_svg]:shrink-0",
                         isActive
                           ? "border-indigo-200 bg-indigo-50 text-indigo-700 [&_svg]:text-indigo-600"
-                          : "border-border bg-background text-ink-600 hover:bg-ink-50 hover:text-foreground md:bg-transparent [&_svg]:text-ink-400",
+                          : "border-border bg-background text-ink-700 hover:bg-ink-100 hover:text-foreground md:bg-transparent [&_svg]:text-ink-500",
                       )}
                     >
                       <Icon aria-hidden="true" />

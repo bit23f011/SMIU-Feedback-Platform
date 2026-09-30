@@ -15,6 +15,11 @@ import {
   TEACHER_TYPE_CHOICES,
   type FilterOptions,
 } from "@/features/discovery/types";
+import {
+  COURSE_FILTER_FIELDS,
+  PEOPLE_FILTER_FIELDS,
+  type FilterField,
+} from "@/features/discovery/filter-fields";
 import { cn } from "@/lib/utils";
 
 /*
@@ -36,28 +41,16 @@ import { cn } from "@/lib/utils";
 const ANY = "";
 
 /*
-  Kaunse controls dikhane hain, yeh caller tay karta hai. Directory ko chhe
-  chahiye; courses page ko sirf do (course page par "course filter" ka koi matlab
-  nahi banta).
+  Kaunse controls dikhane hain, yeh `FilterField` aur field-lists ab ek alag
+  bina-directive module `filter-fields.ts` me hain. Wajah wahin comment me hai:
+  client file se plain constant server me import karna crash deta hai. Yahan se
+  sirf re-export kar rahe hain taake purane import raaste na toote.
 */
-export type FilterField =
-  | "department"
-  | "course"
-  | "semester"
-  | "rating"
-  | "teacherType"
-  | "sort";
-
-export const PEOPLE_FILTER_FIELDS: readonly FilterField[] = [
-  "department",
-  "course",
-  "semester",
-  "rating",
-  "teacherType",
-  "sort",
-];
-
-export const COURSE_FILTER_FIELDS: readonly FilterField[] = ["department", "semester"];
+export {
+  COURSE_FILTER_FIELDS,
+  PEOPLE_FILTER_FIELDS,
+  type FilterField,
+} from "@/features/discovery/filter-fields";
 
 export interface FilterControlsProps {
   options: FilterOptions;

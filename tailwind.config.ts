@@ -176,9 +176,11 @@ const config: Config = {
       },
 
       boxShadow: {
-        // Sab shadows bohot subtle - neutral ink par, koi coloured glow nahi.
-        xs: "0 1px 2px 0 rgb(27 29 38 / 0.04)",
-        card: "0 1px 2px 0 rgb(27 29 38 / 0.04), 0 1px 3px 0 rgb(27 29 38 / 0.03)",
+        // Sab shadows subtle - neutral ink par, koi coloured glow nahi. Card/xs
+        // ko halka sa upar kiya (0.04 -> 0.06) taake stronger border ke sath
+        // cards "flat" na lagein aur surface page se alag dikhe.
+        xs: "0 1px 2px 0 rgb(27 29 38 / 0.05)",
+        card: "0 1px 2px 0 rgb(27 29 38 / 0.06), 0 1px 3px 0 rgb(27 29 38 / 0.05)",
         "card-hover": "0 4px 16px -4px rgb(27 29 38 / 0.10), 0 1px 2px 0 rgb(27 29 38 / 0.04)",
         pop: "0 12px 32px -10px rgb(27 29 38 / 0.16), 0 1px 3px 0 rgb(27 29 38 / 0.05)",
         // Inset press-feedback (button :active)

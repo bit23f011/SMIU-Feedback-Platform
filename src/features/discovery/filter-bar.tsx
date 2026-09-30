@@ -1,13 +1,12 @@
 import * as React from "react";
 
 import { getFilterOptions } from "@/features/discovery/queries";
+import { FilterControls, FilterControlsSkeleton } from "@/features/discovery/filter-controls";
 import {
   COURSE_FILTER_FIELDS,
-  FilterControls,
-  FilterControlsSkeleton,
   PEOPLE_FILTER_FIELDS,
   type FilterField,
-} from "@/features/discovery/filter-controls";
+} from "@/features/discovery/filter-fields";
 
 /*
   DirectoryFilterBar - server side wrapper.

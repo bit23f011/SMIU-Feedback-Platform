@@ -61,8 +61,12 @@
     --destructive-foreground: 0 0% 100%;
 
     /* ---- Lines + form controls ---- */
-    --border: 225 19% 92%;
-    --input: 225 17% 86%;
+    /* Border thoda gehra kiya (92% -> 86%): hairlines, card edges, sidebar aur
+       topbar dividers ab saaf dikhte hain (pehle white/off-white par bohot dim
+       the). Input aur gehra (86% -> 78%) taake outline buttons + form fields ka
+       kinara clearly nazar aaye. Text tokens ko haath nahi lagaya - sirf lines. */
+    --border: 225 16% 86%;
+    --input: 223 15% 78%;
     --ring: 229 45% 52%;
 
     /* ---- Shape ---- */

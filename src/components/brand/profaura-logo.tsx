@@ -85,7 +85,7 @@ export function ProfAuraLogo({
       <ProfAuraMark animate={animateMark} className={cn(sizes.mark, "w-auto")} />
 
       {/* href null par plain span banta hai - us soorat me SR ke liye naam chahiye. */}
-      {href === null ? <span className="sr-only">ProfAura</span> : null}
+      {href === null ? <span className="sr-only">SMIU Feedback Platform</span> : null}
 
       {/* Poora text block decorative hai (animate hota hai). Accessible naam link ke
           aria-label se ya upar wale sr-only se aata hai. */}
@@ -128,7 +128,7 @@ export function ProfAuraLogo({
   return (
     <Link
       href={href}
-      aria-label="ProfAura home"
+      aria-label="SMIU Feedback Platform home"
       className={cn(
         shell,
         "rounded-md outline-none transition-opacity duration-150 ease-out hover:opacity-90",

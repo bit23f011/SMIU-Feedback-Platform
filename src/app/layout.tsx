@@ -28,16 +28,19 @@ const fontDisplay = Plus_Jakarta_Sans({
   display: "swap",
 });
 
-const siteTitle = `${SITE.name}: ${SITE.tagline}`;
+// Browser tab / social title. Public pehchan ab "SMIU Feedback Platform" hai
+// (SITE.platformLine). Internal product naam (SITE.name = ProfAura) sirf code aur
+// keywords me reh gaya hai; user-facing title yeh line dikhata hai.
+const siteTitle = SITE.platformLine;
 
 export const metadata: Metadata = {
   metadataBase: new URL(publicEnv.siteUrl),
   title: {
     default: siteTitle,
-    template: `%s · ${SITE.name}`,
+    template: `%s · ${SITE.platformLine}`,
   },
   description: SITE.description,
-  applicationName: SITE.name,
+  applicationName: SITE.platformLine,
   keywords: [
     "university reviews",
     "teacher reviews",
@@ -59,7 +62,7 @@ export const metadata: Metadata = {
     type: "website",
     locale: "en_US",
     url: "/",
-    siteName: SITE.name,
+    siteName: SITE.platformLine,
     title: siteTitle,
     description: SITE.description,
   },

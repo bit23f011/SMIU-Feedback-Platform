@@ -25,7 +25,7 @@ export const metadata: Metadata = {
   "kis ka account hai" batana enumeration ban jata hai.
 */
 
-type Status = "expired" | "invalid" | undefined;
+type Status = "expired" | "invalid" | "unconfirmed" | undefined;
 
 export default function VerifyEmailPage({
   searchParams,
@@ -52,6 +52,19 @@ export default function VerifyEmailPage({
         </CardHeader>
 
         <CardContent className="space-y-5">
+          {status === "unconfirmed" ? (
+            <Alert tone="info">
+              <TriangleAlert aria-hidden="true" />
+              <div>
+                <AlertTitle>Your email is not confirmed yet</AlertTitle>
+                <AlertDescription>
+                  Your student ID and password were correct. You just need to open the confirmation
+                  link we emailed when you signed up, then sign in again.
+                </AlertDescription>
+              </div>
+            </Alert>
+          ) : null}
+
           {status === "expired" ? (
             <Alert tone="warning">
               <TriangleAlert aria-hidden="true" />

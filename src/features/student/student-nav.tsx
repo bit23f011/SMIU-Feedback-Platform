@@ -50,12 +50,12 @@ export function StudentNav({ className }: { className?: string }) {
     <nav
       aria-label="Student area"
       className={cn(
-        "md:rounded-xl md:border md:border-indigo-100 md:bg-indigo-50/60 md:p-2.5",
+        "md:rounded-xl md:border md:border-indigo-200 md:bg-indigo-50 md:p-2.5 md:shadow-card",
         className,
       )}
     >
       {/* Desktop panel ka chhota heading - color area ko "designed" dikhata hai. */}
-      <p className="hidden px-2 pb-1.5 pt-1 text-[0.6875rem] font-semibold uppercase tracking-wider text-indigo-500/90 md:block">
+      <p className="hidden px-2 pb-1.5 pt-1 text-[0.6875rem] font-semibold uppercase tracking-wider text-indigo-600 md:block">
         Menu
       </p>
       {/* Mobile: horizontal scroll. Desktop: vertical list. */}
@@ -77,7 +77,7 @@ export function StudentNav({ className }: { className?: string }) {
                   "[&_svg]:size-4 [&_svg]:shrink-0",
                   isActive
                     ? "border-indigo-200 bg-white text-indigo-700 shadow-sm [&_svg]:text-indigo-600"
-                    : "border-border bg-background text-ink-600 hover:bg-ink-50 hover:text-foreground md:border-transparent md:bg-transparent md:hover:bg-white/70 [&_svg]:text-ink-400",
+                    : "border-border bg-background text-ink-700 hover:bg-ink-50 hover:text-foreground md:border-transparent md:bg-transparent md:hover:bg-white/70 [&_svg]:text-ink-500",
                 )}
               >
                 <Icon aria-hidden="true" />

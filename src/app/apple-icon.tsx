@@ -14,19 +14,31 @@ import { ImageResponse } from "next/og";
 
 export const size = { width: 180, height: 180 };
 export const contentType = "image/png";
-export const alt = "ProfAura";
+export const alt = "SMIU Feedback Platform";
 
-const MARK_SVG = `<svg xmlns="http://www.w3.org/2000/svg" width="140" height="140" viewBox="0 0 64 64">
-<defs><linearGradient id="o" x1="0" y1="1" x2="1" y2="0"><stop offset="0%" stop-color="#f4675e"/><stop offset="100%" stop-color="#f59f4a"/></linearGradient></defs>
-<ellipse cx="32" cy="33" rx="29" ry="13" transform="rotate(-22 32 33)" fill="none" stroke="url(#o)" stroke-width="4" stroke-linecap="round"/>
-<path d="M23 8h20a11 11 0 0 1 11 11v18a11 11 0 0 1-11 11H25l-11 8 2.8-8A11 11 0 0 1 12 37V19A11 11 0 0 1 23 8Z" fill="#1f2a52"/>
-<g fill="#ffffff">
-<path d="M33 15 45.6 20.2 33 25.4 20.4 20.2 33 15Z"/>
-<path d="M43.6 21.2a1 1 0 0 1 1 1v5.6a1 1 0 0 1-2 0v-5.6a1 1 0 0 1 1-1Z"/>
-<circle cx="43.6" cy="29.6" r="1.7"/>
-<circle cx="33" cy="30.4" r="4.7"/>
-<path d="M33 35.9c5 0 9 3 9 8.3V47H24v-2.8c0-5.3 4-8.3 9-8.3Z"/>
-</g>
+const MARK_SVG = `<svg xmlns="http://www.w3.org/2000/svg" width="132" height="132" viewBox="0 0 64 50">
+<defs><mask id="m">
+<rect x="5" y="43" width="54" height="4" fill="white"/>
+<rect x="10" y="27" width="44" height="16" fill="white"/>
+<rect x="10" y="21" width="6" height="22" fill="white"/>
+<path d="M9.2 21.5 Q13 16.5 16.8 21.5 Z" fill="white"/>
+<rect x="12.4" y="16" width="1.2" height="4" fill="white"/>
+<rect x="48" y="21" width="6" height="22" fill="white"/>
+<path d="M47.2 21.5 Q51 16.5 54.8 21.5 Z" fill="white"/>
+<rect x="50.4" y="16" width="1.2" height="4" fill="white"/>
+<rect x="27" y="13" width="10" height="30" fill="white"/>
+<path d="M25 13 L32 7 L39 13 Z" fill="white"/>
+<path d="M28.6 7 Q32 1.5 35.4 7 Z" fill="white"/>
+<rect x="31.4" y="0.5" width="1.2" height="6" fill="white"/>
+<circle cx="32" cy="0.9" r="1" fill="white"/>
+<path d="M29 43 V33 A3 3 0 0 1 35 33 V43 Z" fill="black"/>
+<path d="M30.4 25 V21 A1.6 1.6 0 0 1 33.6 21 V25 Z" fill="black"/>
+<path d="M17 42 V38 A2.2 2.2 0 0 1 21.4 38 V42 Z" fill="black"/>
+<path d="M22.4 42 V38 A2.2 2.2 0 0 1 26.8 38 V42 Z" fill="black"/>
+<path d="M37.2 42 V38 A2.2 2.2 0 0 1 41.6 38 V42 Z" fill="black"/>
+<path d="M42.6 42 V38 A2.2 2.2 0 0 1 47 38 V42 Z" fill="black"/>
+</mask></defs>
+<rect width="64" height="50" fill="#f7f2ea" mask="url(#m)"/>
 </svg>`;
 
 function svgDataUrl(svg: string): string {
@@ -43,11 +55,11 @@ export default function AppleIcon() {
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
-          background: "#ffffff",
+          background: "#8a1f2b",
         }}
       >
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src={svgDataUrl(MARK_SVG)} width={140} height={140} alt="" />
+        <img src={svgDataUrl(MARK_SVG)} width={132} height={132} alt="" />
       </div>
     ),
     { ...size },

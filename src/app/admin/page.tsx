@@ -59,6 +59,12 @@ const SECTIONS = [
     icon: Bell,
   },
   {
+    title: "Homepage images",
+    body: "Upload and remove the images that rotate beside the headline on the public homepage.",
+    href: "/admin/home-images",
+    icon: Images,
+  },
+  {
     title: "Criteria",
     body: "The questions students rate. Add or retire criteria without touching code.",
     href: "/admin/criteria",

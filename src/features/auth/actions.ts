@@ -137,13 +137,34 @@ export async function signInAction(
       };
     }
 
+    /*
+      AHEM FARQ (yeh pehle bug tha): jab "Confirm email" on hai, to SAHI
+      password ke bawajood ek aisa user jisne abhi email confirm nahi ki,
+      Supabase se `email_not_confirmed` error aata hai - kamiyabi nahi. Purana
+      code har error ko "password ghalat" bana deta tha, is liye sahi password
+      wale user ko bhi "incorrect password" dikhta tha. Yahan hum us ek soorat
+      ko pehchan kar usay "apna email check karein" screen par bhejte hain
+      (wahi jagah jahan naya signup jata hai), jhooti "password ghalat" nahi.
+
+      Yeh enumeration nahi kholta: yeh branch sirf tab chalti hai jab password
+      pehle hi sahi ho. Galat ID/password par hamesha wahi ek generic message.
+    */
+    const code = (error as { code?: string }).code;
+    const isUnconfirmed =
+      code === "email_not_confirmed" || /email not confirmed/i.test(error.message);
+
+    if (isUnconfirmed) {
+      redirect("/auth/verify-email?status=unconfirmed");
+    }
+
     // Ek hi message har nakaami ke liye - na batao ke account mojood hai ya nahi.
     return { ok: false, formError: "That student ID and password do not match." };
   }
 
-  // Email confirm nahi hua to session ke bawajood student area nahi milega.
+  // Double safety: kisi wajah se session mila magar email confirm nahi
+  // (config farq), to bhi student area ke bajaye verify screen.
   if (!data.user?.email_confirmed_at) {
-    redirect("/auth/verify-email");
+    redirect("/auth/verify-email?status=unconfirmed");
   }
 
   revalidatePath("/", "layout");
