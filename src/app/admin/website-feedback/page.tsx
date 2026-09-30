@@ -54,7 +54,7 @@ export default function AdminWebsiteFeedbackPage({
           Website feedback
         </h1>
         <p className="mt-1.5 max-w-2xl text-sm leading-relaxed text-muted-foreground">
-          Feedback about ProfAura itself: bugs, suggestions and how the site feels to use. This is a
+          Feedback about the SMIU Feedback Website itself: bugs, suggestions and how the site feels to use. This is a
           separate dataset and never affects any teacher rating or ranking.
         </p>
       </header>

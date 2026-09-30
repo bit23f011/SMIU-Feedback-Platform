@@ -3,9 +3,9 @@ import type { NavItem, PersonCategoryMeta } from "@/lib/types";
 // Poore app ki central site config. UI-facing text English me hai (professional,
 // multi-university extensible). Code COMMENTS Roman Urdu me hain (team preference).
 export const SITE = {
-  name: "ProfAura",
+  name: "SMIU Feedback Platform",
   // Wordmark ke +/- animation ke liye base word.
-  wordmark: "ProfAura",
+  wordmark: "SMIU Feedback Platform",
   tagline: "Understand your learning experience.",
   description:
     "Verified SMIU students share anonymous, structured feedback about teaching and campus services.",

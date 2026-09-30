@@ -34,7 +34,7 @@ export const dynamic = "force-dynamic";
 export const metadata: Metadata = {
   title: "Recommendations",
   description:
-    "Recommendations on ProfAura are based on your course, department, program and verified student reviews.",
+    "Recommendations on SMIU Feedback Website are based on your course, department, program and verified student reviews.",
   alternates: { canonical: "/recommendations" },
 };
 

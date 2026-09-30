@@ -1,6 +1,6 @@
 # Security policy
 
-This document describes how ProfAura is secured and how to report a problem. It does not claim
+This document describes how SMIU Feedback Platform is secured and how to report a problem. It does not claim
 the system is perfectly secure; it states the controls that exist and where the real boundary is.
 
 ## Reporting a vulnerability

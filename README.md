@@ -1,4 +1,4 @@
-# ProfAura
+# SMIU Feedback Platform
 
 Independent public review platform for **Sindh Madressatul Islam University (SMIU)** students.
 Students give structured, anonymous reviews (star ratings plus yes/no answers) to teachers, lab

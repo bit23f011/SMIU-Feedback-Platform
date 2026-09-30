@@ -10,7 +10,7 @@ import { getCurrentUser } from "@/features/auth/session";
 
 export const metadata: Metadata = {
   title: "Sign in",
-  description: "Sign in to ProfAura with your student ID.",
+  description: "Sign in to the SMIU Feedback Website with your student ID.",
   // Auth pages index nahi honi chahiye.
   robots: { index: false, follow: true },
 };

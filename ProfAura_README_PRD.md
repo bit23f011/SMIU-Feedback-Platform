@@ -1,20 +1,20 @@
-# ProfAura
+# SMIU Feedback Platform
 
 > **Understand Your Learning Experience.**
 >
-> ProfAura is an independent university student platform for discovering, reviewing, comparing, and understanding the academic experience associated with teachers and other university-related roles.
+> SMIU Feedback Platform is an independent university student platform for discovering, reviewing, comparing, and understanding the academic experience associated with teachers and other university-related roles.
 
 ---
 
 ## 1. Product Overview
 
-**ProfAura** is a structured student feedback and discovery platform.
+**SMIU Feedback Platform** is a structured student feedback and discovery platform.
 
 The initial university is:
 
 **Sindh Madressatul Islam University, Karachi (SMIU)**
 
-ProfAura is designed to help students:
+SMIU Feedback Platform is designed to help students:
 
 - discover teachers and university-related roles
 - search people by name
@@ -30,9 +30,9 @@ ProfAura is designed to help students:
 
 The platform is intentionally respectful of teachers, faculty, university staff, and the institution.
 
-ProfAura must not be positioned as a tool for attacking, humiliating, or publicly exposing individuals. Its purpose is structured student feedback, academic insight, and transparency.
+SMIU Feedback Platform must not be positioned as a tool for attacking, humiliating, or publicly exposing individuals. Its purpose is structured student feedback, academic insight, and transparency.
 
-**ProfAura is an independent platform and must not imply official SMIU affiliation unless explicitly configured later.**
+**SMIU Feedback Platform is an independent platform and must not imply official SMIU affiliation unless explicitly configured later.**
 
 ---
 
@@ -93,7 +93,7 @@ Do not assume that a new Claude session means a new project.
 
 ## Brand Name
 
-**ProfAura**
+**SMIU Feedback Platform**
 
 Meaning:
 
@@ -104,23 +104,23 @@ Meaning:
 
 The actual brand name is always:
 
-**ProfAura**
+**SMIU Feedback Platform**
 
 ## Brand Animation
 
 The logo/wordmark may subtly animate:
 
-`ProfAura-`
+`SMIU Feedback Platform-`
 
 then
 
-`ProfAura+`
+`SMIU Feedback Platform+`
 
 then repeat.
 
 Only the `+ / -` element changes.
 
-The actual brand remains **ProfAura**.
+The actual brand remains **SMIU Feedback Platform**.
 
 Animation must be:
 
@@ -137,7 +137,7 @@ Respect:
 
 ---
 
-# 4. ProfAura Loader
+# 4. SMIU Feedback Platform Loader
 
 The loading experience uses:
 
@@ -172,7 +172,7 @@ Loader requirements:
 
 # 5. UI/UX Design Direction
 
-ProfAura must look like a real-world product designed by a professional human UI/UX designer.
+SMIU Feedback Platform must look like a real-world product designed by a professional human UI/UX designer.
 
 ## Target Feel
 
@@ -233,7 +233,7 @@ Do not use:
 
 ## Colors
 
-Approved ProfAura palette:
+Approved SMIU Feedback Platform palette:
 
 ```text
 #D1964A
@@ -357,7 +357,7 @@ Use clear hierarchy:
 
 # 7. Multi-Page Website
 
-ProfAura is **not a one-page website**.
+SMIU Feedback Platform is **not a one-page website**.
 
 It must be a real multi-page application with reusable layouts and reusable feature components.
 
@@ -424,7 +424,7 @@ Phase 8 pages may initially show an intentional **"feature under development"** 
 
 Navbar branding:
 
-**ProfAura**
+**SMIU Feedback Platform**
 
 Small university text:
 
@@ -479,7 +479,7 @@ Possible sections:
 - Category shortcuts
 - Best Teacher
 - Selected profiles
-- How ProfAura works
+- How SMIU Feedback Platform works
 - Privacy
 - Student CTA
 - Feedback
@@ -493,7 +493,7 @@ Do not overload the homepage.
 
 When the website opens, show an admin-controlled notification explaining:
 
-- what ProfAura is
+- what SMIU Feedback Platform is
 - why it exists
 - who it is for
 - how structured feedback works
@@ -1406,7 +1406,7 @@ Keep the comparison responsive and concise.
 
 # 44. Recommendation System
 
-Students may ask ProfAura for recommendations.
+Students may ask SMIU Feedback Platform for recommendations.
 
 Inputs:
 
@@ -1696,11 +1696,11 @@ All restrictions must be enforced server-side.
 
 # 56. Website Feedback
 
-ProfAura must include a completely separate **Website Feedback** system.
+SMIU Feedback Platform must include a completely separate **Website Feedback** system.
 
 This is feedback about:
 
-**ProfAura itself**
+**SMIU Feedback Platform itself**
 
 It is NOT the same as:
 
@@ -2735,8 +2735,8 @@ Build:
 - shadcn/ui
 - Lucide
 - Framer Motion
-- ProfAura branding
-- ProfAura +/- animation
+- SMIU Feedback Platform branding
+- SMIU Feedback Platform +/- animation
 - Aura loader
 - navbar
 - footer
@@ -3056,7 +3056,7 @@ Do not log secrets.
 
 # 104. Final Product Principles
 
-ProfAura should always prioritize:
+SMIU Feedback Platform should always prioritize:
 
 ### Respect
 Use neutral and respectful wording.
@@ -3165,12 +3165,12 @@ These must be resolved before Phase 7 production readiness.
 
 # 109. Production Acceptance Criteria
 
-ProfAura is ready for production only when:
+SMIU Feedback Platform is ready for production only when:
 
 - public pages work
 - multi-page navigation works
 - responsive UI works
-- ProfAura branding works
+- SMIU Feedback Platform branding works
 - loader works
 - Student signup works
 - SMIU student email is generated automatically
@@ -3217,7 +3217,7 @@ ProfAura is ready for production only when:
 
 # 110. Final Rule for Claude
 
-**Never restart ProfAura from scratch unless the project owner explicitly instructs you to rebuild it.**
+**Never restart SMIU Feedback Platform from scratch unless the project owner explicitly instructs you to rebuild it.**
 
 Whenever you are given a task:
 
@@ -3229,7 +3229,7 @@ Do not reinterpret finalized requirements without explicit instruction.
 
 When a requirement changes, update this PRD/source of truth and then implement the change in the current codebase.
 
-The goal is a real, maintainable, secure, respectful, production-ready ProfAura — not a one-shot demo.
+The goal is a real, maintainable, secure, respectful, production-ready SMIU Feedback Platform — not a one-shot demo.
 
 ---
 
@@ -3247,9 +3247,9 @@ Phase 1 foundation and the Phase 2 authentication foundation already exist in th
 
 This section is the current implementation directive and takes precedence over older conflicting UI details.
 
-## A. Official ProfAura Logo
+## A. Official SMIU Feedback Platform Logo
 
-Use the official ProfAura logo asset supplied by the project owner.
+Use the official SMIU Feedback Platform logo asset supplied by the project owner.
 
 Do NOT keep the current plain-text/logo approximation if the official logo asset is available.
 
@@ -3266,7 +3266,7 @@ The animation should:
 - work on desktop and mobile
 - support reduced motion
 
-The ProfAura brand identity also includes the subtle `ProfAura-` and `ProfAura+` state changes where appropriate.
+The SMIU Feedback Platform brand identity also includes the subtle `SMIU Feedback Platform-` and `SMIU Feedback Platform+` state changes where appropriate.
 
 ## B. Navbar
 
@@ -3304,7 +3304,7 @@ The effect must be subtle and professional, not flashy.
 
 On hover, show a simple underline from the bottom.
 
-Use the ProfAura accent color.
+Use the SMIU Feedback Platform accent color.
 
 Do not add excessive glow, scale, or movement.
 
@@ -3324,7 +3324,7 @@ Maintain a clean, intentional rhythm.
 
 # 114. FAVICON
 
-Update the favicon/app icon to use the official ProfAura logo/mark.
+Update the favicon/app icon to use the official SMIU Feedback Platform logo/mark.
 
 Do not use the temporary/default icon.
 
@@ -3375,7 +3375,7 @@ Fix them with:
 
 Do not use bright default browser blue outlines.
 
-Use the ProfAura focus treatment instead.
+Use the SMIU Feedback Platform focus treatment instead.
 
 ---
 
@@ -3383,7 +3383,7 @@ Use the ProfAura focus treatment instead.
 
 Remove the unattractive browser-style blue line/outline appearing when the search field is clicked.
 
-Replace it with a deliberate ProfAura focus state:
+Replace it with a deliberate SMIU Feedback Platform focus state:
 
 - subtle accent border or ring
 - accessible contrast
@@ -3398,11 +3398,11 @@ Do not remove keyboard focus visibility entirely.
 
 Remove this current search-area text/CTA:
 
-`New here? See how ProfAura works`
+`New here? See how SMIU Feedback Platform works`
 
 Do not keep it directly below the filters.
 
-The How ProfAura Works explanation should live in its own intentional homepage section or dedicated page/section, not as a random search-area CTA.
+The How SMIU Feedback Platform Works explanation should live in its own intentional homepage section or dedicated page/section, not as a random search-area CTA.
 
 ---
 
@@ -3535,7 +3535,7 @@ Make it compact.
 
 Keep only important items such as:
 
-- ProfAura brand
+- SMIU Feedback Platform brand
 - SMIU Feedback Platform
 - important navigation
 - Feedback
@@ -3547,13 +3547,13 @@ Do not repeat the full site navigation or long product descriptions.
 
 Current footer wording:
 
-`© 2026 ProfAura. An independent student platform — not officially affiliated with the university.`
+`© 2026 SMIU Feedback Platform. An independent student platform — not officially affiliated with the university.`
 
 must be replaced with an anonymous creator line that does not reveal the developer's personal identity.
 
 Preferred direction:
 
-`© 2026 ProfAura. Designed and built by a Solo Full Stack Developer.`
+`© 2026 SMIU Feedback Platform. Designed and built by a Solo Full Stack Developer.`
 
 Keep it professional and concise.
 
@@ -3579,7 +3579,7 @@ The sign-in page currently contains the message:
 
 `Your identity is never attached to a review on any public page.`
 
-Keep this message, but present it as a very light green privacy tag/badge that fits the ProfAura visual system.
+Keep this message, but present it as a very light green privacy tag/badge that fits the SMIU Feedback Platform visual system.
 
 The tag must remain readable in both Light and Dark themes.
 
@@ -3693,7 +3693,7 @@ Claude must:
 
 1. Inspect the current implementation.
 2. Make the UI changes in this directive.
-3. Use the official ProfAura logo asset provided by the project owner.
+3. Use the official SMIU Feedback Platform logo asset provided by the project owner.
 4. Fix the navbar, search, filters, theme switcher, favicon, loader, homepage card, sign-in, signup, privacy section, footer, Lab Instructor icon, and user-facing copy.
 5. Remove unnecessary long ranking/recommendation explanations.
 6. Remove the unnecessary search-area CTA.

@@ -19,7 +19,7 @@ export default function NotFound() {
           We couldn&rsquo;t find that page
         </h1>
         <p className="mx-auto mt-3 max-w-sm text-sm leading-relaxed text-muted-foreground">
-          The link may be broken, or the page may have moved. Everything on ProfAura starts from the
+          The link may be broken, or the page may have moved. Everything on SMIU Feedback Website starts from the
           home page.
         </p>
       </div>

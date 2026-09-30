@@ -169,7 +169,7 @@ export function FeedbackForm() {
         <SubmitButton />
         <p className="flex items-start gap-1.5 text-xs leading-relaxed text-muted-foreground">
           <Lock aria-hidden="true" className="mt-px size-3.5 shrink-0" />
-          <span>This is about the ProfAura website, and is kept separate from teacher ratings.</span>
+          <span>This is about the SMIU Feedback Website, and is kept separate from teacher ratings.</span>
         </p>
       </div>
     </form>

@@ -10,7 +10,7 @@ import { getCurrentUser } from "@/features/auth/session";
 
 export const metadata: Metadata = {
   title: "Create account",
-  description: "Create a ProfAura account with your SMIU student ID.",
+  description: "Create a new account with your SMIU student ID.",
   robots: { index: false, follow: true },
 };
 

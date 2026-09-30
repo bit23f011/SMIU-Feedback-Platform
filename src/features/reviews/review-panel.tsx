@@ -107,7 +107,7 @@ export async function ReviewPanel({ person }: { person: PersonSummary }) {
     return (
       <ReviewGate
         title="Reviewing is not available on this account"
-        description="This account cannot post reviews at the moment. If you think this is a mistake, contact the ProfAura team."
+        description="This account cannot post reviews at the moment. If you think this is a mistake, contact the SMIU Feedback team."
       />
     );
   }

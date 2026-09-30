@@ -234,7 +234,7 @@ export async function FeedbackQueue({ filters }: { filters: AdminFeedbackFilters
           <EmptyState
             icon={<Inbox />}
             title="Nothing here right now"
-            description="Feedback about ProfAura from students and visitors collects here. It is a separate dataset and never affects any rating or ranking."
+            description="Feedback about SMIU Feedback Website from students and visitors collects here. It is a separate dataset and never affects any rating or ranking."
           />
         </div>
       ) : null}

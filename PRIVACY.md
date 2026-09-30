@@ -1,12 +1,12 @@
 # Privacy notice
 
-ProfAura is an independent, student-run review platform for Sindh Madressatul Islam University
+SMIU Feedback Platform is an independent, student-run review platform for Sindh Madressatul Islam University
 (SMIU). This notice explains what data the platform holds, how anonymity is protected, and what
 choices a user has. It is written in plain language and is not a substitute for legal advice.
 
 ## Who runs this
 
-ProfAura is not operated by SMIU or by any university administration. It is an independent
+SMIU Feedback Platform is not operated by SMIU or by any university administration. It is an independent
 platform. Reviews are the opinions of the students who write them.
 
 ## What data is collected

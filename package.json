@@ -1,8 +1,8 @@
 {
-  "name": "profaura",
+  "name": "SMIU Feedback Platform",
   "version": "0.1.0",
   "private": true,
-  "description": "ProfAura - independent public university teacher & staff review platform (SMIU)",
+  "description": "SMIU Feedback Platform - independent public university teacher & staff review platform (SMIU)",
   "engines": {
     "node": ">=18.18.0"
   },

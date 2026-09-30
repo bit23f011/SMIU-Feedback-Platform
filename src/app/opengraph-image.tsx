@@ -49,7 +49,7 @@ export default function OpenGraphImage() {
         {/* Wordmark */}
         <div style={{ display: "flex", alignItems: "center" }}>
           <div style={{ display: "flex", fontSize: 40, fontWeight: 700, color: "#1b1d26" }}>
-            ProfAura
+            SMIU Feedback Website
           </div>
           <div style={{ display: "flex", marginLeft: 8, fontSize: 40, fontWeight: 700, color: "#d23f37" }}>
             +

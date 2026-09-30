@@ -5,7 +5,7 @@ import { AuraLoader } from "@/components/brand/aura-loader";
 export default function Loading() {
   return (
     <div className="flex min-h-dvh items-center justify-center bg-background">
-      <AuraLoader size="lg" label="Loading ProfAura" />
+      <AuraLoader size="lg" label="Loading SMIU Feedback Website" />
     </div>
   );
 }

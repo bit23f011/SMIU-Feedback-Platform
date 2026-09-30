@@ -43,7 +43,7 @@ export function PrivacyPromise() {
             >
               <Check className="size-3" />
             </span>
-            What ProfAura does
+            What SMIU Feedback Platform does
           </h3>
           <ul className="mt-3 list-none space-y-2.5">
             {WE_DO.map((item) => (

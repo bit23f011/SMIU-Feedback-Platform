@@ -48,7 +48,7 @@ export const metadata: Metadata = {
     "SMIU",
     "Sindh Madressatul Islam University",
     "student feedback",
-    "ProfAura",
+    "SMIU Feedback Website",
   ],
   authors: [{ name: SITE.name }],
   creator: SITE.name,

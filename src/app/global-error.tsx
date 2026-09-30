@@ -54,7 +54,7 @@ export default function GlobalError({
               marginBottom: "1.25rem",
             }}
           >
-            <span>ProfAura</span>
+            <span>SMIU Feedback Website</span>
             <span style={{ color: "#d23f37" }}>+</span>
           </div>
           <h1 style={{ fontSize: "1.5rem", fontWeight: 600, margin: "0 0 0.5rem" }}>

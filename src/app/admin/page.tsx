@@ -48,7 +48,7 @@ const SECTIONS = [
   },
   {
     title: "Website feedback",
-    body: "Bugs and suggestions about ProfAura itself, kept separate from reviews.",
+    body: "Bugs and suggestions about the SMIU Feedback Website itself, kept separate from reviews.",
     href: "/admin/website-feedback",
     icon: MessageSquareText,
   },
@@ -154,7 +154,7 @@ export default async function AdminHomePage() {
           Admin dashboard
         </h1>
         <p className="mt-1.5 max-w-2xl text-sm leading-relaxed text-muted-foreground">
-          Platform controls for ProfAura. Every action here is authorised on the server with a role
+          Platform controls for the SMIU Feedback Website. Every action here is authorised on the server with a role
           check plus row-level security, and recorded in an audit log.
         </p>
       </header>

@@ -64,7 +64,7 @@ export function FeaturedPeople() {
       id="profiles"
       eyebrow="Profiles"
       title="Start with a few teachers"
-      description="Every person on ProfAura has exactly one profile, even when they hold more than one role."
+      description="Every person on SMIU Feedback Website has exactly one profile, even when they hold more than one role."
       link={{ href: "/teachers", label: "See all teachers" }}
     >
       <React.Suspense fallback={<PersonGridSkeleton count={FEATURED_LIMIT} />}>
