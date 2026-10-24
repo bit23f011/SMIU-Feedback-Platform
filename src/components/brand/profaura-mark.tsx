@@ -37,7 +37,6 @@ export function ProfAuraMark({ className, animate = true }: ProfAuraMarkProps) {
   const reduce = useReducedMotion();
   // useId me colon aata hai; SVG/mask id ke liye saaf karna zaroori hai.
   const maskId = `smiu-mark-${React.useId().replace(/[^a-zA-Z0-9]/g, "")}`;
-  const play = animate && !reduce;
 
   return (
     <motion.svg
@@ -45,11 +44,13 @@ export function ProfAuraMark({ className, animate = true }: ProfAuraMarkProps) {
       role="img"
       aria-hidden="true"
       focusable="false"
-      initial={play ? { opacity: 0, y: 2 } : false}
+      initial={animate ? { opacity: 0, y: 2 } : false}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5, ease: EASE_OUT }}
+      transition={{ duration: reduce ? 0 : 0.5, ease: EASE_OUT }}
       className={cn(
         "h-7 w-auto shrink-0 text-[#8a1f2b] dark:text-[#e2a7ae]",
+        // SSR aur client ki initial style ek ho; reduced motion ko CSS foran settle kare.
+        "motion-reduce:!opacity-100 motion-reduce:!transform-none",
         "transition-transform duration-300 ease-out motion-safe:group-hover/logo:-translate-y-px",
         className,
       )}

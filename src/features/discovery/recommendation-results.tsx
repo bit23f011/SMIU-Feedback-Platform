@@ -1,7 +1,7 @@
 import * as React from "react";
 
 import Link from "next/link";
-import { CheckCircle2, SearchX } from "lucide-react";
+import { CheckCircle2, SearchX } from "@/components/ui/icons";
 
 import { EmptyState } from "@/components/common/empty-state";
 import { RatingStars } from "@/components/common/rating-stars";
@@ -123,7 +123,7 @@ export async function RecommendationResults({ input }: { input: RecommendationIn
   return (
     <div className="space-y-4">
       <p className="text-xs text-muted-foreground">
-        Suggestions use verified student ratings, how closely each profile matches your choices, and
+        Suggestions use student ratings, how closely each profile matches your choices, and
         recent review activity. Nothing here is paid or promoted.
       </p>
       <ul className="grid list-none gap-4 sm:grid-cols-2 lg:grid-cols-3">

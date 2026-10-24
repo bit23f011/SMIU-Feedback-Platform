@@ -29,11 +29,11 @@ export function PageHeader({
       <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div className="min-w-0">
           {eyebrow ? (
-            <p className="mb-2 text-xs font-semibold uppercase tracking-wider text-indigo-600">
+            <p className="eyebrow mb-3">
               {eyebrow}
             </p>
           ) : null}
-          <h1 className="text-display-sm font-semibold text-foreground">{title}</h1>
+          <h1 className="editorial-title text-[2.2rem] text-foreground md:text-[2.7rem]">{title}</h1>
           {description ? (
             <p className="mt-2 max-w-2xl text-sm leading-relaxed text-muted-foreground">
               {description}

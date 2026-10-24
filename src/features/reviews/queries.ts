@@ -1,6 +1,7 @@
 import { cache } from "react";
 
 import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { logBackendError } from "@/lib/server/diagnostics";
 import type { PersonCategory } from "@/features/people/types";
 import {
   EMPTY_RATING_STATS,
@@ -16,6 +17,8 @@ import {
   type ReviewAnswer,
   type ReviewCriterion,
   type ReviewCriterionKind,
+  type ReviewCatalog,
+  type ReviewCourseOption,
   type ReviewLimits,
   type ReviewOption,
   type ReviewScope,
@@ -30,7 +33,7 @@ import {
     ho hi nahi sakti.
   - "Meri reviews" ke liye hum `auth.uid()` client se NAHI bhejte; DB function
     khud apne andar auth.uid() parhta hai.
-  - Koi error detail UI tak nahi jati aur koi logging nahi hoti.
+  - Koi raw error detail UI/logs tak nahi jati; sirf safe diagnostics record hote hain.
 */
 
 // -----------------------------------------------------------------------------
@@ -83,7 +86,9 @@ export const getReviewLimits = cache(async (): Promise<ReviewLimits> => {
 // Person ke aggregates
 // -----------------------------------------------------------------------------
 
-export async function getPersonRatingStats(personId: string): Promise<PersonRatingStats> {
+export async function getPersonRatingStats(
+  personId: string,
+): Promise<PersonRatingStats> {
   try {
     const supabase = createSupabaseServerClient();
 
@@ -100,7 +105,8 @@ export async function getPersonRatingStats(personId: string): Promise<PersonRati
     return {
       reviewCount: data.review_count ?? 0,
       // average_rating numeric hai - PostgREST isay string bhi de sakta hai.
-      averageRating: data.average_rating === null ? null : Number(data.average_rating),
+      averageRating:
+        data.average_rating === null ? null : Number(data.average_rating),
       distribution: {
         1: data.count_1 ?? 0,
         2: data.count_2 ?? 0,
@@ -146,7 +152,8 @@ export async function getRatingStatsForPeople(
       if (!row.person_id) continue;
       result.set(row.person_id, {
         reviewCount: row.review_count ?? 0,
-        averageRating: row.average_rating === null ? null : Number(row.average_rating),
+        averageRating:
+          row.average_rating === null ? null : Number(row.average_rating),
         distribution: {
           1: row.count_1 ?? 0,
           2: row.count_2 ?? 0,
@@ -168,7 +175,9 @@ export async function getRatingStatsForPeople(
   }
 }
 
-export async function getPersonCriteriaStats(personId: string): Promise<PersonCriterionStat[]> {
+export async function getPersonCriteriaStats(
+  personId: string,
+): Promise<PersonCriterionStat[]> {
   try {
     const supabase = createSupabaseServerClient();
 
@@ -190,7 +199,8 @@ export async function getPersonCriteriaStats(personId: string): Promise<PersonCr
         label: row.label as string,
         kind: row.kind as PersonCriterionStat["kind"],
         sortOrder: row.sort_order ?? 0,
-        averageStar: row.average_star === null ? null : Number(row.average_star),
+        averageStar:
+          row.average_star === null ? null : Number(row.average_star),
         starResponses: row.star_responses ?? 0,
         yesCount: row.yes_count ?? 0,
         boolResponses: row.bool_responses ?? 0,
@@ -227,7 +237,13 @@ function toAnswers(value: unknown): ReviewAnswer[] {
 
   return (value as RawAnswer[])
     .filter(
-      (answer): answer is RawAnswer & { key: string; label: string; kind: ReviewCriterionKind } =>
+      (
+        answer,
+      ): answer is RawAnswer & {
+        key: string;
+        label: string;
+        kind: ReviewCriterionKind;
+      } =>
         typeof answer?.key === "string" &&
         typeof answer?.label === "string" &&
         (answer?.kind === "star" || answer?.kind === "yes_no"),
@@ -260,7 +276,10 @@ export async function getPersonReviews(
     const perPage = options.perPage ?? REVIEWS_PER_PAGE;
     // Page number kabhi bhi URL se aata hai, is liye yahan sanitise karna zaroori
     // hai. DB bhi apni taraf se limit clamp karti hai.
-    const page = Number.isFinite(options.page) && (options.page ?? 1) > 0 ? Math.floor(options.page!) : 1;
+    const page =
+      Number.isFinite(options.page) && (options.page ?? 1) > 0
+        ? Math.floor(options.page!)
+        : 1;
 
     const { data, error } = await supabase.rpc("person_reviews", {
       p_person_id: personId,
@@ -296,7 +315,9 @@ export async function getPersonReviews(
 }
 
 /** Profile page ke upar wali chuni hui reviews (README §24). */
-export async function getFeaturedPersonReviews(personId: string): Promise<PublicReview[]> {
+export async function getFeaturedPersonReviews(
+  personId: string,
+): Promise<PublicReview[]> {
   const page = await getPersonReviews(personId, {
     perPage: FEATURED_REVIEWS_LIMIT,
     featuredOnly: true,
@@ -308,36 +329,45 @@ export async function getFeaturedPersonReviews(personId: string): Promise<Public
 // "Meri" reviews - sirf signed-in student ke liye
 // -----------------------------------------------------------------------------
 
+export const getMyReviewsResult = cache(
+  async (): Promise<{ reviews: MyReview[]; failed: boolean }> => {
+    try {
+      const supabase = createSupabaseServerClient();
+      const { data, error } = await supabase.rpc("my_reviews");
+
+      if (error || !data) return { reviews: [], failed: true };
+
+      return {
+        failed: false,
+        reviews: data.map((row) => ({
+          id: row.review_id,
+          personId: row.person_id,
+          personSlug: row.person_slug,
+          personName: row.person_name,
+          category: row.category,
+          overallRating: row.overall_rating,
+          comment: row.comment,
+          status: row.status,
+          moderationStatus: row.moderation_status,
+          editCount: row.edit_count,
+          editsLeft: row.edits_left,
+          courseId: row.course_id,
+          courseCode: row.course_code,
+          courseTitle: row.course_title,
+          semesterId: row.semester_id,
+          semesterLabel: row.semester_label,
+          createdAt: row.created_at,
+          updatedAt: row.updated_at,
+        })),
+      };
+    } catch {
+      return { reviews: [], failed: true };
+    }
+  },
+);
+
 export const getMyReviews = cache(async (): Promise<MyReview[]> => {
-  try {
-    const supabase = createSupabaseServerClient();
-    const { data, error } = await supabase.rpc("my_reviews");
-
-    if (error || !data) return [];
-
-    return data.map((row) => ({
-      id: row.review_id,
-      personId: row.person_id,
-      personSlug: row.person_slug,
-      personName: row.person_name,
-      category: row.category,
-      overallRating: row.overall_rating,
-      comment: row.comment,
-      status: row.status,
-      moderationStatus: row.moderation_status,
-      editCount: row.edit_count,
-      editsLeft: row.edits_left,
-      courseId: row.course_id,
-      courseCode: row.course_code,
-      courseTitle: row.course_title,
-      semesterId: row.semester_id,
-      semesterLabel: row.semester_label,
-      createdAt: row.created_at,
-      updatedAt: row.updated_at,
-    }));
-  } catch {
-    return [];
-  }
+  return (await getMyReviewsResult()).reviews;
 });
 
 /*
@@ -347,7 +377,9 @@ export const getMyReviews = cache(async (): Promise<MyReview[]> => {
   karta hai: wo dobara check karta hai ke jorha is banday se mel khata hai.
   Is liye koi DevTools se `<option>` badal de to bhi kuch nahi milta.
 */
-export async function getPersonReviewOptions(personId: string): Promise<ReviewOption[]> {
+export async function getPersonReviewOptions(
+  personId: string,
+): Promise<ReviewOption[]> {
   try {
     const supabase = createSupabaseServerClient();
     const { data, error } = await supabase.rpc("person_review_options", {
@@ -368,6 +400,136 @@ export async function getPersonReviewOptions(personId: string): Promise<ReviewOp
       }));
   } catch {
     return [];
+  }
+}
+
+/** Har teacher ko university ki shared list mile; assignments ki zaroorat nahi. */
+export const getUniversityReviewCatalog = cache(
+  async (universityId: string): Promise<ReviewCatalog> => {
+    const empty: ReviewCatalog = { courses: [], semesters: [], failed: true };
+    try {
+      const supabase = createSupabaseServerClient();
+      // PostgREST ki 1,000-row limit se lambi shared list truncate na ho.
+      async function readCourses() {
+        const items: ReviewCourseOption[] = [];
+        const pageSize = 1000;
+        for (let start = 0; ; start += pageSize) {
+          const { data, error } = await supabase
+            .from("courses")
+            .select(
+              "id, code, title, departments!inner(university_id, is_active)",
+            )
+            .eq("is_active", true)
+            .eq("departments.is_active", true)
+            .eq("departments.university_id", universityId)
+            .order("title", { ascending: true })
+            .order("id", { ascending: true })
+            .range(start, start + pageSize - 1);
+          if (error) return { data: null, error };
+          items.push(
+            ...(data ?? []).map(({ id, code, title }) => ({ id, code, title })),
+          );
+          if ((data?.length ?? 0) < pageSize)
+            return { data: items, error: null };
+        }
+      }
+      const [courses, semesters] = await Promise.all([
+        readCourses(),
+        supabase
+          .from("semesters")
+          .select("id, label")
+          .order("year", { ascending: false })
+          .order("season", { ascending: false }),
+      ]);
+      if (courses.error || semesters.error) {
+        logBackendError("reviews.catalog", courses.error ?? semesters.error);
+        return empty;
+      }
+      return {
+        courses: (courses.data ?? []).map(({ id, code, title }) => ({
+          id,
+          code,
+          title,
+        })),
+        semesters: (semesters.data ?? []).map(({ id, label }) => ({
+          id,
+          label,
+        })),
+        failed: false,
+      };
+    } catch (error) {
+      logBackendError("reviews.catalog", error);
+      return empty;
+    }
+  },
+);
+
+export const getPersonReviewCatalog = cache(
+  async (personId: string): Promise<ReviewCatalog> => {
+    try {
+      const supabase = createSupabaseServerClient();
+      const { data, error } = await supabase
+        .from("people")
+        .select("university_id")
+        .eq("id", personId)
+        .eq("is_active", true)
+        .maybeSingle();
+      if (error || !data) {
+        if (error) logBackendError("reviews.catalog.person", error);
+        return { courses: [], semesters: [], failed: true };
+      }
+      return getUniversityReviewCatalog(data.university_id);
+    } catch (error) {
+      logBackendError("reviews.catalog.person", error);
+      return { courses: [], semesters: [], failed: true };
+    }
+  },
+);
+
+/** Directory ke cards ko ek university per ek hi shared read mile. */
+export async function getReviewCatalogsForPeople(
+  personIds: string[],
+): Promise<Record<string, ReviewCatalog>> {
+  if (!personIds.length) return {};
+  const unavailable: ReviewCatalog = {
+    courses: [],
+    semesters: [],
+    failed: true,
+  };
+  const fallback = Object.fromEntries(personIds.map((id) => [id, unavailable]));
+  try {
+    const supabase = createSupabaseServerClient();
+    const { data, error } = await supabase
+      .from("people")
+      .select("id, university_id")
+      .in("id", personIds)
+      .eq("is_active", true);
+    if (error) {
+      logBackendError("reviews.catalog.directory", error);
+      return fallback;
+    }
+    const universities = [
+      ...new Set((data ?? []).map((person) => person.university_id)),
+    ];
+    const catalogs = new Map(
+      await Promise.all(
+        universities.map(
+          async (id) => [id, await getUniversityReviewCatalog(id)] as const,
+        ),
+      ),
+    );
+    return {
+      ...fallback,
+      ...Object.fromEntries(
+        (data ?? []).map((person) => [
+          person.id,
+          catalogs.get(person.university_id)!,
+        ]),
+      ),
+    };
+  } catch (error) {
+    logBackendError("reviews.catalog.directory", error);
+    return fallback;
   }
 }
 
@@ -441,8 +603,14 @@ export async function getMyReviewForPerson(
       jo cheez pehchani na jaye, chhor do (form us sawal ko khaali dikha dega).
     */
     const answers: MyReviewDetail["answers"] = {};
-    if (row.answers && typeof row.answers === "object" && !Array.isArray(row.answers)) {
-      for (const [key, value] of Object.entries(row.answers as Record<string, unknown>)) {
+    if (
+      row.answers &&
+      typeof row.answers === "object" &&
+      !Array.isArray(row.answers)
+    ) {
+      for (const [key, value] of Object.entries(
+        row.answers as Record<string, unknown>,
+      )) {
         if (!value || typeof value !== "object") continue;
         const entry = value as { star?: unknown; yes?: unknown };
         answers[key] = {

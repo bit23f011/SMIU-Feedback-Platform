@@ -1,5 +1,10 @@
 import { createSupabaseServerClient } from "@/lib/supabase/server";
-import { FEATURE_DEFAULT, FEATURE_KEYS, type FeatureKey } from "@/features/feature-flags/types";
+import { logBackendError } from "@/lib/server/diagnostics";
+import {
+  FEATURE_DEFAULT,
+  FEATURE_KEYS,
+  type FeatureKey,
+} from "@/features/feature-flags/types";
 
 /*
   Public feature-flag read (README §55).
@@ -14,10 +19,16 @@ import { FEATURE_DEFAULT, FEATURE_KEYS, type FeatureKey } from "@/features/featu
 export async function isFeatureEnabled(key: FeatureKey): Promise<boolean> {
   try {
     const supabase = createSupabaseServerClient();
-    const { data, error } = await supabase.rpc("feature_enabled", { p_key: key });
-    if (error || typeof data !== "boolean") return FEATURE_DEFAULT[key];
+    const { data, error } = await supabase.rpc("feature_enabled", {
+      p_key: key,
+    });
+    if (error || typeof data !== "boolean") {
+      logBackendError("features.read", error ?? { code: "invalid_response" });
+      return FEATURE_DEFAULT[key];
+    }
     return data;
-  } catch {
+  } catch (error) {
+    logBackendError("features.read", error);
     return FEATURE_DEFAULT[key];
   }
 }

@@ -1042,6 +1042,14 @@ export type Database = {
           total_count: number
         }[]
       }
+      admin_add_course_list: {
+        Args: { p_department_id: string; p_courses: Json }
+        Returns: { added: number; skipped: number }[]
+      }
+      admin_add_semester_list: {
+        Args: { p_semesters: Json }
+        Returns: { added: number; skipped: number }[]
+      }
       admin_courses_list: {
         Args: Record<PropertyKey, never>
         Returns: {

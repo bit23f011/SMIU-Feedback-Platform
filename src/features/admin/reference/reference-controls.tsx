@@ -3,7 +3,7 @@
 import * as React from "react";
 
 import { useFormState, useFormStatus } from "react-dom";
-import { Save } from "lucide-react";
+import { Save } from "@/components/ui/icons";
 
 import { Button } from "@/components/ui/button";
 import {

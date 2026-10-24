@@ -2,7 +2,7 @@
 
 import * as React from "react";
 
-import { Check, Laptop, Moon, Sun } from "lucide-react";
+import { Check, Laptop, Moon, Sun } from "@/components/ui/icons";
 
 import { useTheme, type Theme } from "@/components/theme/theme-provider";
 import { Button } from "@/components/ui/button";

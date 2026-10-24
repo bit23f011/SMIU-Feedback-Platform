@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 
 import Link from "next/link";
-import { Inbox, Search, ShieldCheck, UserPlus, Users } from "lucide-react";
+import { Inbox, Search, ShieldCheck, UserPlus, Users } from "@/components/ui/icons";
 
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";

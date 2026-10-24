@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 
-import { CalendarRange, Inbox, ShieldCheck } from "lucide-react";
+import { CalendarRange, Inbox, ShieldCheck } from "@/components/ui/icons";
 
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
@@ -8,6 +8,7 @@ import { Card } from "@/components/ui/card";
 import { EmptyState } from "@/components/common/empty-state";
 import { getAdminSemesters } from "@/features/admin/reference/queries";
 import { SemesterForm } from "@/features/admin/reference/semester-form";
+import { BulkListForm } from "@/features/admin/reference/bulk-list-form";
 import {
   SEMESTER_SEASON_LABELS,
   type AdminSemester,
@@ -37,7 +38,8 @@ function SemesterRow({ semester }: { semester: AdminSemester }) {
             </p>
           ) : null}
           <p className="mt-1 text-xs tabular-nums text-muted-foreground">
-            {semester.offeringCount} {semester.offeringCount === 1 ? "offering" : "offerings"}
+            {semester.offeringCount}{" "}
+            {semester.offeringCount === 1 ? "offering" : "offerings"}
           </p>
         </div>
         {semester.isCurrent ? (
@@ -70,7 +72,8 @@ export default async function AdminSemestersPage() {
           Semesters
         </h1>
         <p className="mt-1.5 max-w-2xl text-sm leading-relaxed text-muted-foreground">
-          The terms students pick when they leave a review. Mark exactly one as current.
+          Save your semester list once. Every teacher card and review form uses
+          these terms automatically.
         </p>
       </header>
 
@@ -79,20 +82,31 @@ export default async function AdminSemestersPage() {
         <div>
           <AlertTitle>One current semester at a time</AlertTitle>
           <AlertDescription>
-            Setting a semester to current clears the flag on any other. Each season and year pair can
-            exist only once.
+            Setting a semester to current clears the flag on any other. Each
+            season and year pair can exist only once.
           </AlertDescription>
         </div>
       </Alert>
 
       <section className="mt-6">
-        <h2 className="font-display text-lg font-semibold tracking-tight text-foreground">
-          New semester
-        </h2>
-        <Card className="mt-3 p-5">
-          <SemesterForm />
+        <Card className="p-5 sm:p-6">
+          <BulkListForm kind="semesters" />
         </Card>
       </section>
+
+      <details className="mt-6">
+        <summary className="cursor-pointer text-sm font-medium text-foreground">
+          Add a single semester
+        </summary>
+        <section className="mt-3">
+          <h2 className="font-display text-lg font-semibold tracking-tight text-foreground">
+            New semester
+          </h2>
+          <Card className="mt-3 p-5">
+            <SemesterForm />
+          </Card>
+        </section>
+      </details>
 
       <section className="mt-10">
         <h2 className="font-display text-lg font-semibold tracking-tight text-foreground">
@@ -104,8 +118,8 @@ export default async function AdminSemestersPage() {
             <div>
               <AlertTitle>This list did not load</AlertTitle>
               <AlertDescription>
-                Nothing has changed. Reload the page, and if it keeps failing, check that your
-                account still has the admin role.
+                Nothing has changed. Reload the page, and if it keeps failing,
+                check that your account still has the admin role.
               </AlertDescription>
             </div>
           </Alert>

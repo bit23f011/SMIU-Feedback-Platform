@@ -3,7 +3,7 @@ import * as React from "react";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft } from "@/components/ui/icons";
 
 import { RatingStars } from "@/components/common/rating-stars";
 import { Badge } from "@/components/ui/badge";
@@ -21,7 +21,10 @@ import { RatingSummary } from "@/features/reviews/rating-summary";
 import { FeaturedReviews, ReviewList } from "@/features/reviews/review-list";
 import { ReviewPanel } from "@/features/reviews/review-panel";
 import { REVIEWS_PER_PAGE } from "@/features/reviews/types";
-import { ProfileBreakdowns, ProfileBreakdownsSkeleton } from "@/features/discovery/profile-breakdowns";
+import {
+  ProfileBreakdowns,
+  ProfileBreakdownsSkeleton,
+} from "@/features/discovery/profile-breakdowns";
 import { RecordView } from "@/features/discovery/record-view";
 import { SaveProfileButton } from "@/features/discovery/save-profile-button";
 import { getCategoryMeta } from "@/lib/constants";
@@ -50,7 +53,9 @@ export async function generateMetadata({
 
   return {
     title: person.name,
-    description: person.headline ?? `${person.name} at Sindh Madressatul Islam University, Karachi.`,
+    description:
+      person.headline ??
+      `${person.name} at Sindh Madressatul Islam University, Karachi.`,
     alternates: { canonical: `/people/${person.slug}` },
   };
 }
@@ -60,7 +65,7 @@ export default async function PersonProfilePage({
   searchParams,
 }: {
   params: { slug: string };
-  searchParams?: { page?: string };
+  searchParams?: { page?: string; course?: string; semester?: string };
 }) {
   const person = await getPersonBySlug(params.slug);
   if (!person) notFound();
@@ -70,7 +75,8 @@ export default async function PersonProfilePage({
     number "1" ban jata hai; DB apni taraf se bhi limit clamp karti hai.
   */
   const requestedPage = Number.parseInt(searchParams?.page ?? "1", 10);
-  const page = Number.isFinite(requestedPage) && requestedPage > 0 ? requestedPage : 1;
+  const page =
+    Number.isFinite(requestedPage) && requestedPage > 0 ? requestedPage : 1;
 
   const [stats, criteriaStats, featured, reviewPage] = await Promise.all([
     getPersonRatingStats(person.id),
@@ -79,8 +85,11 @@ export default async function PersonProfilePage({
     getPersonReviews(person.id, { page }),
   ]);
 
-  const primaryRole = person.roles.find((role) => role.isPrimary) ?? person.roles[0];
-  const backCategory = getCategoryMeta(primaryRole?.category ?? person.primaryCategory ?? "teacher");
+  const primaryRole =
+    person.roles.find((role) => role.isPrimary) ?? person.roles[0];
+  const backCategory = getCategoryMeta(
+    primaryRole?.category ?? person.primaryCategory ?? "teacher",
+  );
 
   return (
     <div className="container py-10 md:py-12">
@@ -104,16 +113,23 @@ export default async function PersonProfilePage({
         />
 
         <div className="min-w-0 flex-1">
-          <h1 className="text-display-sm font-semibold text-foreground">{person.name}</h1>
+          <h1 className="text-display-sm font-semibold text-foreground">
+            {person.name}
+          </h1>
           {person.headline ? (
-            <p className="mt-1.5 text-sm text-muted-foreground">{person.headline}</p>
+            <p className="mt-1.5 text-sm text-muted-foreground">
+              {person.headline}
+            </p>
           ) : null}
 
           <div className="mt-4 flex flex-wrap items-center gap-1.5">
             {person.roles.map((role) => {
               const meta = getCategoryMeta(role.category);
               return (
-                <Badge key={`${role.category}-${role.title ?? "role"}`} variant="category">
+                <Badge
+                  key={`${role.category}-${role.title ?? "role"}`}
+                  variant="category"
+                >
                   {role.title ?? meta.singular}
                 </Badge>
               );
@@ -124,7 +140,11 @@ export default async function PersonProfilePage({
           </div>
 
           <div className="mt-5 flex flex-wrap items-center gap-x-4 gap-y-3">
-            <RatingStars value={person.rating} count={person.reviewCount} size="md" />
+            <RatingStars
+              value={person.rating}
+              count={person.reviewCount}
+              size="md"
+            />
             {/* Save button apni auth state khud parhta hai (server wrapper). */}
             <SaveProfileButton
               personId={person.id}
@@ -140,21 +160,29 @@ export default async function PersonProfilePage({
 
       <div className="mt-8 grid gap-6 lg:grid-cols-3">
         <div className="space-y-8 lg:col-span-2">
-          <section aria-labelledby="write-review-heading">
+          <section id="write-review" aria-labelledby="write-review-heading">
             <h2 id="write-review-heading" className="sr-only">
               Write a review
             </h2>
-            <ReviewPanel person={person} />
+            <ReviewPanel
+              person={person}
+              initialCourseId={searchParams?.course}
+              initialSemesterId={searchParams?.semester}
+            />
           </section>
 
           <section aria-labelledby="reviews-heading">
             <div className="flex flex-wrap items-baseline justify-between gap-2">
-              <h2 id="reviews-heading" className="text-lg font-semibold text-foreground">
+              <h2
+                id="reviews-heading"
+                className="text-lg font-semibold text-foreground"
+              >
                 Student reviews
               </h2>
               {stats.reviewCount > 0 ? (
                 <p className="text-sm text-muted-foreground">
-                  {stats.reviewCount} {stats.reviewCount === 1 ? "review" : "reviews"}
+                  {stats.reviewCount}{" "}
+                  {stats.reviewCount === 1 ? "review" : "reviews"}
                 </p>
               ) : null}
             </div>
@@ -201,7 +229,9 @@ export default async function PersonProfilePage({
             </CardHeader>
             <CardContent className="space-y-3">
               {person.roles.length === 0 ? (
-                <p className="text-sm text-muted-foreground">No roles recorded.</p>
+                <p className="text-sm text-muted-foreground">
+                  No roles recorded.
+                </p>
               ) : (
                 <ul className="list-none space-y-3">
                   {person.roles.map((role) => {
@@ -211,7 +241,9 @@ export default async function PersonProfilePage({
                         key={`${role.category}-${role.title ?? "role"}-detail`}
                         className="text-sm"
                       >
-                        <p className="font-medium text-foreground">{role.title ?? meta.singular}</p>
+                        <p className="font-medium text-foreground">
+                          {role.title ?? meta.singular}
+                        </p>
                         <p className="text-muted-foreground">
                           {meta.label}
                           {role.department ? ` · ${role.department}` : ""}
@@ -246,9 +278,10 @@ export default async function PersonProfilePage({
             </CardHeader>
             <CardContent>
               <p className="text-sm leading-relaxed text-muted-foreground">
-                Ratings are averaged from verified student reviews only. A profile with no
-                reviews stays unrated, and is never shown as zero. Every review is posted
-                anonymously: the reviewer&apos;s name is never stored next to it.
+                Ratings are averaged from student reviews. A profile with no
+                reviews stays unrated, and is never shown as zero. Every review
+                is posted anonymously: the reviewer&apos;s name is never stored
+                next to it.
               </p>
             </CardContent>
           </Card>

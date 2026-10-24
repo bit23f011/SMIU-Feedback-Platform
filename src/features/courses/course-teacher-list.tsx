@@ -1,7 +1,7 @@
 import * as React from "react";
 
 import Link from "next/link";
-import { SearchX, Users } from "lucide-react";
+import { SearchX, Users } from "@/components/ui/icons";
 
 import { EmptyState } from "@/components/common/empty-state";
 import { ErrorState } from "@/components/common/error-state";

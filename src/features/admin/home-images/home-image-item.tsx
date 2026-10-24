@@ -3,7 +3,7 @@
 import * as React from "react";
 
 import { useFormState, useFormStatus } from "react-dom";
-import { ExternalLink, Trash2 } from "lucide-react";
+import { ExternalLink, Trash2 } from "@/components/ui/icons";
 
 import { Button } from "@/components/ui/button";
 import { deleteHomeImageAction } from "@/features/admin/home-images/actions";

@@ -1,75 +1,90 @@
-import * as React from "react";
-
 import Link from "next/link";
-import { Users } from "lucide-react";
-
-import { EmptyState } from "@/components/common/empty-state";
-import { ErrorState } from "@/components/common/error-state";
-import { PersonGridSkeleton } from "@/components/common/loading-state";
-import { Section } from "@/components/common/section";
-import { Button } from "@/components/ui/button";
-import { PersonGrid } from "@/features/people/person-card";
 import { listPeopleByCategory } from "@/features/people/queries";
-
-/*
-  Featured profiles - homepage par kuch asli profile cards.
-
-  Yeh data seedha database se aata hai (RLS ke through, sirf is_active rows).
-  Koi hard-coded naam, koi demo rating nahi: jitne teachers reference data me
-  hain, unme se pehle chhe dikhte hain. Agar table khali ho to page jhooth
-  bolne ke bajaye saaf keh deta hai ke abhi koi profile nahi.
-
-  Grid Suspense ke andar hai taake heading foran nazar aaye aur cards ki jagah
-  usi shape ka skeleton dikhe - layout hilta nahi.
-*/
-
-const FEATURED_LIMIT = 6;
-
-async function FeaturedPeopleGrid() {
-  const { people, failed } = await listPeopleByCategory({
-    category: "teacher",
-    limit: FEATURED_LIMIT,
-  });
-
-  if (failed) {
-    return (
-      <ErrorState
-        title="We could not load profiles"
-        description="This section is temporarily unavailable. Please refresh the page or try again shortly."
-      />
-    );
-  }
-
-  if (people.length === 0) {
-    return (
-      <EmptyState
-        icon={<Users />}
-        title="No profiles are listed yet"
-        description="Teacher profiles appear here as soon as they are added to the directory."
-        action={
-          <Button asChild variant="outline" size="sm">
-            <Link href="/teachers">Open the directory</Link>
-          </Button>
-        }
-      />
-    );
-  }
-
-  return <PersonGrid people={people} contextCategory="teacher" />;
-}
-
-export function FeaturedPeople() {
+import { ProfileMarquee } from "@/features/home/profile-marquee";
+import { ArrowRight } from "@/components/ui/icons";
+import { ErrorState } from "@/components/common/error-state";
+export async function FeaturedPeople() {
+  const [teachers, labs, staff] = await Promise.all([
+    listPeopleByCategory({ category: "teacher", limit: 10 }),
+    listPeopleByCategory({ category: "lab_instructor", limit: 10 }),
+    listPeopleByCategory({ category: "university_staff", limit: 10 }),
+  ]);
+  const campus = [...labs.people, ...staff.people]
+    .filter(
+      (person, index, all) =>
+        all.findIndex((p) => p.id === person.id) === index,
+    )
+    .slice(0, 10);
   return (
-    <Section
+    <section
       id="profiles"
-      eyebrow="Profiles"
-      title="Start with a few teachers"
-      description="Every person on SMIU Feedback Website has exactly one profile, even when they hold more than one role."
-      link={{ href: "/teachers", label: "See all teachers" }}
+      className="py-12 md:py-16"
+      aria-labelledby="profiles-heading"
     >
-      <React.Suspense fallback={<PersonGridSkeleton count={FEATURED_LIMIT} />}>
-        <FeaturedPeopleGrid />
-      </React.Suspense>
-    </Section>
+      <div className="container mb-8 flex flex-wrap items-end justify-between gap-4">
+        <div>
+          <p className="eyebrow">People behind the experience</p>
+          <h2
+            id="profiles-heading"
+            className="editorial-title mt-3 text-3xl md:text-[2.4rem]"
+          >
+            Get to know your campus.
+          </h2>
+          <p className="mt-3 text-sm text-muted-foreground">
+            Real profiles. Student ratings. A clearer picture.
+          </p>
+        </div>
+        <Link
+          href="/teachers"
+          className="flex items-center gap-2 text-sm font-semibold text-primary"
+        >
+          View the directory
+          <ArrowRight aria-hidden="true" className="size-4" />
+        </Link>
+      </div>
+      {teachers.failed ? (
+        <div className="container">
+          <ErrorState
+            title="Profiles are temporarily unavailable"
+            description="Please try again shortly."
+          />
+        </div>
+      ) : teachers.people.length ? (
+        <ProfileMarquee
+          people={teachers.people}
+          category="teacher"
+          label="Teaching at SMIU"
+        />
+      ) : (
+        <div className="container">
+          <div className="rounded-lg border border-border bg-card p-6 text-sm text-muted-foreground">
+            Teacher profiles will appear here as the directory grows.{" "}
+            <Link href="/teachers" className="font-medium text-primary">
+              Explore the directory
+            </Link>
+          </div>
+        </div>
+      )}
+      {campus.length ? (
+        <div className="mt-7">
+          <ProfileMarquee
+            people={campus}
+            category="university_staff"
+            reverse
+            label="Labs & campus support"
+          />
+        </div>
+      ) : null}
+      {teachers.people.length > 1 && !campus.length ? (
+        <div className="mt-7">
+          <ProfileMarquee
+            people={[...teachers.people].reverse()}
+            category="teacher"
+            reverse
+            label="Discover more perspectives"
+          />
+        </div>
+      ) : null}
+    </section>
   );
 }

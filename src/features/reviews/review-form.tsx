@@ -3,7 +3,7 @@
 import * as React from "react";
 
 import { useFormState, useFormStatus } from "react-dom";
-import { Lock } from "lucide-react";
+import { Lock } from "@/components/ui/icons";
 
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
@@ -14,7 +14,11 @@ import {
   updateReviewAction,
 } from "@/features/reviews/actions";
 import { EMPTY_REVIEW_STATE } from "@/features/reviews/form-state";
-import { OverallInput, StarInput, YesNoInput } from "@/features/reviews/star-input";
+import {
+  OverallInput,
+  StarInput,
+  YesNoInput,
+} from "@/features/reviews/star-input";
 import { ReviewContextPicker } from "@/features/reviews/review-context-picker";
 import {
   COMMENT_MAX_CHARS,
@@ -24,8 +28,10 @@ import {
   type MyReviewDetail,
   type ReviewCriterion,
   type ReviewLimits,
-  type ReviewOption,
+  type ReviewCatalog,
+  type ReviewScope,
 } from "@/features/reviews/types";
+import { hasAvailableReviewContext } from "@/features/reviews/review-context";
 
 /*
   Review likhne/edit karne ka form.
@@ -46,19 +52,28 @@ export interface ReviewFormProps {
   personName: string;
   criteria: ReviewCriterion[];
   limits: ReviewLimits;
-  /** Chunne ke liye jaiz course + semester jorey (sirf naye review par). */
-  options?: ReviewOption[];
+  /** Shared course/semester lists; sirf naye review par. */
+  catalog?: ReviewCatalog;
+  usedScopes?: ReviewScope[];
+  initialCourseId?: string;
+  initialSemesterId?: string;
   /** Category course se bandhi hai ya nahi (README §25). */
   needsCourse?: boolean;
   /** Edit mode me maujooda review. */
   existing?: MyReviewDetail | null;
 }
 
-function SubmitButton({ mode }: { mode: "create" | "edit" }) {
+function SubmitButton({
+  mode,
+  disabled,
+}: {
+  mode: "create" | "edit";
+  disabled?: boolean;
+}) {
   const { pending } = useFormStatus();
 
   return (
-    <Button type="submit" size="lg" disabled={pending}>
+    <Button type="submit" size="lg" disabled={pending || disabled}>
       {pending
         ? mode === "create"
           ? "Posting…"
@@ -92,13 +107,22 @@ function CommentField({
 
   return (
     <div className="space-y-1.5">
-      <label htmlFor="review-comment" className="text-sm font-medium leading-none text-ink-800">
+      <label
+        htmlFor="review-comment"
+        className="text-sm font-medium leading-none text-ink-800"
+      >
         Your experience{" "}
-        <span className="font-normal text-muted-foreground">(optional, max {COMMENT_MAX_WORDS} words)</span>
+        <span className="font-normal text-muted-foreground">
+          (optional, max {COMMENT_MAX_WORDS} words)
+        </span>
       </label>
-      <p id="review-comment-hint" className="text-xs leading-relaxed text-muted-foreground">
-        Write about teaching, behaviour or helpfulness. Do not include names, roll numbers,
-        phone numbers or anything that could identify you or someone else.
+      <p
+        id="review-comment-hint"
+        className="text-xs leading-relaxed text-muted-foreground"
+      >
+        Write about teaching, behaviour or helpfulness. Do not include names,
+        roll numbers, phone numbers or anything that could identify you or
+        someone else.
       </p>
       <Textarea
         id="review-comment"
@@ -133,7 +157,10 @@ export function ReviewForm({
   personName,
   criteria,
   limits,
-  options = [],
+  catalog = { courses: [], semesters: [], failed: false },
+  usedScopes = [],
+  initialCourseId,
+  initialSemesterId,
   needsCourse = false,
   existing = null,
 }: ReviewFormProps) {
@@ -158,11 +185,16 @@ export function ReviewForm({
 
       <input type="hidden" name="personId" value={personId} />
       <input type="hidden" name="personSlug" value={personSlug} />
-      {existing ? <input type="hidden" name="reviewId" value={existing.id} /> : null}
+      {existing ? (
+        <input type="hidden" name="reviewId" value={existing.id} />
+      ) : null}
 
       {mode === "create" ? (
         <ReviewContextPicker
-          options={options}
+          catalog={catalog}
+          usedScopes={usedScopes}
+          initialCourseId={initialCourseId}
+          initialSemesterId={initialSemesterId}
           needsCourse={needsCourse}
           fieldErrors={state.fieldErrors}
         />
@@ -219,7 +251,13 @@ export function ReviewForm({
       </div>
 
       <div className="flex flex-wrap items-center gap-4">
-        <SubmitButton mode={mode} />
+        <SubmitButton
+          mode={mode}
+          disabled={
+            mode === "create" &&
+            !hasAvailableReviewContext(catalog, usedScopes, needsCourse)
+          }
+        />
         <p className="flex items-start gap-1.5 text-xs leading-relaxed text-muted-foreground">
           <Lock aria-hidden="true" className="mt-px size-3.5 shrink-0" />
           <span>

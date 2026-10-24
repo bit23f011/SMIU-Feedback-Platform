@@ -2,7 +2,7 @@
 
 import * as React from "react";
 
-import { AlertCircle } from "lucide-react";
+import { AlertCircle } from "@/components/ui/icons";
 
 import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";

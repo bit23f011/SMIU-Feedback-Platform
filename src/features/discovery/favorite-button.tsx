@@ -3,7 +3,7 @@
 import * as React from "react";
 
 import { useFormState, useFormStatus } from "react-dom";
-import { Bookmark, BookmarkCheck } from "lucide-react";
+import { Bookmark, BookmarkCheck } from "@/components/ui/icons";
 
 import { cn } from "@/lib/utils";
 import { toggleFavoriteAction } from "@/features/discovery/actions";

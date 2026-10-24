@@ -1,7 +1,7 @@
 import * as React from "react";
 
 import Link from "next/link";
-import { MessageSquare } from "lucide-react";
+import { MessageSquare } from "@/components/ui/icons";
 
 import { EmptyState } from "@/components/common/empty-state";
 import { RatingStars } from "@/components/common/rating-stars";
@@ -11,6 +11,7 @@ import type { PersonCategory } from "@/features/people/types";
 import { CommentModerationNote } from "@/features/reviews/comment-moderation-note";
 import { getMyReviews } from "@/features/reviews/queries";
 import { formatReviewContext, type MyReview } from "@/features/reviews/types";
+import { reviewProfileHref } from "@/features/reviews/review-context";
 
 /*
   Student ke "my reviews" pages ka shared frame.
@@ -47,17 +48,17 @@ const STATUS_LABEL: Record<MyReview["status"], string | null> = {
   removed: "Deleted",
 };
 
-function MyReviewRow({ review }: { review: MyReview }) {
+export function MyReviewRow({ review }: { review: MyReview }) {
   const context = formatReviewContext(review);
   const statusLabel = STATUS_LABEL[review.status];
 
   return (
-    <li className="rounded-lg border border-border bg-background p-5 shadow-xs">
+    <li className="rounded-lg border border-border bg-card p-5 shadow-xs">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div className="min-w-0">
           <h2 className="font-display text-base font-semibold text-foreground">
             <Link
-              href={`/people/${review.personSlug}`}
+              href={reviewProfileHref(review)}
               className="rounded-sm underline-offset-4 outline-none hover:underline focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
             >
               {review.personName}
@@ -95,7 +96,7 @@ function MyReviewRow({ review }: { review: MyReview }) {
 
       <div className="mt-4 flex flex-wrap items-center gap-3 border-t border-border pt-4">
         <Button asChild variant="outline" size="sm">
-          <Link href={`/people/${review.personSlug}`}>Open profile</Link>
+          <Link href={reviewProfileHref(review)}>View or edit review</Link>
         </Button>
         <span className="text-xs text-muted-foreground">
           {review.editsLeft} {review.editsLeft === 1 ? "edit" : "edits"} left

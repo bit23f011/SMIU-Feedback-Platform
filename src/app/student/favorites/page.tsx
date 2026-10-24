@@ -2,7 +2,7 @@ import * as React from "react";
 
 import type { Metadata } from "next";
 import Link from "next/link";
-import { Heart, TriangleAlert } from "lucide-react";
+import { Heart, TriangleAlert } from "@/components/ui/icons";
 
 import { EmptyState } from "@/components/common/empty-state";
 import { Button } from "@/components/ui/button";

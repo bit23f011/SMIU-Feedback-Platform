@@ -1,41 +1,41 @@
 import Link from "next/link";
-
 import { Button } from "@/components/ui/button";
-
-/*
-  Student CTA - page ka aakhri block, ek hi asli action.
-
-  Button ka label wahi bolta hai jo hoga ("Create account"), koi "Get started"
-  jaisa mubham lafz nahi. Neeche ki choti line expectation set karti hai ke
-  verification ek hi email hai - signup se pehle hi sach bata dena behtar hai.
-*/
 export function HomeCta() {
   return (
-    <section aria-labelledby="student-cta-heading">
-      <div className="container py-14 text-center md:py-16">
-        <h2
-          id="student-cta-heading"
-          className="mx-auto max-w-xl text-2xl font-semibold text-foreground md:text-[1.75rem]"
-        >
-          Help the next batch know what to expect
-        </h2>
-        <p className="mx-auto mt-3 max-w-lg text-sm leading-relaxed text-muted-foreground">
-          Your review takes a few minutes and stays anonymous. The only thing we check is that you
-          study at the university.
-        </p>
-
-        <div className="mt-7 flex flex-col items-center justify-center gap-2.5 sm:flex-row">
-          <Button asChild size="lg">
-            <Link href="/auth/signup">Create account</Link>
-          </Button>
-          <Button asChild size="lg" variant="outline">
-            <Link href="/auth/login">Sign in</Link>
-          </Button>
+    <section
+      className="container py-12 md:py-16"
+      aria-labelledby="student-cta-heading"
+    >
+      <div className="contribute-panel flex flex-col justify-between gap-6 rounded-lg px-6 py-8 sm:px-10 md:flex-row md:items-center md:py-10">
+        <div>
+          <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-white/60">
+            From one batch to the next
+          </p>
+          <h2
+            id="student-cta-heading"
+            className="editorial-title mt-3 text-[1.8rem] leading-tight text-white md:text-[2.2rem]"
+          >
+            Someone starts where you left off.
+          </h2>
+          <p className="mt-3 max-w-[430px] text-[13px] leading-6 text-white/75">
+            A fresher, a senior or a graduate. Your experience can make their
+            next step a little clearer.
+          </p>
         </div>
-
-        <p className="mt-5 text-xs text-muted-foreground">
-          One verification email. No spam, ever.
-        </p>
+        <div className="flex shrink-0 flex-wrap items-center gap-3">
+          <Button
+            asChild
+            className="border border-white/80 bg-white text-[#70232e] hover:bg-white/90"
+          >
+            <Link href="/auth/signup">Share your experience</Link>
+          </Button>
+          <Link
+            href="/auth/login"
+            className="px-2 text-sm text-white underline-offset-4 hover:underline"
+          >
+            Sign in
+          </Link>
+        </div>
       </div>
     </section>
   );

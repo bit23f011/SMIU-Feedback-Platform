@@ -1,7 +1,7 @@
 import * as React from "react";
 
 import Link from "next/link";
-import { Bookmark } from "lucide-react";
+import { Bookmark } from "@/components/ui/icons";
 
 import { getCurrentUser } from "@/features/auth/session";
 import { getMyFavoriteIds } from "@/features/discovery/queries";

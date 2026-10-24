@@ -24,6 +24,8 @@ const securityHeaders = [
 ];
 
 const nextConfig = {
+  // Active dev server ke sath verification build ka output alag rakha ja sakta hai.
+  distDir: process.env.PROFAURA_BUILD_DIR === ".next-verify" ? ".next-verify" : ".next",
   reactStrictMode: true,
   // X-Powered-By header hata do - stack info leak avoid
   poweredByHeader: false,

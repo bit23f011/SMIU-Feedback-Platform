@@ -1,6 +1,6 @@
 import * as React from "react";
 
-import { Lock } from "lucide-react";
+import { Lock } from "@/components/ui/icons";
 
 import { EmptyState } from "@/components/common/empty-state";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";

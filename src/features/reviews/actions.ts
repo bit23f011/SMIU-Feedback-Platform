@@ -3,6 +3,8 @@
 import { revalidatePath } from "next/cache";
 
 import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { logBackendError } from "@/lib/server/diagnostics";
+import { isFeatureEnabled } from "@/features/feature-flags/queries";
 import { getCurrentUser } from "@/features/auth/session";
 import { getReviewCriteria } from "@/features/reviews/queries";
 import type { ReviewFormState } from "@/features/reviews/form-state";
@@ -36,13 +38,16 @@ import {
   kar sakti hai - type/object yahan se export karna Next.js build par error deta.
 */
 
-const GENERIC_ERROR = "We could not save your review right now. Please try again.";
+const GENERIC_ERROR =
+  "We could not save your review right now. Please try again.";
 
 /*
   Sirf yeh messages user ko dikhte hain. Yeh wahi text hai jo migration 0006 ki
   functions `raise exception` karti hain. List me na ho to GENERIC_ERROR.
 */
 const SAFE_DB_MESSAGES = new Set<string>([
+  "New reviews are paused right now. Please try again later.",
+  "Review editing is paused right now. Please try again later.",
   "You must be signed in to post a review.",
   "Your account cannot post reviews yet.",
   "Your account cannot edit reviews.",
@@ -59,6 +64,7 @@ const SAFE_DB_MESSAGES = new Set<string>([
   "Choose the course this review is about.",
   "Choose a valid course.",
   "That course and semester do not match this profile.",
+  "That course does not match this profile.",
   "You have already reviewed this course for this semester.",
   "You have already reviewed this person for this semester.",
   "You have reached the daily limit for new reviews.",
@@ -98,8 +104,14 @@ async function parseReviewForm(
     OVERALL 1-10 hai (README §15). Criteria ke stars 1-5 hain - dono ko mat milao.
   */
   const overall = Number(formData.get("overall"));
-  if (!Number.isInteger(overall) || overall < OVERALL_MIN || overall > OVERALL_MAX) {
-    errors.overall = [`Choose an overall rating from ${OVERALL_MIN} to ${OVERALL_MAX}.`];
+  if (
+    !Number.isInteger(overall) ||
+    overall < OVERALL_MIN ||
+    overall > OVERALL_MAX
+  ) {
+    errors.overall = [
+      `Choose an overall rating from ${OVERALL_MIN} to ${OVERALL_MAX}.`,
+    ];
   }
 
   const rawComment = (formData.get("comment") ?? "").toString().trim();
@@ -135,7 +147,9 @@ async function parseReviewForm(
     if (criterion.kind === "star") {
       const star = Number(value);
       if (!Number.isInteger(star) || star < STAR_MIN || star > STAR_MAX) {
-        errors[`c_${criterion.key}`] = [`Choose a rating from ${STAR_MIN} to ${STAR_MAX}.`];
+        errors[`c_${criterion.key}`] = [
+          `Choose a rating from ${STAR_MIN} to ${STAR_MAX}.`,
+        ];
         continue;
       }
       answers.push({ key: criterion.key, star });
@@ -154,9 +168,10 @@ async function parseReviewForm(
 }
 
 /** Person ki category DB se lo - client jo bheje us par bharosa nahi. */
-async function getPersonContext(
-  personId: string,
-): Promise<{ category: Parameters<typeof getReviewCriteria>[0]; slug: string } | null> {
+async function getPersonContext(personId: string): Promise<{
+  category: Parameters<typeof getReviewCriteria>[0];
+  slug: string;
+} | null> {
   try {
     const supabase = createSupabaseServerClient();
     const { data, error } = await supabase
@@ -176,7 +191,9 @@ async function getPersonContext(
 function isUuid(value: unknown): value is string {
   return (
     typeof value === "string" &&
-    /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(value)
+    /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(
+      value,
+    )
   );
 }
 
@@ -190,13 +207,44 @@ export async function submitReviewAction(
   const personId = formData.get("personId");
 
   if (!isUuid(personId)) {
+    logBackendError("reviews.submit.validation", {
+      code: "invalid_review_person_id",
+    });
     return { ok: false, formError: GENERIC_ERROR };
   }
 
   // Sirf behtar message ke liye - asli check DB me hai.
   const session = await getCurrentUser();
   if (!session || !session.isVerified) {
-    return { ok: false, formError: "Sign in with your university email to post a review." };
+    return {
+      ok: false,
+      formError: "Sign in with your university email to post a review.",
+    };
+  }
+
+  if (!session.profile?.is_active) {
+    return {
+      ok: false,
+      formError:
+        "This account cannot post reviews. Please contact the site administrator.",
+    };
+  }
+  if (session.profile.role !== "student") {
+    logBackendError("reviews.submit.authorization", {
+      code: "student_account_required",
+    });
+    return {
+      ok: false,
+      formError:
+        "Please use a student account to post a review. Admin accounts manage the platform.",
+    };
+  }
+
+  if (!(await isFeatureEnabled("review_submission"))) {
+    return {
+      ok: false,
+      formError: "New reviews are paused right now. Please try again later.",
+    };
   }
 
   const person = await getPersonContext(personId);
@@ -253,9 +301,11 @@ export async function submitReviewAction(
     });
 
     if (error) {
+      logBackendError("reviews.submit", error);
       return { ok: false, formError: safeMessage(error.message) };
     }
-  } catch {
+  } catch (error) {
+    logBackendError("reviews.submit", error);
     return { ok: false, formError: GENERIC_ERROR };
   }
 
@@ -296,7 +346,8 @@ export async function updateReviewAction(
     return {
       ok: false,
       formError: _form?.[0],
-      fieldErrors: Object.keys(fieldErrors).length > 0 ? fieldErrors : undefined,
+      fieldErrors:
+        Object.keys(fieldErrors).length > 0 ? fieldErrors : undefined,
     };
   }
 
@@ -311,9 +362,11 @@ export async function updateReviewAction(
     });
 
     if (error) {
+      logBackendError("reviews.update", error);
       return { ok: false, formError: safeMessage(error.message) };
     }
-  } catch {
+  } catch (error) {
+    logBackendError("reviews.update", error);
     return { ok: false, formError: GENERIC_ERROR };
   }
 
@@ -339,12 +392,16 @@ export async function deleteReviewAction(
 
   try {
     const supabase = createSupabaseServerClient();
-    const { error } = await supabase.rpc("delete_my_review", { p_review_id: reviewId });
+    const { error } = await supabase.rpc("delete_my_review", {
+      p_review_id: reviewId,
+    });
 
     if (error) {
+      logBackendError("reviews.delete", error);
       return { ok: false, formError: safeMessage(error.message) };
     }
-  } catch {
+  } catch (error) {
+    logBackendError("reviews.delete", error);
     return { ok: false, formError: GENERIC_ERROR };
   }
 

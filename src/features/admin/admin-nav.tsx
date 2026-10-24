@@ -22,8 +22,8 @@ import {
   Star,
   Trophy,
   Users,
-} from "lucide-react";
-import type { LucideIcon } from "lucide-react";
+} from "@/components/ui/icons";
+import type { InterfaceIcon } from "@/components/ui/icons";
 
 import { cn } from "@/lib/utils";
 
@@ -42,7 +42,7 @@ import { cn } from "@/lib/utils";
 interface AdminNavItem {
   label: string;
   href: string;
-  icon: LucideIcon;
+  icon: InterfaceIcon;
 }
 
 interface AdminNavGroup {

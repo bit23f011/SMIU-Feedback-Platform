@@ -3,7 +3,7 @@ import * as React from "react";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ArrowLeft, BookOpen } from "lucide-react";
+import { ArrowLeft, BookOpen } from "@/components/ui/icons";
 
 import { ListSkeleton } from "@/components/common/loading-state";
 import { PageHeader } from "@/components/common/page-header";

@@ -20,7 +20,11 @@ import { requireAdmin } from "@/features/auth/session";
   Har admin WRITE aage chal kar RLS + SECURITY DEFINER functions se guzregi aur
   audit log me jayegi.
 */
-export default async function AdminLayout({ children }: { children: React.ReactNode }) {
+export default async function AdminLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   await requireAdmin();
 
   return (
@@ -32,7 +36,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
               href="/admin"
               className="rounded-sm outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
             >
-              <ProfAuraLogo size="sm" />
+              <ProfAuraLogo size="sm" href={null} />
               <span className="sr-only">Admin dashboard</span>
             </Link>
             <Badge variant="accent">Admin</Badge>
@@ -47,8 +51,9 @@ export default async function AdminLayout({ children }: { children: React.ReactN
       </header>
 
       <div className="flex flex-1 flex-col md:flex-row">
-        <aside className="border-b border-border bg-background px-4 py-3 md:w-60 md:shrink-0 md:border-b-0 md:border-r md:px-4 md:py-6">
-          <AdminNav className="md:sticky md:top-24" />
+        {/* Poora sidebar viewport me rahe; lambi navigation apne andar scroll ho. */}
+        <aside className="border-b border-border bg-background px-4 py-3 md:sticky md:top-16 md:h-[calc(100dvh-4rem)] md:w-60 md:shrink-0 md:self-start md:overflow-y-auto md:overscroll-contain md:border-b-0 md:border-r md:px-4 md:py-6">
+          <AdminNav />
         </aside>
 
         <main id="main-content" className="min-w-0 flex-1">

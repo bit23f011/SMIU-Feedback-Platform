@@ -2,6 +2,7 @@ import { PageTransition } from "@/components/common/page-transition";
 import { SiteFooter } from "@/components/layout/site-footer";
 import { SiteHeader } from "@/components/layout/site-header";
 import { getHeaderAccount } from "@/features/auth/session";
+import { NotificationBanner } from "@/features/notifications/notification-banner";
 
 /*
   Public route group ka shell: header + main + footer.
@@ -14,12 +15,17 @@ import { getHeaderAccount } from "@/features/auth/session";
   rehte hain, sirf content halka sa fade hota hai. Poora page fade karne se
   navbar "blink" karta hai aur wo sasta lagta hai.
 */
-export default async function PublicLayout({ children }: { children: React.ReactNode }) {
+export default async function PublicLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   const account = await getHeaderAccount();
 
   return (
     <div className="flex min-h-dvh flex-col">
       <SiteHeader account={account} />
+      <NotificationBanner />
       <main id="main-content" className="flex-1">
         <PageTransition>{children}</PageTransition>
       </main>

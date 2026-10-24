@@ -11,17 +11,17 @@ import { EMPTY_AUTH_STATE } from "@/features/auth/form-state";
 import { FormError, FormField } from "@/features/auth/form-field";
 import { StudentIdInput } from "@/features/auth/student-id-input";
 import { STUDENT_EMAIL_DOMAIN } from "@/features/auth/schemas";
+import { Turnstile } from "@/features/auth/turnstile";
 
 /*
   Signup form.
 
   Next 14 me `useFormState` + `useFormStatus` use kar rahe hain (React 18.3).
-  Fayda: form BINA JavaScript ke bhi kaam karta hai - server action normal form
-  POST par chal jati hai. JS sirf pending state, inline errors aur email preview
-  behtar banata hai.
+  Normal POST par bhi server validation chalti hai. CAPTCHA enabled ho to uski
+  real challenge ke liye JavaScript chahiye; checkbox ka fake substitute nahi.
 
   Student email type nahi karta: wo Student ID deta hai aur neeche live preview
-  me dekh leta hai ke kis address par verification jayegi. Preview sirf dikhawa
+  me dekh leta hai ke account ka email kya hoga. Preview sirf dikhawa
   hai; asli email server par banti hai (schemas.ts -> studentIdToEmail).
 
   YAAD RAHE: yahan ka koi bhi check security nahi hai. `required`, pattern hint,
@@ -29,20 +29,32 @@ import { STUDENT_EMAIL_DOMAIN } from "@/features/auth/schemas";
   (Zod) aur asli lock DB trigger me hai.
 */
 
-function SubmitButton() {
+function SubmitButton({ captchaReady }: { captchaReady: boolean }) {
   // useFormStatus hamesha apne parent <form> ka status deta hai.
   const { pending } = useFormStatus();
 
   return (
-    <Button type="submit" className="w-full" size="lg" disabled={pending}>
+    <Button
+      type="submit"
+      className="w-full"
+      size="lg"
+      disabled={pending || !captchaReady}
+    >
       {pending ? "Creating your account…" : "Create account"}
     </Button>
   );
 }
 
-export function SignupForm() {
+export function SignupForm({
+  turnstileSiteKey,
+  nonce,
+}: {
+  turnstileSiteKey?: string | null;
+  nonce?: string;
+}) {
   const [state, formAction] = useFormState(signUpAction, EMPTY_AUTH_STATE);
   const [studentId, setStudentId] = React.useState("");
+  const [captchaVerified, setCaptchaVerified] = React.useState(false);
 
   const cleanId = studentId.trim().toLowerCase();
   const previewEmail = cleanId ? `${cleanId}@${STUDENT_EMAIL_DOMAIN}` : null;
@@ -72,7 +84,7 @@ export function SignupForm() {
         )}
       </FormField>
 
-      {/* Generated email preview - student ko pehle hi pata chal jaye kahan mail jayegi. */}
+      {/* Account email ID se banti hai; signup me confirmation email nahi bhejte. */}
       <p
         aria-live="polite"
         className="rounded-md border border-border bg-surface px-3 py-2 text-xs leading-relaxed text-muted-foreground"
@@ -83,7 +95,10 @@ export function SignupForm() {
             <span className="font-medium text-foreground">{previewEmail}</span>
           </>
         ) : (
-          <>Your university email is created from your student ID. You do not type it yourself.</>
+          <>
+            Your university email is created from your student ID. You do not
+            type it yourself.
+          </>
         )}
       </p>
 
@@ -131,25 +146,41 @@ export function SignupForm() {
             type="checkbox"
             required
             aria-invalid={Boolean(state.fieldErrors?.acceptTerms)}
-            aria-describedby={state.fieldErrors?.acceptTerms ? "signup-terms-error" : undefined}
+            aria-describedby={
+              state.fieldErrors?.acceptTerms ? "signup-terms-error" : undefined
+            }
             className="mt-0.5 size-4 shrink-0 cursor-pointer rounded-sm border border-input text-primary accent-indigo-500 outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
           />
           <label
             htmlFor="signup-terms"
             className="cursor-pointer text-sm leading-relaxed text-ink-700"
           >
-            I understand my reviews are published anonymously and must be honest and respectful.
+            I understand my reviews are published anonymously and must be honest
+            and respectful.
           </label>
         </div>
 
         {state.fieldErrors?.acceptTerms ? (
-          <p id="signup-terms-error" role="alert" className="text-xs font-medium text-state-danger">
+          <p
+            id="signup-terms-error"
+            role="alert"
+            className="text-xs font-medium text-state-danger"
+          >
             {state.fieldErrors.acceptTerms[0]}
           </p>
         ) : null}
       </div>
 
-      <SubmitButton />
+      {turnstileSiteKey ? (
+        <Turnstile
+          siteKey={turnstileSiteKey}
+          nonce={nonce}
+          resetKey={state}
+          onVerifiedChange={setCaptchaVerified}
+        />
+      ) : null}
+
+      <SubmitButton captchaReady={!turnstileSiteKey || captchaVerified} />
     </form>
   );
 }

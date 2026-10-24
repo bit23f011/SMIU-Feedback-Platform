@@ -1,92 +1,103 @@
 "use client";
-
-import * as React from "react";
-
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
-  Building2,
-  GraduationCap,
-  Heart,
   LayoutDashboard,
+  GraduationCap,
   Monitor,
-  UserCog,
   Users,
-} from "lucide-react";
-import type { LucideIcon } from "lucide-react";
-
+  Building2,
+  UserCog,
+  Heart,
+  ChevronDown,
+} from "@/components/ui/icons";
+import { GuideButton } from "@/components/layout/site-experience";
 import { cn } from "@/lib/utils";
-
-/*
-  Student area ka side navigation.
-
-  Har category ke reviews ka apna route hai (ek giant mixed list nahi), taake
-  student ko apna kaam category ke hisab se milay - aur aage filtering/pagination
-  har route par alag se add ho sake.
-
-  Active state pathname se nikalti hai, is liye yeh client component hai.
-*/
-
-interface StudentNavItem {
-  label: string;
-  href: string;
-  icon: LucideIcon;
-}
-
-export const STUDENT_NAV: readonly StudentNavItem[] = [
+export const STUDENT_NAV = [
   { label: "Overview", href: "/student", icon: LayoutDashboard },
-  { label: "Teacher reviews", href: "/student/teacher-reviews", icon: GraduationCap },
+  { label: "All reviews", href: "/student/reviews", icon: GraduationCap },
+  {
+    label: "Teacher reviews",
+    href: "/student/teacher-reviews",
+    icon: GraduationCap,
+  },
   { label: "Lab reviews", href: "/student/lab-reviews", icon: Monitor },
   { label: "Faculty reviews", href: "/student/faculty-reviews", icon: Users },
-  { label: "University staff reviews", href: "/student/uni-staff-reviews", icon: Building2 },
-  { label: "HR staff reviews", href: "/student/hr-staff-reviews", icon: UserCog },
-  { label: "Favourites", href: "/student/favorites", icon: Heart },
+  {
+    label: "Campus staff reviews",
+    href: "/student/uni-staff-reviews",
+    icon: Building2,
+  },
+  {
+    label: "HR staff reviews",
+    href: "/student/hr-staff-reviews",
+    icon: UserCog,
+  },
+  { label: "Saved profiles", href: "/student/favorites", icon: Heart },
 ] as const;
-
 export function StudentNav({ className }: { className?: string }) {
   const pathname = usePathname();
-
+  const [open, setOpen] = useState(false);
+  useEffect(() => {
+    setOpen(false);
+  }, [pathname]);
+  const current =
+    STUDENT_NAV.find((item) => item.href === pathname)?.label || "Student menu";
   return (
     <nav
       aria-label="Student area"
       className={cn(
-        "md:rounded-xl md:border md:border-indigo-200 md:bg-indigo-50 md:p-2.5 md:shadow-card",
+        "rounded-lg border border-border bg-card p-2 md:border-0 md:bg-transparent md:p-0",
         className,
       )}
     >
-      {/* Desktop panel ka chhota heading - color area ko "designed" dikhata hai. */}
-      <p className="hidden px-2 pb-1.5 pt-1 text-[0.6875rem] font-semibold uppercase tracking-wider text-indigo-600 md:block">
-        Menu
-      </p>
-      {/* Mobile: horizontal scroll. Desktop: vertical list. */}
-      <ul className="-mx-1 flex list-none gap-1.5 overflow-x-auto px-1 pb-1 md:mx-0 md:flex-col md:gap-0.5 md:overflow-visible md:px-0 md:pb-0">
-        {STUDENT_NAV.map((item) => {
-          const isActive =
-            item.href === "/student" ? pathname === "/student" : pathname.startsWith(item.href);
-          const Icon = item.icon;
-
-          return (
-            <li key={item.href}>
-              <Link
-                href={item.href}
-                aria-current={isActive ? "page" : undefined}
+      <button
+        className="flex w-full items-center justify-between px-3 py-2 text-sm font-medium md:hidden"
+        onClick={() => setOpen((o) => !o)}
+        aria-expanded={open}
+        aria-controls="student-navigation"
+      >
+        <span>{current}</span>
+        <ChevronDown className="size-4" aria-hidden="true" />
+      </button>
+      <div
+        id="student-navigation"
+        className={cn(open ? "block" : "hidden", "md:block")}
+      >
+        <p className="eyebrow px-3 pb-3 pt-4 md:pt-0">Your workspace</p>
+        <ul className="space-y-1">
+          {STUDENT_NAV.map((item, index) => {
+            const Icon = item.icon;
+            return (
+              <li
+                key={item.href}
                 className={cn(
-                  "flex h-9 items-center gap-2 whitespace-nowrap rounded-md border px-3 text-[0.8125rem] font-medium md:w-full md:border-transparent",
-                  "transition-[background-color,border-color,color] duration-150 ease-out",
-                  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
-                  "[&_svg]:size-4 [&_svg]:shrink-0",
-                  isActive
-                    ? "border-indigo-200 bg-white text-indigo-700 shadow-sm [&_svg]:text-indigo-600"
-                    : "border-border bg-background text-ink-700 hover:bg-ink-50 hover:text-foreground md:border-transparent md:bg-transparent md:hover:bg-white/70 [&_svg]:text-ink-500",
+                  (item.href === "/student/reviews" || item.href === "/student/favorites") &&
+                    "mt-5 border-t border-border pt-4",
                 )}
               >
-                <Icon aria-hidden="true" />
-                {item.label}
-              </Link>
-            </li>
-          );
-        })}
-      </ul>
+                <Link
+                  href={item.href}
+                  className="student-nav-link"
+                  aria-current={pathname === item.href ? "page" : undefined}
+                >
+                  <Icon aria-hidden="true" />
+                  {item.label}
+                </Link>
+              </li>
+            );
+          })}
+        </ul>
+        <div className="mt-6 border-t border-border px-3 pt-5">
+          <GuideButton className="text-xs">
+            Review guidelines & privacy
+          </GuideButton>
+          <p className="mt-3 text-[11px] leading-5 text-muted-foreground">
+            Your name is never shown with a public review.
+          </p>
+        </div>
+      </div>
     </nav>
   );
 }

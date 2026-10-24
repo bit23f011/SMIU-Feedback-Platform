@@ -3,7 +3,7 @@
 import * as React from "react";
 
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { Search, X } from "lucide-react";
+import { Search, X } from "@/components/ui/icons";
 
 import { Spinner } from "@/components/common/loading-state";
 import { cn } from "@/lib/utils";

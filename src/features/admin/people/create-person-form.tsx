@@ -4,7 +4,7 @@ import * as React from "react";
 
 import Link from "next/link";
 import { useFormState } from "react-dom";
-import { UserPlus } from "lucide-react";
+import { UserPlus } from "@/components/ui/icons";
 
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";

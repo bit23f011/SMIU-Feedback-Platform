@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 
-import { Inbox, ShieldCheck } from "lucide-react";
+import { Inbox, ShieldCheck } from "@/components/ui/icons";
 
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
@@ -13,6 +13,7 @@ import {
 } from "@/features/admin/reference/queries";
 import { setCourseActiveAction } from "@/features/admin/reference/actions";
 import { CourseForm } from "@/features/admin/reference/course-form";
+import { BulkListForm } from "@/features/admin/reference/bulk-list-form";
 import { ActiveToggleForm } from "@/features/admin/reference/reference-controls";
 import type {
   AdminCourse,
@@ -42,18 +43,30 @@ function CourseRow({
         <div className="min-w-0">
           <h4 className="font-medium text-foreground">{course.title}</h4>
           <p className="mt-0.5 text-xs text-muted-foreground">
-            {course.code ? <span className="font-mono">{course.code}{" · "}</span> : null}
+            {course.code ? (
+              <span className="font-mono">
+                {course.code}
+                {" · "}
+              </span>
+            ) : null}
             {course.creditHours !== null ? (
               <span>
-                {course.creditHours} {course.creditHours === 1 ? "credit hour" : "credit hours"}
+                {course.creditHours}{" "}
+                {course.creditHours === 1 ? "credit hour" : "credit hours"}
                 {" · "}
               </span>
             ) : null}
             {course.departmentName ?? "No department"}
-            {course.programName ? <span>{" · "}{course.programName}</span> : null}
+            {course.programName ? (
+              <span>
+                {" · "}
+                {course.programName}
+              </span>
+            ) : null}
           </p>
           <p className="mt-1 text-xs tabular-nums text-muted-foreground">
-            {course.offeringCount} {course.offeringCount === 1 ? "offering" : "offerings"}
+            {course.offeringCount}{" "}
+            {course.offeringCount === 1 ? "offering" : "offerings"}
           </p>
         </div>
         <div className="flex shrink-0 flex-col items-end gap-2">
@@ -73,7 +86,11 @@ function CourseRow({
           Edit
         </summary>
         <div className="mt-4">
-          <CourseForm course={course} departments={departments} programs={programs} />
+          <CourseForm
+            course={course}
+            departments={departments}
+            programs={programs}
+          />
         </div>
       </details>
     </li>
@@ -96,8 +113,8 @@ export default async function AdminCoursesPage() {
           Courses
         </h1>
         <p className="mt-1.5 max-w-2xl text-sm leading-relaxed text-muted-foreground">
-          The courses students review. Each course belongs to a department and can optionally sit
-          under a program.
+          Add courses once and they appear on every teacher card and review
+          form. No teacher assignments are required.
         </p>
       </header>
 
@@ -106,26 +123,37 @@ export default async function AdminCoursesPage() {
         <div>
           <AlertTitle>Courses are archived, never deleted</AlertTitle>
           <AlertDescription>
-            Archiving keeps past offerings and reviews intact. A course needs a department, so add
-            departments first if the list below is empty.
+            Archiving keeps past offerings and reviews intact. A course needs a
+            department, so add departments first if the list below is empty.
           </AlertDescription>
         </div>
       </Alert>
 
       <section className="mt-6">
-        <h2 className="font-display text-lg font-semibold tracking-tight text-foreground">
-          New course
-        </h2>
-        <Card className="mt-3 p-5">
-          {departments.length === 0 ? (
-            <p className="text-sm text-muted-foreground">
-              Add at least one department before creating a course.
-            </p>
-          ) : (
-            <CourseForm departments={departments} programs={programs} />
-          )}
+        <Card className="p-5 sm:p-6">
+          <BulkListForm kind="courses" departments={departments} />
         </Card>
       </section>
+
+      <details className="mt-6">
+        <summary className="cursor-pointer text-sm font-medium text-foreground">
+          Add a single course
+        </summary>
+        <section className="mt-3">
+          <h2 className="font-display text-lg font-semibold tracking-tight text-foreground">
+            New course
+          </h2>
+          <Card className="mt-3 p-5">
+            {departments.length === 0 ? (
+              <p className="text-sm text-muted-foreground">
+                Add at least one department before creating a course.
+              </p>
+            ) : (
+              <CourseForm departments={departments} programs={programs} />
+            )}
+          </Card>
+        </section>
+      </details>
 
       <section className="mt-10">
         <h2 className="font-display text-lg font-semibold tracking-tight text-foreground">
@@ -137,8 +165,8 @@ export default async function AdminCoursesPage() {
             <div>
               <AlertTitle>This list did not load</AlertTitle>
               <AlertDescription>
-                Nothing has changed. Reload the page, and if it keeps failing, check that your
-                account still has the admin role.
+                Nothing has changed. Reload the page, and if it keeps failing,
+                check that your account still has the admin role.
               </AlertDescription>
             </div>
           </Alert>

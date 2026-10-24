@@ -3,7 +3,7 @@
 import * as React from "react";
 
 import { useFormState, useFormStatus } from "react-dom";
-import { Trash2 } from "lucide-react";
+import { Trash2 } from "@/components/ui/icons";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";

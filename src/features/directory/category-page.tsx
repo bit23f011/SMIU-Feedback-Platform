@@ -8,8 +8,14 @@ import { PersonGridSkeleton } from "@/components/common/loading-state";
 import { CategoryDirectory } from "@/features/directory/category-directory";
 import { CategoryTabs } from "@/features/directory/category-tabs";
 import { DirectorySearch } from "@/features/directory/directory-search";
-import { DirectoryFilterBar, FilterControlsSkeleton } from "@/features/discovery/filter-bar";
-import { readDirectoryFilters, type QueryParams } from "@/features/discovery/types";
+import {
+  DirectoryFilterBar,
+  FilterControlsSkeleton,
+} from "@/features/discovery/filter-bar";
+import {
+  readDirectoryFilters,
+  type QueryParams,
+} from "@/features/discovery/types";
 import { getCategoryBySlug } from "@/lib/constants";
 
 /*
@@ -24,7 +30,9 @@ import { getCategoryBySlug } from "@/lib/constants";
 export type CategorySearchParams = QueryParams;
 
 /** searchParams se ek safe string nikaalta hai (array/undefined dono handle). */
-export function readSearchTerm(searchParams: CategorySearchParams | undefined): string {
+export function readSearchTerm(
+  searchParams: CategorySearchParams | undefined,
+): string {
   const raw = searchParams?.q;
   const value = Array.isArray(raw) ? raw[0] : raw;
   return typeof value === "string" ? value.trim().slice(0, 80) : "";
@@ -61,25 +69,26 @@ export function CategoryPageView({
 
   return (
     <div className="container py-10 md:py-12">
-      <PageHeader eyebrow="Directory" title={meta.label} description={meta.description}>
+      <PageHeader
+        eyebrow="Directory"
+        title={meta.label}
+        description={meta.description}
+      >
         <CategoryTabs active={meta.value} />
       </PageHeader>
 
-      <div className="mt-8 max-w-xl">
-        <DirectorySearch
-          label={`Search ${meta.label.toLowerCase()} by name`}
-          placeholder={`Search ${meta.label.toLowerCase()} by name`}
-        />
+      <div className="mt-8 flex max-w-2xl items-end gap-3">
+        <div className="min-w-0 flex-1">
+          <DirectorySearch
+            label={`Search ${meta.label.toLowerCase()} by name`}
+            placeholder={`Search ${meta.label.toLowerCase()} by name`}
+          />
+        </div>
+        {/* Reference data aane tak bhi sirf compact filter icon dikhe. */}
+        <React.Suspense fallback={<FilterControlsSkeleton />}>
+          <DirectoryFilterBar showTeacherType={meta.value === "teacher"} />
+        </React.Suspense>
       </div>
-
-      {/* Filter bar reference data parhti hai, is liye alag stream hoti hai. */}
-      <React.Suspense
-        fallback={
-          <FilterControlsSkeleton count={meta.value === "teacher" ? 6 : 5} className="mt-6" />
-        }
-      >
-        <DirectoryFilterBar className="mt-6" showTeacherType={meta.value === "teacher"} />
-      </React.Suspense>
 
       <div className="mt-8">
         <React.Suspense key={resultKey} fallback={<PersonGridSkeleton />}>

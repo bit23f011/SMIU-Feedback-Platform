@@ -1,29 +1,34 @@
 import * as React from "react";
 
 import Link from "next/link";
-import { Lock, ShieldCheck } from "lucide-react";
+import { Lock, ShieldCheck } from "@/components/ui/icons";
 
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { getCurrentUser } from "@/features/auth/session";
+import { isFeatureEnabled } from "@/features/feature-flags/queries";
 import type { PersonSummary } from "@/features/people/types";
 import { MyReviewCard } from "@/features/reviews/my-review-card";
 import {
   getMyReviewForPerson,
   getMyReviewScopes,
-  getPersonReviewOptions,
+  getPersonReviewCatalog,
   getReviewCriteria,
   getReviewLimits,
 } from "@/features/reviews/queries";
 import { ReviewForm } from "@/features/reviews/review-form";
-import { categoryNeedsCourse, type ReviewOption } from "@/features/reviews/types";
+import { categoryNeedsCourse } from "@/features/reviews/types";
+import {
+  hasAvailableReviewContext,
+  reviewScopeKey,
+} from "@/features/reviews/review-context";
 
 /*
   Profile page par "review likho" wala hissa.
 
   Yeh server component faisla karta hai ke kya dikhana hai:
     - signed out            -> sign in / create account
-    - signed in, unverified -> email verify karo
+    - signed in, incomplete -> account support ka paigham
     - pehle se review hai   -> apni review + edit/delete
     - koi scope bacha hai   -> naya review form (doosra course ya semester)
     - warna                 -> sab scopes istemal ho chuke
@@ -56,32 +61,46 @@ function ReviewGate({
           <Lock />
         </span>
         <div className="min-w-0">
-          <p className="font-display text-base font-semibold text-foreground">{title}</p>
-          <p className="mt-1.5 text-sm leading-relaxed text-muted-foreground">{description}</p>
-          {children ? <div className="mt-4 flex flex-wrap gap-2">{children}</div> : null}
+          <p className="font-display text-base font-semibold text-foreground">
+            {title}
+          </p>
+          <p className="mt-1.5 text-sm leading-relaxed text-muted-foreground">
+            {description}
+          </p>
+          {children ? (
+            <div className="mt-4 flex flex-wrap gap-2">{children}</div>
+          ) : null}
         </div>
       </div>
     </div>
   );
 }
 
-/** Ek scope ki pehchan: course + semester ka jorha. */
-function scopeKey(courseId: string | null, semesterId: string | null): string {
-  return `${courseId ?? ""}|${semesterId ?? ""}`;
-}
-
-export async function ReviewPanel({ person }: { person: PersonSummary }) {
-  const nextPath = `/people/${person.slug}`;
+export async function ReviewPanel({
+  person,
+  initialCourseId,
+  initialSemesterId,
+}: {
+  person: PersonSummary;
+  initialCourseId?: string;
+  initialSemesterId?: string;
+}) {
+  const selection = new URLSearchParams();
+  if (initialCourseId) selection.set("course", initialCourseId);
+  if (initialSemesterId) selection.set("semester", initialSemesterId);
+  const nextPath = `/people/${person.slug}${selection.size ? `?${selection}` : ""}#write-review`;
   const session = await getCurrentUser();
 
   if (!session) {
     return (
       <ReviewGate
         title="Sign in to write a review"
-        description="Only students with a verified university email can review. Your review is posted anonymously, and your name is never stored with it."
+        description="Sign in with your student account to review. Your review is posted anonymously, and your name is never stored with it."
       >
         <Button asChild size="sm">
-          <Link href={`/auth/login?next=${encodeURIComponent(nextPath)}`}>Sign in</Link>
+          <Link href={`/auth/login?next=${encodeURIComponent(nextPath)}`}>
+            Sign in
+          </Link>
         </Button>
         <Button asChild variant="outline" size="sm">
           <Link href="/auth/signup">Create account</Link>
@@ -93,11 +112,11 @@ export async function ReviewPanel({ person }: { person: PersonSummary }) {
   if (!session.isVerified) {
     return (
       <ReviewGate
-        title="Verify your email first"
-        description="We sent a verification link to your university email. Open it once and you will be able to review."
+        title="Your account is not ready to review"
+        description="Please contact the site administrator to enable this account."
       >
         <Button asChild variant="outline" size="sm">
-          <Link href="/auth/verify-email">What to do next</Link>
+          <Link href="/auth/login">Go to sign in</Link>
         </Button>
       </ReviewGate>
     );
@@ -112,6 +131,19 @@ export async function ReviewPanel({ person }: { person: PersonSummary }) {
     );
   }
 
+  if (session.profile.role !== "student") {
+    return (
+      <ReviewGate
+        title="Use a student account to review"
+        description="Admin accounts manage the platform. Sign in with a student account to share a review."
+      >
+        <Button asChild variant="outline" size="sm">
+          <Link href="/admin">Go to admin</Link>
+        </Button>
+      </ReviewGate>
+    );
+  }
+
   if (!person.primaryCategory) {
     return (
       <ReviewGate
@@ -123,13 +155,15 @@ export async function ReviewPanel({ person }: { person: PersonSummary }) {
 
   const needsCourse = categoryNeedsCourse(person.primaryCategory);
 
-  const [criteria, limits, mine, options, scopes] = await Promise.all([
-    getReviewCriteria(person.primaryCategory),
-    getReviewLimits(),
-    getMyReviewForPerson(person.id),
-    getPersonReviewOptions(person.id),
-    getMyReviewScopes(),
-  ]);
+  const [criteria, limits, mine, catalog, scopes, submissionEnabled] =
+    await Promise.all([
+      getReviewCriteria(person.primaryCategory),
+      getReviewLimits(),
+      getMyReviewForPerson(person.id),
+      getPersonReviewCatalog(person.id),
+      getMyReviewScopes(),
+      isFeatureEnabled("review_submission"),
+    ]);
 
   if (criteria.length === 0) {
     return (
@@ -146,19 +180,19 @@ export async function ReviewPanel({ person }: { person: PersonSummary }) {
     de, to DB "You have already reviewed this course for this semester." ke
     saath rok degi.
   */
+  const personScopes = scopes.filter((scope) => scope.personId === person.id);
   const used = new Set(
-    scopes
-      .filter((scope) => scope.personId === person.id)
-      .map((scope) => scopeKey(scope.courseId, scope.semesterId)),
+    personScopes.map((scope) =>
+      reviewScopeKey(scope.courseId, scope.semesterId),
+    ),
+  );
+  const canWriteMore = hasAvailableReviewContext(
+    catalog,
+    personScopes,
+    needsCourse,
   );
 
-  const remaining: ReviewOption[] = options.filter(
-    (option) => !used.has(scopeKey(option.courseId, option.semesterId)),
-  );
-
-  const canWriteMore = remaining.length > 0;
-
-  const form = (
+  const form = submissionEnabled ? (
     <div className="rounded-lg border border-border bg-background p-5 shadow-xs sm:p-6">
       <div className="flex items-start gap-3 border-b border-border pb-5">
         <span
@@ -169,7 +203,9 @@ export async function ReviewPanel({ person }: { person: PersonSummary }) {
         </span>
         <div className="min-w-0">
           <h3 className="font-display text-base font-semibold text-foreground">
-            {mine ? "Review another course or semester" : "Write an anonymous review"}
+            {mine
+              ? "Review another course or semester"
+              : "Write an anonymous review"}
           </h3>
           <p className="mt-1 text-sm leading-relaxed text-muted-foreground">
             {needsCourse
@@ -186,11 +222,19 @@ export async function ReviewPanel({ person }: { person: PersonSummary }) {
           personName={person.name}
           criteria={criteria}
           limits={limits}
-          options={remaining}
+          catalog={catalog}
+          usedScopes={personScopes}
+          initialCourseId={initialCourseId}
+          initialSemesterId={initialSemesterId}
           needsCourse={needsCourse}
         />
       </div>
     </div>
+  ) : (
+    <ReviewGate
+      title="New reviews are paused"
+      description="New reviews are paused right now. Please try again later."
+    />
   );
 
   if (!mine) return form;
@@ -206,16 +250,19 @@ export async function ReviewPanel({ person }: { person: PersonSummary }) {
 
       {used.size > 1 ? (
         <p className="text-sm text-muted-foreground">
-          More than one of your reviews is linked to this person. The most recent one is shown
-          above, and all of them are listed on{" "}
-          <Link href="/student" className="font-medium text-foreground underline underline-offset-4">
+          More than one of your reviews is linked to this person. The most
+          recent one is shown above, and all of them are listed on{" "}
+          <Link
+            href="/student"
+            className="font-medium text-foreground underline underline-offset-4"
+          >
             your reviews page
           </Link>
           .
         </p>
       ) : null}
 
-      {canWriteMore ? (
+      {canWriteMore || catalog.failed ? (
         form
       ) : (
         <Alert tone="neutral">

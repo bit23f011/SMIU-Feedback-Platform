@@ -1,6 +1,6 @@
 import * as React from "react";
 
-import { Star } from "lucide-react";
+import { Star } from "@/components/ui/icons";
 
 import { cn, clampRating, formatCompactNumber } from "@/lib/utils";
 import { OVERALL_MAX } from "@/features/reviews/types";
@@ -59,7 +59,7 @@ export function RatingStars({
                 starSize,
                 filled ? "fill-coral-400 text-coral-500" : "fill-transparent text-ink-300",
               )}
-              strokeWidth={1.75}
+              weight={filled ? "fill" : "regular"}
             />
           );
         })}

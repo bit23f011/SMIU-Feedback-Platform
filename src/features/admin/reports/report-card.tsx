@@ -4,7 +4,7 @@ import * as React from "react";
 
 import Link from "next/link";
 import { useFormState, useFormStatus } from "react-dom";
-import { Ban, CheckCircle2, RotateCcw, Undo2, XCircle } from "lucide-react";
+import { Ban, CheckCircle2, RotateCcw, Undo2, XCircle } from "@/components/ui/icons";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";

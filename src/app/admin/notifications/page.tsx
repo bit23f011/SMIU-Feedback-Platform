@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 
 import Link from "next/link";
-import { ChevronLeft, ChevronRight, Inbox, ShieldCheck } from "lucide-react";
+import { ChevronLeft, ChevronRight, Inbox, ShieldCheck } from "@/components/ui/icons";
 
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Card } from "@/components/ui/card";

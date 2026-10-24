@@ -1,7 +1,7 @@
 import * as React from "react";
 
 import Link from "next/link";
-import { Flame, MessageSquareText, MousePointerClick, Trophy } from "lucide-react";
+import { Flame, MessageSquareText, MousePointerClick, Trophy } from "@/components/ui/icons";
 
 import { EmptyState } from "@/components/common/empty-state";
 import { Button } from "@/components/ui/button";
@@ -85,7 +85,7 @@ export async function RankingsResult({
   return (
     <div className="space-y-3">
       <p className="text-xs text-muted-foreground">
-        Ranked by verified student ratings. Profiles need at least {threshold} reviews to appear.
+        Ranked by student ratings. Profiles need at least {threshold} reviews to appear.
       </p>
       <RankedList items={items} />
     </div>
@@ -106,7 +106,7 @@ export async function MostReviewedSection({ category }: { category: PersonCatego
       <CardContent>
         {people.length === 0 ? (
           <p className="text-sm text-muted-foreground">
-            No reviews have been collected yet. This list fills in as students post verified reviews.
+            No reviews have been collected yet. This list fills in as students post reviews.
           </p>
         ) : (
           <RankedList

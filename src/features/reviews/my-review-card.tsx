@@ -2,7 +2,7 @@
 
 import * as React from "react";
 
-import { PencilLine } from "lucide-react";
+import { PencilLine } from "@/components/ui/icons";
 
 import { RatingStars } from "@/components/common/rating-stars";
 import { Alert, AlertDescription } from "@/components/ui/alert";

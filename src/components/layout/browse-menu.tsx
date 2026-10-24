@@ -4,7 +4,7 @@ import * as React from "react";
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { ChevronDown } from "lucide-react";
+import { ChevronDown } from "@/components/ui/icons";
 
 import { CATEGORY_NAV } from "@/lib/constants";
 import { cn } from "@/lib/utils";

@@ -3,7 +3,7 @@
 import * as React from "react";
 
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { Sparkles } from "lucide-react";
+import { Sparkles } from "@/components/ui/icons";
 
 import { Select } from "@/components/ui/select";
 import { Spinner } from "@/components/common/loading-state";

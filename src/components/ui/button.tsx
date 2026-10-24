@@ -30,7 +30,7 @@ const buttonVariants = cva(
       variant: {
         // Primary action - indigo.
         default:
-          "bg-primary text-primary-foreground shadow-xs hover:bg-indigo-600 active:bg-indigo-700 active:shadow-press",
+          "bg-primary text-primary-foreground shadow-xs hover:bg-primary/90 active:bg-primary/85 active:shadow-press",
         // Signature accent - coral. Sirf ek screen par ek dafa use karo.
         accent:
           "bg-coral-600 text-white shadow-xs hover:bg-coral-700 active:bg-coral-800 active:shadow-press",

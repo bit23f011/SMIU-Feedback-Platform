@@ -37,7 +37,8 @@ function isTheme(value: unknown): value is Theme {
 export function ThemeScript({ nonce }: { nonce?: string }) {
   const script = `(function(){try{var t=localStorage.getItem(${JSON.stringify(THEME_STORAGE_KEY)});var d=t==="dark"||((t===null||t==="system")&&window.matchMedia("(prefers-color-scheme: dark)").matches);document.documentElement.classList.toggle("dark",d);document.documentElement.style.colorScheme=d?"dark":"light";}catch(e){}})();`;
 
-  return <script nonce={nonce} dangerouslySetInnerHTML={{ __html: script }} />;
+  // Browser nonce attribute ko chhupata hai; is script ki expected difference ignore ho.
+  return <script nonce={nonce} suppressHydrationWarning dangerouslySetInnerHTML={{ __html: script }} />;
 }
 
 interface ThemeContextValue {

@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 
-import { ShieldCheck } from "lucide-react";
+import { ShieldCheck } from "@/components/ui/icons";
 
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { ReportQueue } from "@/features/admin/reports/report-queue";

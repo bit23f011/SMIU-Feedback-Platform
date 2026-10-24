@@ -8,7 +8,7 @@ export const SITE = {
   wordmark: "SMIU Feedback Platform",
   tagline: "Understand your learning experience.",
   description:
-    "Verified SMIU students share anonymous, structured feedback about teaching and campus services.",
+    "SMIU students share anonymous, structured feedback about teaching and campus services.",
   /** Navbar/footer ka chhota secondary line. Yahi wo line hai jo brand ke sath aati hai. */
   platformLine: "SMIU Feedback Platform",
   // Pehli university - SMIU. Architecture multi-university extensible hai.
@@ -126,7 +126,5 @@ export const FOOTER_NAV: readonly NavItem[] = [
   { label: "Rankings", href: "/rankings" },
   { label: "Courses", href: "/courses" },
   { label: "Recommendations", href: "/recommendations" },
-  { label: "How it works", href: "/#how-it-works" },
-  { label: "Privacy", href: "/#privacy" },
-  { label: "Feedback", href: "/feedback" },
+  { label: "Website feedback", href: "/feedback" },
 ] as const;

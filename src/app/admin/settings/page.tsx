@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 
-import { Inbox, ShieldCheck } from "lucide-react";
+import { Inbox, ShieldCheck } from "@/components/ui/icons";
 
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { EmptyState } from "@/components/common/empty-state";

@@ -23,11 +23,11 @@ Multi-university architecture from day one. SMIU is simply the first university 
 | Backend | Supabase: Postgres, Auth, Row Level Security |
 | Validation | Zod (server-side, inside Server Actions) |
 | Email | Brevo SMTP, configured in the Supabase dashboard |
-| Anti-abuse | Cloudflare Turnstile on signup |
+| Anti-abuse | Optional Cloudflare Turnstile on signup and sign-in |
 | Tests | Vitest (unit) plus Playwright (e2e skeleton) |
 
 Forms use **Server Actions plus Zod**, not react-hook-form. That keeps validation on the server,
-where it actually counts, and every form still works with JavaScript disabled.
+where it actually counts. CAPTCHA-enabled authentication also needs JavaScript for Turnstile.
 
 ---
 
@@ -62,7 +62,7 @@ application code.
 src/
   app/
     (public)/        public directory: home, 5 category pages, person profile, courses
-    auth/            login, signup, verify-email, /auth/callback (own minimal layout)
+    auth/            login, immediate signup, legacy auth redirects (own minimal layout)
     student/         signed-in student area (guarded by requireStudent)
     admin/           admin area, separate chrome (guarded by requireAdmin)
     error.tsx        route error boundary (generic message only)
@@ -120,8 +120,8 @@ Standing practices in this codebase:
 - A **k-anonymity brake** (bucket size of at least three) gates course and semester labels and
   per-criterion comparison values, so a thin bucket cannot be used to single out a reviewer.
 - Errors shown to users are hand-written. Postgres/Supabase messages, stack traces, SQL and file
-  paths never reach the client. `console.error` exists only in the two error boundaries and only
-  under `NODE_ENV === "development"`.
+  paths never reach the client. Authentication, review and feature-query failures log only an
+  operation, code and status on the server, with no student details or tokens.
 - Response headers include nosniff, `X-Frame-Options: DENY`, a strict Referrer-Policy, a
   restrictive Permissions-Policy, HSTS with preload, and a nonce-based CSP (report-only by
   default, switchable to enforce via `CSP_ENFORCE`).
@@ -136,7 +136,7 @@ Full detail lives in [`SECURITY.md`](SECURITY.md) and the phase audits under `do
 | Phase | Scope | Status |
 |---|---|---|
 | 1 | Design system plus public directory | Done |
-| 2 | Student auth plus university email verification | Done |
+| 2 | Student auth with immediate account creation | Done |
 | 3 | Reviews: write, edit, display, aggregates, moderation text | Done |
 | 4 | Search, filters, rankings, recommendations, favourites, compare | Done |
 | 5 | Admin, moderation, notifications, reports, website feedback, content management | Done |
@@ -154,15 +154,16 @@ Per-phase records:
 - [`docs/PHASE6_SECURITY.md`](docs/PHASE6_SECURITY.md)
 - [`docs/DEPLOYMENT.md`](docs/DEPLOYMENT.md)
 - [`docs/FINAL_PROJECT_REVIEW.md`](docs/FINAL_PROJECT_REVIEW.md)
+- [`docs/ADMIN_AUTH_REVIEW_FIXES.md`](docs/ADMIN_AUTH_REVIEW_FIXES.md)
 
 ---
 
 ## Deployment
 
-Production runs on Vercel with a Supabase production project, Brevo SMTP for verification email,
-Cloudflare (DNS plus Turnstile), and environment variables set in the Vercel dashboard. The full
+Production runs on Vercel with Supabase Auth email confirmation disabled, Cloudflare DNS,
+optional Turnstile, and environment variables set in the Vercel dashboard. The full
 step-by-step is in [`docs/DEPLOYMENT.md`](docs/DEPLOYMENT.md). Production must contain no real
-secrets in source; every secret is an environment variable.
+secrets in source; configure them in the hosting or provider dashboard.
 
 ---
 

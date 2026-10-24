@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { BookOpen, Building2, GraduationCap, HeartHandshake, Monitor } from "lucide-react";
+import { BookOpen, Building2, GraduationCap, HeartHandshake, Monitor } from "@/components/ui/icons";
 
 import { PERSON_CATEGORIES } from "@/lib/constants";
 import type { PersonCategory } from "@/lib/types";

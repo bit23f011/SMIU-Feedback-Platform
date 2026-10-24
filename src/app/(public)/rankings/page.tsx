@@ -33,7 +33,7 @@ export const dynamic = "force-dynamic";
 export const metadata: Metadata = {
   title: "Rankings",
   description:
-    "Rankings on SMIU Feedback Website are based on verified student ratings and the minimum review threshold, with separate Most Reviewed and Trending sections.",
+    "Rankings on SMIU Feedback Website are based on student ratings and the minimum review threshold, with separate Most Reviewed and Trending sections.",
   alternates: { canonical: "/rankings" },
 };
 
@@ -57,7 +57,7 @@ export default function RankingsPage({ searchParams }: { searchParams?: QueryPar
       <PageHeader
         eyebrow="Explore"
         title="Rankings"
-        description="Based on verified student ratings and the minimum review threshold."
+        description="Based on student ratings and the minimum review threshold."
       />
 
       <div className="mt-6">

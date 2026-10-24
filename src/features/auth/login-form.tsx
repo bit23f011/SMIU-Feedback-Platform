@@ -11,6 +11,12 @@ import { signInAction } from "@/features/auth/actions";
 import { EMPTY_AUTH_STATE } from "@/features/auth/form-state";
 import { FormError, FormField } from "@/features/auth/form-field";
 import { StudentIdInput } from "@/features/auth/student-id-input";
+import { Turnstile } from "@/features/auth/turnstile";
+
+interface LoginFormProps {
+  turnstileSiteKey?: string | null;
+  nonce?: string;
+}
 
 /*
   Login form.
@@ -24,18 +30,24 @@ import { StudentIdInput } from "@/features/auth/student-id-input";
   kyunki us par bharosa server nahi karta.
 */
 
-function SubmitButton() {
+function SubmitButton({ captchaReady }: { captchaReady: boolean }) {
   const { pending } = useFormStatus();
 
   return (
-    <Button type="submit" className="w-full" size="lg" disabled={pending}>
+    <Button
+      type="submit"
+      className="w-full"
+      size="lg"
+      disabled={pending || !captchaReady}
+    >
       {pending ? "Signing you in…" : "Sign in"}
     </Button>
   );
 }
 
-function LoginFormInner() {
+function LoginFormInner({ turnstileSiteKey, nonce }: LoginFormProps) {
   const [state, formAction] = useFormState(signInAction, EMPTY_AUTH_STATE);
+  const [captchaVerified, setCaptchaVerified] = React.useState(false);
   const searchParams = useSearchParams();
   const next = searchParams.get("next") ?? "";
 
@@ -45,7 +57,11 @@ function LoginFormInner() {
 
       <input type="hidden" name="next" value={next} />
 
-      <FormField id="login-student-id" label="Student ID" errors={state.fieldErrors?.studentId}>
+      <FormField
+        id="login-student-id"
+        label="Student ID"
+        errors={state.fieldErrors?.studentId}
+      >
         {(field) => (
           <StudentIdInput
             {...field}
@@ -59,7 +75,11 @@ function LoginFormInner() {
         )}
       </FormField>
 
-      <FormField id="login-password" label="Password" errors={state.fieldErrors?.password}>
+      <FormField
+        id="login-password"
+        label="Password"
+        errors={state.fieldErrors?.password}
+      >
         {(field) => (
           <Input
             {...field}
@@ -72,7 +92,16 @@ function LoginFormInner() {
         )}
       </FormField>
 
-      <SubmitButton />
+      {turnstileSiteKey ? (
+        <Turnstile
+          siteKey={turnstileSiteKey}
+          nonce={nonce}
+          resetKey={state}
+          action="signin"
+          onVerifiedChange={setCaptchaVerified}
+        />
+      ) : null}
+      <SubmitButton captchaReady={!turnstileSiteKey || captchaVerified} />
     </form>
   );
 }
@@ -82,10 +111,10 @@ function LoginFormInner() {
   CSR-bailout build error aata hai. Component khud apni boundary le kar chalta
   hai taake caller ko yaad rakhna na pare.
 */
-export function LoginForm() {
+export function LoginForm(props: LoginFormProps) {
   return (
     <React.Suspense fallback={<LoginFormSkeleton />}>
-      <LoginFormInner />
+      <LoginFormInner {...props} />
     </React.Suspense>
   );
 }
@@ -95,7 +124,9 @@ function LoginFormSkeleton() {
     <div aria-hidden="true" className="space-y-4">
       {["Student ID", "Password"].map((label) => (
         <div key={label} className="space-y-1.5">
-          <div className="text-sm font-medium leading-none text-ink-800">{label}</div>
+          <div className="text-sm font-medium leading-none text-ink-800">
+            {label}
+          </div>
           <div className="h-10 w-full rounded-md border border-input bg-background shadow-xs" />
         </div>
       ))}

@@ -3,7 +3,7 @@
 import * as React from "react";
 
 import { useFormState } from "react-dom";
-import { Star, UserCog } from "lucide-react";
+import { Star, UserCog } from "@/components/ui/icons";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";

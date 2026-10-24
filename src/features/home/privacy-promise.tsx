@@ -1,4 +1,4 @@
-import { Check, X } from "lucide-react";
+import { Check, X } from "@/components/ui/icons";
 
 import { Section } from "@/components/common/section";
 
@@ -14,7 +14,7 @@ import { Section } from "@/components/common/section";
 
 const WE_DO = [
   "Reviews are published with no link back to who wrote them.",
-  "We confirm you study here with one single verification email.",
+  "Your account details stay separate from your public reviews.",
   "Moderation happens on the server, never in your browser.",
 ] as const;
 
@@ -75,7 +75,8 @@ export function PrivacyPromise() {
       </div>
 
       <p className="mt-4 text-sm leading-relaxed text-muted-foreground">
-        You can delete your account whenever you want. Your reviews stay, fully anonymised.
+        You can delete your account whenever you want. Your reviews stay, fully
+        anonymised.
       </p>
     </Section>
   );

@@ -1,5 +1,10 @@
 # Fixing "incorrect password" on the live site (email confirmation)
 
+> Historical guide: the signup flow changed on 24 October 2026 to immediate account
+> creation without email verification. Follow [the current setup guide](ADMIN_AUTH_REVIEW_FIXES.md)
+> and turn **Confirm email OFF**. The confirmation and SMTP instructions below describe
+> the previous flow.
+
 You reported: create an account, then sign in fails with "incorrect password" even
 though the student ID and password are correct. Then: no confirmation email
 arrived at all.

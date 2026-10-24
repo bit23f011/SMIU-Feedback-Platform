@@ -3,7 +3,7 @@
 import * as React from "react";
 
 import { useFormState } from "react-dom";
-import { Ban, Undo2 } from "lucide-react";
+import { Ban, Undo2 } from "@/components/ui/icons";
 
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";

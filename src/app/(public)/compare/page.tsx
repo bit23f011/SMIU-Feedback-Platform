@@ -2,7 +2,7 @@ import * as React from "react";
 
 import type { Metadata } from "next";
 import Link from "next/link";
-import { GitCompare, Scale } from "lucide-react";
+import { GitCompare, Scale } from "@/components/ui/icons";
 
 import { EmptyState } from "@/components/common/empty-state";
 import { PageHeader } from "@/components/common/page-header";
@@ -38,7 +38,7 @@ export const dynamic = "force-dynamic";
 export const metadata: Metadata = {
   title: "Compare profiles",
   description:
-    "Compare verified student ratings for two to four profiles side by side, criterion by criterion.",
+    "Compare student ratings for two to four profiles side by side, criterion by criterion.",
   alternates: { canonical: "/compare" },
 };
 
@@ -71,7 +71,7 @@ async function ComparisonResult({
   return (
     <div className="space-y-3">
       <p className="text-xs text-muted-foreground">
-        Every value comes from verified student ratings. A criterion stays blank until at least three
+        Every value comes from student ratings. A criterion stays blank until at least three
         students have answered it, so no single answer can identify anyone.
       </p>
       <ComparisonTable people={people} />

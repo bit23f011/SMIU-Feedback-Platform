@@ -1,12 +1,13 @@
 import * as React from "react";
 
 import Link from "next/link";
-import { SearchX, Users } from "lucide-react";
+import { SearchX, Users } from "@/components/ui/icons";
 
 import { EmptyState } from "@/components/common/empty-state";
 import { ErrorState } from "@/components/common/error-state";
 import { Button } from "@/components/ui/button";
 import { PersonGrid } from "@/features/people/person-card";
+import { getReviewCatalogsForPeople } from "@/features/reviews/queries";
 import { searchPeople } from "@/features/discovery/queries";
 import { Pagination, pageHref } from "@/features/discovery/pagination";
 import {
@@ -40,7 +41,10 @@ export interface CategoryDirectoryProps {
   filters: DirectoryFilters;
 }
 
-export async function CategoryDirectory({ category, filters }: CategoryDirectoryProps) {
+export async function CategoryDirectory({
+  category,
+  filters,
+}: CategoryDirectoryProps) {
   const meta = getCategoryMeta(category);
   const { people, total, failed } = await searchPeople({ category, filters });
 
@@ -68,7 +72,9 @@ export async function CategoryDirectory({ category, filters }: CategoryDirectory
         description={`This search has ${pages === 1 ? "one page" : `${pages} pages`} of results.`}
         action={
           <Button asChild variant="outline" size="sm">
-            <Link href={pageHref(basePath, query, 1)}>Go to the first page</Link>
+            <Link href={pageHref(basePath, query, 1)}>
+              Go to the first page
+            </Link>
           </Button>
         }
       />
@@ -103,11 +109,20 @@ export async function CategoryDirectory({ category, filters }: CategoryDirectory
 
   const first = (filters.page - 1) * PEOPLE_PER_PAGE + 1;
   const last = first + people.length - 1;
-  const noun = total === 1 ? meta.singular.toLowerCase() : meta.label.toLowerCase();
+  const noun =
+    total === 1 ? meta.singular.toLowerCase() : meta.label.toLowerCase();
+  const reviewCatalogs =
+    category === "teacher" || category === "lab_instructor"
+      ? await getReviewCatalogsForPeople(people.map((person) => person.id))
+      : undefined;
 
   return (
     <div className="space-y-5">
-      <p className="text-sm text-muted-foreground" role="status" aria-live="polite">
+      <p
+        className="text-sm text-muted-foreground"
+        role="status"
+        aria-live="polite"
+      >
         {pages > 1 ? (
           <>
             Showing {first} to {last} of {formatCompactNumber(total)} {noun}
@@ -120,12 +135,19 @@ export async function CategoryDirectory({ category, filters }: CategoryDirectory
         {filters.search ? (
           <>
             {" "}
-            matching <span className="font-medium text-foreground">“{filters.search}”</span>
+            matching{" "}
+            <span className="font-medium text-foreground">
+              “{filters.search}”
+            </span>
           </>
         ) : null}
       </p>
 
-      <PersonGrid people={people} contextCategory={category} />
+      <PersonGrid
+        people={people}
+        contextCategory={category}
+        reviewCatalogs={reviewCatalogs}
+      />
 
       <Pagination
         page={filters.page}

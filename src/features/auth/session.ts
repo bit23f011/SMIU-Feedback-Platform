@@ -59,8 +59,8 @@ export async function requireStudent(): Promise<SessionUser> {
 
   if (!session) redirect("/auth/login?next=/student");
 
-  // Account bana liya magar email confirm nahi kiya.
-  if (!session.isVerified) redirect("/auth/verify-email");
+  // Purana incomplete account email verification flow me na jaye.
+  if (!session.isVerified) redirect("/auth/login?status=unavailable");
 
   // Profile trigger se banti hai; na ho ya band ho to student area nahi milega.
   if (!session.profile || !session.profile.is_active) redirect("/auth/login");

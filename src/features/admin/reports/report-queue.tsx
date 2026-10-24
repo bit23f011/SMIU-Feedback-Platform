@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ChevronLeft, ChevronRight, Inbox, TriangleAlert } from "lucide-react";
+import { ChevronLeft, ChevronRight, Inbox, TriangleAlert } from "@/components/ui/icons";
 
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { EmptyState } from "@/components/common/empty-state";

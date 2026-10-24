@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 
-import { Info } from "lucide-react";
+import { Info } from "@/components/ui/icons";
 
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Card } from "@/components/ui/card";

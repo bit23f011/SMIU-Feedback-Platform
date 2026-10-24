@@ -2,8 +2,8 @@
 
 This is the step-by-step for taking ProfAura to production. It assumes the code is already
 complete (Phases 1 to 7) and that database migrations are applied by the repository owner. The
-guiding rule throughout: **production contains no real secrets in source**. Every secret is an
-environment variable set in the hosting dashboard.
+guiding rule throughout: **production contains no real secrets in source**. Configure secrets in
+the hosting or provider dashboard.
 
 ## Overview of the production stack
 
@@ -11,9 +11,8 @@ environment variable set in the hosting dashboard.
 |---|---|
 | Vercel | Hosts the Next.js app, builds on push, holds runtime environment variables |
 | Supabase (production project) | Postgres, Auth, Row Level Security, storage |
-| Brevo | SMTP provider for verification email, wired into Supabase Auth |
-| Cloudflare | DNS for the custom domain, plus Turnstile for signup anti-abuse |
-| Turnstile | Bot challenge on the signup form |
+| Cloudflare | DNS for the custom domain, with optional Turnstile |
+| Turnstile | Optional bot challenge on signup and sign-in |
 
 ## 1. Supabase production project
 
@@ -29,18 +28,20 @@ environment variable set in the hosting dashboard.
    below. The service-role key is not used by the app and should never be placed in a
    `NEXT_PUBLIC_*` variable.
 
-## 2. Brevo SMTP
+## 2. Immediate signup
 
-1. Create a Brevo account and generate an SMTP key.
-2. In the Supabase dashboard, under Authentication and SMTP settings, enter the Brevo host, port,
-   login and key, and set the from-address and from-name.
-3. Send a test verification email and confirm delivery and the from-identity.
+1. In Supabase Authentication > Sign In / Providers > Email, enable the email provider and
+   disable **Confirm email**, then save. The app creates accounts without an email or OTP step.
+2. Enable **Student signup** under the app's Admin > Settings page.
+3. Successful signup must return a session and open `/student`. SMTP is not required for signup.
+   If Supabase still requires email confirmation, the app reports signup as unavailable.
 
 ## 3. Cloudflare and Turnstile
 
 1. Point the custom domain's DNS at Vercel per Vercel's domain instructions.
-2. Create a Turnstile widget for the production domain. Keep the site key (public) and secret key
-   (server-only) for the environment variables below.
+2. If using Turnstile, create a widget for the production domain. Put its site key in the app's
+   environment and its matching secret in Supabase Auth CAPTCHA protection, with Turnstile as
+   the provider. Without a configured widget, signup uses only the student's details.
 3. Leave the Permissions-Policy and CSP as configured; the CSP already allows the Turnstile
    origin.
 
@@ -52,8 +53,7 @@ Set these in the Vercel project settings, not in source. Names match `.env.examp
 NEXT_PUBLIC_SITE_URL              https://your-production-domain
 NEXT_PUBLIC_SUPABASE_URL          https://your-prod-ref.supabase.co
 NEXT_PUBLIC_SUPABASE_ANON_KEY     the production anon/publishable key
-NEXT_PUBLIC_TURNSTILE_SITE_KEY    the production Turnstile site key
-TURNSTILE_SECRET_KEY              the production Turnstile secret (server-only)
+NEXT_PUBLIC_TURNSTILE_SITE_KEY    optional production Turnstile site key
 CSP_ENFORCE                       false at first, then true after step 6
 ```
 
@@ -64,8 +64,8 @@ not use it today.
 
 1. Push to the branch Vercel builds, or trigger a deploy. (Git is handled manually by the owner.)
 2. Confirm the build succeeds and the site loads on the production domain.
-3. Smoke test: home page loads, a category page loads, signup with a university email reaches the
-   verify screen, and `/admin` is not reachable while signed out.
+3. Smoke test: home and category pages load, signup with a student ID immediately opens
+   `/student`, and `/admin` is not reachable while signed out.
 
 ## 6. Turn the CSP from report-only to enforce
 

@@ -1,7 +1,7 @@
 import * as React from "react";
 
 import Link from "next/link";
-import { BookOpen, SearchX, Users } from "lucide-react";
+import { BookOpen, SearchX, Users } from "@/components/ui/icons";
 
 import { EmptyState } from "@/components/common/empty-state";
 import { ErrorState } from "@/components/common/error-state";

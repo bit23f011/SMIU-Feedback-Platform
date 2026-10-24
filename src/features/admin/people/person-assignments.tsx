@@ -3,7 +3,7 @@
 import * as React from "react";
 
 import { useFormState } from "react-dom";
-import { BookOpen, CalendarPlus } from "lucide-react";
+import { BookOpen, CalendarPlus } from "@/components/ui/icons";
 
 import { Badge } from "@/components/ui/badge";
 import { EmptyState } from "@/components/common/empty-state";

@@ -3,7 +3,7 @@
 import * as React from "react";
 
 import Link from "next/link";
-import { LayoutDashboard, LogOut, Shield, User } from "lucide-react";
+import { LayoutDashboard, LogOut, Shield, User } from "@/components/ui/icons";
 
 import { Button } from "@/components/ui/button";
 import {

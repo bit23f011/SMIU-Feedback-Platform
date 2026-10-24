@@ -1,7 +1,7 @@
 import * as React from "react";
 
 import type { Metadata } from "next";
-import { Compass } from "lucide-react";
+import { Compass } from "@/components/ui/icons";
 
 import { EmptyState } from "@/components/common/empty-state";
 import { PageHeader } from "@/components/common/page-header";
@@ -34,7 +34,7 @@ export const dynamic = "force-dynamic";
 export const metadata: Metadata = {
   title: "Recommendations",
   description:
-    "Recommendations on SMIU Feedback Website are based on your course, department, program and verified student reviews.",
+    "Recommendations on SMIU Feedback Website are based on your course, department, program and student reviews.",
   alternates: { canonical: "/recommendations" },
 };
 
@@ -61,7 +61,7 @@ export default function RecommendationsPage({ searchParams }: { searchParams?: Q
       <PageHeader
         eyebrow="Explore"
         title="Recommendations"
-        description="Choose a course, department or program and see which teachers verified students rate highest for it. Nothing here is paid or promoted."
+        description="Choose a course, department or program and see which teachers students rate highest for it. Nothing here is paid or promoted."
       />
 
       <div className="mt-6">

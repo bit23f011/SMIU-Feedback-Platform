@@ -2,7 +2,7 @@
 
 import * as React from "react";
 
-import { Star } from "lucide-react";
+import { Star } from "@/components/ui/icons";
 
 import { cn } from "@/lib/utils";
 
@@ -84,7 +84,7 @@ export function StarInput({
             />
             <Star
               aria-hidden="true"
-              strokeWidth={1.75}
+              weight={star <= shown ? "fill" : "regular"}
               className={cn(
                 "size-7 transition-colors duration-100 ease-out",
                 "peer-focus-visible:rounded-sm peer-focus-visible:ring-2 peer-focus-visible:ring-ring",

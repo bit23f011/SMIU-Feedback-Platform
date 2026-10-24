@@ -8,7 +8,8 @@ import type { PersonCategory } from "@/features/people/types";
   `reviews` table me author column hai hi nahi. Anonymity structure se aati hai.
 */
 
-export type ReviewCriterionKind = Database["public"]["Enums"]["review_criterion_kind"];
+export type ReviewCriterionKind =
+  Database["public"]["Enums"]["review_criterion_kind"];
 export type ReviewStatus = Database["public"]["Enums"]["review_status"];
 
 /*
@@ -191,6 +192,24 @@ export interface ReviewOption {
   isAssigned: boolean;
 }
 
+export interface ReviewCourseOption {
+  id: string;
+  code: string | null;
+  title: string;
+}
+
+export interface ReviewSemesterOption {
+  id: string;
+  label: string;
+}
+
+/** Shared lists alag rakho; courses x semesters ka bara payload nahi banta. */
+export interface ReviewCatalog {
+  courses: ReviewCourseOption[];
+  semesters: ReviewSemesterOption[];
+  failed: boolean;
+}
+
 /** Kis person + course + semester par meri review pehle se hai. */
 export interface ReviewScope {
   personId: string;
@@ -209,12 +228,16 @@ export function categoryNeedsCourse(category: PersonCategory): boolean {
 */
 export function formatReviewContext(context: ReviewContext): string | null {
   const course = context.courseCode ?? context.courseTitle;
-  if (course && context.semesterLabel) return `${course} · ${context.semesterLabel}`;
+  if (course && context.semesterLabel)
+    return `${course} · ${context.semesterLabel}`;
   return course ?? context.semesterLabel ?? null;
 }
 
 /** Agar DB se limits na mil sakein to yehi safe default hai (UI copy ke liye). */
-export const FALLBACK_REVIEW_LIMITS: ReviewLimits = { maxPerDay: 10, maxEdits: 2 };
+export const FALLBACK_REVIEW_LIMITS: ReviewLimits = {
+  maxPerDay: 10,
+  maxEdits: 2,
+};
 
 /*
   Comment ki had README §21 ke mutabiq WORDS me hai, characters me nahi.

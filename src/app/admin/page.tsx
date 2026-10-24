@@ -12,8 +12,8 @@ import {
   SlidersHorizontal,
   Star,
   TriangleAlert,
-} from "lucide-react";
-import type { LucideIcon } from "lucide-react";
+} from "@/components/ui/icons";
+import type { InterfaceIcon } from "@/components/ui/icons";
 
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Card } from "@/components/ui/card";
@@ -82,7 +82,7 @@ interface StatSpec {
   label: string;
   value: number;
   href: string;
-  icon: LucideIcon;
+  icon: InterfaceIcon;
   hint: string;
 }
 

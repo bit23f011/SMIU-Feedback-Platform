@@ -1,7 +1,7 @@
 import * as React from "react";
 
 import Link from "next/link";
-import { Check, ChevronLeft, ChevronRight, MessageSquare, PencilLine, Star, X } from "lucide-react";
+import { Check, ChevronLeft, ChevronRight, MessageSquare, PencilLine, Star, X } from "@/components/ui/icons";
 
 import { EmptyState } from "@/components/common/empty-state";
 import { RatingStars } from "@/components/common/rating-stars";
@@ -223,7 +223,7 @@ export function ReviewList({
       <EmptyState
         icon={<MessageSquare />}
         title="No reviews yet"
-        description="Be the first verified student to share an honest, respectful experience."
+        description="Be the first student to share an honest, respectful experience."
       />
     );
   }

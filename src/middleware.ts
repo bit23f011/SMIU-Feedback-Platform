@@ -67,7 +67,7 @@ export async function middleware(request: NextRequest) {
     return redirectResponse;
   }
 
-  if (user && AUTH_ONLY_PATHS.some((path) => pathname === path)) {
+  if (user?.email_confirmed_at && AUTH_ONLY_PATHS.some((path) => pathname === path)) {
     const redirectResponse = NextResponse.redirect(new URL("/student", request.url));
     response.cookies.getAll().forEach((cookie) => redirectResponse.cookies.set(cookie));
     redirectResponse.headers.set(csp.header, csp.value);

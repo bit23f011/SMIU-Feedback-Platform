@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ArrowLeft, ExternalLink, ShieldCheck } from "lucide-react";
+import { ArrowLeft, ExternalLink, ShieldCheck } from "@/components/ui/icons";
 
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
@@ -29,25 +29,40 @@ export const metadata: Metadata = {
 
 export const dynamic = "force-dynamic";
 
-function SectionHeading({ title, description }: { title: string; description: string }) {
+function SectionHeading({
+  title,
+  description,
+}: {
+  title: string;
+  description: string;
+}) {
   return (
     <div className="mb-4">
-      <h2 className="font-display text-lg font-semibold tracking-tight text-foreground">{title}</h2>
-      <p className="mt-1 text-sm leading-relaxed text-muted-foreground">{description}</p>
+      <h2 className="font-display text-lg font-semibold tracking-tight text-foreground">
+        {title}
+      </h2>
+      <p className="mt-1 text-sm leading-relaxed text-muted-foreground">
+        {description}
+      </p>
     </div>
   );
 }
 
-export default async function AdminPersonDetailPage({ params }: { params: { id: string } }) {
+export default async function AdminPersonDetailPage({
+  params,
+}: {
+  params: { id: string };
+}) {
   if (!isUuid(params.id)) notFound();
 
-  const [bundle, departmentsList, positionsList, coursesList, semestersList] = await Promise.all([
-    getAdminPersonBundle(params.id),
-    getAdminDepartments(),
-    getAdminPositions(),
-    getAdminCourses(),
-    getAdminSemesters(),
-  ]);
+  const [bundle, departmentsList, positionsList, coursesList, semestersList] =
+    await Promise.all([
+      getAdminPersonBundle(params.id),
+      getAdminDepartments(),
+      getAdminPositions(),
+      getAdminCourses(),
+      getAdminSemesters(),
+    ]);
 
   if (!bundle.failed && bundle.person === null) notFound();
 
@@ -72,8 +87,8 @@ export default async function AdminPersonDetailPage({ params }: { params: { id: 
           <div>
             <AlertTitle>This profile did not load</AlertTitle>
             <AlertDescription>
-              Nothing has changed. Reload the page, and if it keeps failing, check that your account
-              still has the admin role.
+              Nothing has changed. Reload the page, and if it keeps failing,
+              check that your account still has the admin role.
             </AlertDescription>
           </div>
         </Alert>
@@ -106,7 +121,11 @@ export default async function AdminPersonDetailPage({ params }: { params: { id: 
                 </div>
               </div>
               <Button asChild variant="outline" size="sm">
-                <Link href={`/people/${bundle.person.slug}`} target="_blank" rel="noreferrer">
+                <Link
+                  href={`/people/${bundle.person.slug}`}
+                  target="_blank"
+                  rel="noreferrer"
+                >
                   <ExternalLink aria-hidden="true" />
                   View public profile
                 </Link>
@@ -139,16 +158,31 @@ export default async function AdminPersonDetailPage({ params }: { params: { id: 
 
           <section className="mt-10">
             <SectionHeading
-              title="Teaching assignments"
-              description="The courses and semesters this person teaches, which is where students review them."
+              title="Review dropdowns"
+              description="Courses and semesters saved in the shared lists appear automatically on this card. Teaching assignments are optional."
             />
-            <PersonAssignmentsSection
-              personId={bundle.person.id}
-              assignments={bundle.assignments}
-              courses={courses}
-              semesters={semesters}
-            />
+            <Card className="flex flex-wrap gap-3 p-5">
+              <Button asChild variant="outline" size="sm">
+                <Link href="/admin/courses">Manage courses</Link>
+              </Button>
+              <Button asChild variant="outline" size="sm">
+                <Link href="/admin/semesters">Manage semesters</Link>
+              </Button>
+            </Card>
           </section>
+          <details className="mt-6">
+            <summary className="cursor-pointer text-sm font-medium text-foreground">
+              Optional teaching records
+            </summary>
+            <div className="mt-4">
+              <PersonAssignmentsSection
+                personId={bundle.person.id}
+                assignments={bundle.assignments}
+                courses={courses}
+                semesters={semesters}
+              />
+            </div>
+          </details>
 
           <section className="mt-10">
             <SectionHeading
@@ -162,9 +196,9 @@ export default async function AdminPersonDetailPage({ params }: { params: { id: 
                 isActive={bundle.person.isActive}
               />
               <p className="mt-4 border-t border-border pt-3 text-xs leading-relaxed text-muted-foreground">
-                Deactivating hides the profile but keeps all data and reviews. To reset a profile{"'"}s
-                reviews or merge a duplicate, use the reports queue. Every action here is written to
-                the audit log.
+                Deactivating hides the profile but keeps all data and reviews.
+                To reset a profile{"'"}s reviews or merge a duplicate, use the
+                reports queue. Every action here is written to the audit log.
               </p>
             </Card>
           </section>

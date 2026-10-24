@@ -8,6 +8,7 @@ import { ThemeProvider, ThemeScript } from "@/components/theme/theme-provider";
 import { SITE } from "@/lib/constants";
 import { publicEnv } from "@/lib/env";
 import { cn } from "@/lib/utils";
+import { SiteExperienceProvider } from "@/components/layout/site-experience";
 
 /*
   Type pairing:
@@ -83,12 +84,16 @@ export const viewport: Viewport = {
   // Light primary hai, magar dark bhi support karte hain - browser ko dono batate hain.
   colorScheme: "light dark",
   themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "#ffffff" },
+    { media: "(prefers-color-scheme: light)", color: "#f8f3f2" },
     { media: "(prefers-color-scheme: dark)", color: "#14161d" },
   ],
 };
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   // Middleware ne per-request nonce x-nonce header par rakha hai. Yeh read karte
   // hi layout dynamic ho jata hai, jo theek hai: har response ka nonce alag hona
   // hi chahiye. Na mile (edge case) to undefined - report-only me koi farq nahi.
@@ -96,11 +101,15 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
 
   return (
     /*
-      suppressHydrationWarning sirf <html> par: ThemeScript paint se pehle
+      <html> ki suppressHydrationWarning: ThemeScript paint se pehle
       `class="dark"` laga sakta hai, jo server markup se match nahi karega.
       Yeh expected hai, isliye React ko warn karne se rok dete hain.
     */
-    <html lang="en" suppressHydrationWarning className={cn(fontSans.variable, fontDisplay.variable)}>
+    <html
+      lang="en"
+      suppressHydrationWarning
+      className={cn(fontSans.variable, fontDisplay.variable)}
+    >
       <head>
         <ThemeScript nonce={nonce} />
       </head>
@@ -112,7 +121,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         >
           Skip to content
         </a>
-        <ThemeProvider>{children}</ThemeProvider>
+        <ThemeProvider>
+          <SiteExperienceProvider>{children}</SiteExperienceProvider>
+        </ThemeProvider>
       </body>
     </html>
   );

@@ -3,7 +3,7 @@
 import * as React from "react";
 
 import Link from "next/link";
-import { GitCompare, X } from "lucide-react";
+import { GitCompare, X } from "@/components/ui/icons";
 
 import { RatingStars } from "@/components/common/rating-stars";
 import { Badge } from "@/components/ui/badge";

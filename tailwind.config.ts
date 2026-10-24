@@ -111,13 +111,13 @@ const config: Config = {
           50: "hsl(var(--indigo-50))",
           100: "hsl(var(--indigo-100))",
           200: "hsl(var(--indigo-200))",
-          300: "#a7b3db",
-          400: "#7a8ac4",
-          500: "#4858a3",
-          600: "#3d4b8e",
-          700: "#333e75",
-          800: "#2c3561",
-          900: "#252c50",
+          300: "#d6a4ab",
+          400: "#b96e7c",
+          500: "#8a1f2b",
+          600: "#78212e",
+          700: "#69202b",
+          800: "#551d27",
+          900: "#421b24",
         },
         /*
           Neutral ink scale (text + surfaces + borders). Poora scale variables se
@@ -165,14 +165,28 @@ const config: Config = {
 
       fontFamily: {
         sans: ["var(--font-sans)", "ui-sans-serif", "system-ui", "sans-serif"],
-        display: ["var(--font-display)", "var(--font-sans)", "ui-sans-serif", "sans-serif"],
+        display: [
+          "var(--font-display)",
+          "var(--font-sans)",
+          "ui-sans-serif",
+          "sans-serif",
+        ],
       },
 
       fontSize: {
         // Thoda tighter display scale - oversized type avoid karne ke liye.
-        "display-sm": ["1.75rem", { lineHeight: "1.2", letterSpacing: "-0.02em" }],
-        "display-md": ["2.25rem", { lineHeight: "1.15", letterSpacing: "-0.022em" }],
-        "display-lg": ["2.75rem", { lineHeight: "1.1", letterSpacing: "-0.025em" }],
+        "display-sm": [
+          "1.75rem",
+          { lineHeight: "1.2", letterSpacing: "-0.02em" },
+        ],
+        "display-md": [
+          "2.25rem",
+          { lineHeight: "1.15", letterSpacing: "-0.022em" },
+        ],
+        "display-lg": [
+          "2.75rem",
+          { lineHeight: "1.1", letterSpacing: "-0.025em" },
+        ],
       },
 
       boxShadow: {
@@ -181,7 +195,8 @@ const config: Config = {
         // cards "flat" na lagein aur surface page se alag dikhe.
         xs: "0 1px 2px 0 rgb(27 29 38 / 0.05)",
         card: "0 1px 2px 0 rgb(27 29 38 / 0.06), 0 1px 3px 0 rgb(27 29 38 / 0.05)",
-        "card-hover": "0 4px 16px -4px rgb(27 29 38 / 0.10), 0 1px 2px 0 rgb(27 29 38 / 0.04)",
+        "card-hover":
+          "0 4px 16px -4px rgb(27 29 38 / 0.10), 0 1px 2px 0 rgb(27 29 38 / 0.04)",
         pop: "0 12px 32px -10px rgb(27 29 38 / 0.16), 0 1px 3px 0 rgb(27 29 38 / 0.05)",
         // Inset press-feedback (button :active)
         press: "inset 0 1px 2px 0 rgb(27 29 38 / 0.12)",
@@ -224,7 +239,8 @@ const config: Config = {
         "fade-up": "fade-up 0.4s cubic-bezier(0.22, 1, 0.36, 1) both",
         "scale-in": "scale-in 0.16s cubic-bezier(0.22, 1, 0.36, 1) both",
         "slide-down": "slide-down 0.16s cubic-bezier(0.22, 1, 0.36, 1) both",
-        "slide-in-right": "slide-in-right 0.22s cubic-bezier(0.22, 1, 0.36, 1) both",
+        "slide-in-right":
+          "slide-in-right 0.22s cubic-bezier(0.22, 1, 0.36, 1) both",
         "caret-blink": "caret-blink 1.1s steps(1) infinite",
       },
     },

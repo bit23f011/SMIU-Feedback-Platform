@@ -1,7 +1,7 @@
 import * as React from "react";
 
 import Link from "next/link";
-import { Trophy } from "lucide-react";
+import { Trophy } from "@/components/ui/icons";
 
 import { RatingStars } from "@/components/common/rating-stars";
 import { Badge } from "@/components/ui/badge";

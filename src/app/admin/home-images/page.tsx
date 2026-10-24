@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 
-import { ImageOff, Images, ShieldCheck } from "lucide-react";
+import { ImageOff, Images, ShieldCheck } from "@/components/ui/icons";
 
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Card } from "@/components/ui/card";

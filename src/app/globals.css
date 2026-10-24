@@ -27,11 +27,11 @@
     color-scheme: light;
 
     /* ---- Base surfaces ---- */
-    --background: 0 0% 100%;
-    --foreground: 229 17% 13%;
+    --background: 12 35% 96%;
+    --foreground: 340 13% 16%;
 
     /* Off-white page surface (sections ko alternate karne ke liye) */
-    --surface: 220 27% 98%;
+    --surface: 12 29% 94%;
     --surface-foreground: 229 17% 13%;
 
     --card: 0 0% 100%;
@@ -41,16 +41,16 @@
     --popover-foreground: 229 17% 13%;
 
     /* ---- Primary action = indigo #4858A3 (white text par 6.5:1 contrast) ---- */
-    --primary: 229 39% 46%;
+    --primary: 353 63% 33%;
     --primary-foreground: 0 0% 100%;
 
     /* ---- Secondary = bohot halka indigo surface ---- */
-    --secondary: 225 50% 97%;
-    --secondary-foreground: 230 39% 33%;
+    --secondary: 352 35% 95%;
+    --secondary-foreground: 353 45% 30%;
 
     /* ---- Muted = quiet neutral surface + supporting text ---- */
-    --muted: 228 22% 95%;
-    --muted-foreground: 226 10% 40%;
+    --muted: 10 22% 93%;
+    --muted-foreground: 340 7% 42%;
 
     /* ---- Accent = coral tint surface + text-safe coral ink (#AF322C, 4.7:1) ---- */
     --accent: 5 100% 98%;
@@ -65,9 +65,9 @@
        topbar dividers ab saaf dikhte hain (pehle white/off-white par bohot dim
        the). Input aur gehra (86% -> 78%) taake outline buttons + form fields ka
        kinara clearly nazar aaye. Text tokens ko haath nahi lagaya - sirf lines. */
-    --border: 225 16% 86%;
-    --input: 223 15% 78%;
-    --ring: 229 45% 52%;
+    --border: 12 15% 85%;
+    --input: 12 12% 74%;
+    --ring: 353 45% 45%;
 
     /* ---- Shape ---- */
     --radius: 0.5rem;
@@ -93,9 +93,9 @@
     --magenta-100: 318 68% 94%;
     --magenta-200: 316 63% 88%;
 
-    --indigo-50: 225 50% 97%;
-    --indigo-100: 226 47% 93%;
-    --indigo-200: 226 44% 86%;
+    --indigo-50: 352 36% 96%;
+    --indigo-100: 352 32% 92%;
+    --indigo-200: 352 29% 85%;
 
     /* ---- System state tints ---- */
     --state-success: 157 45% 34%;
@@ -110,7 +110,7 @@
     --logo-glyph: 0 0% 100%;
 
     /* ---- Chrome ---- */
-    --glass-bar: 255 255 255;
+    --glass-bar: 248 243 241;
     --accent-line: 3 87% 66%;
   }
 
@@ -130,8 +130,8 @@
     --popover-foreground: 225 22% 93%;
 
     /* Dark par indigo halka hota hai, is liye uska text dark rehta hai. */
-    --primary: 228 52% 70%;
-    --primary-foreground: 228 35% 12%;
+    --primary: 352 43% 74%;
+    --primary-foreground: 350 30% 12%;
 
     --secondary: 228 20% 18%;
     --secondary-foreground: 226 40% 85%;
@@ -169,9 +169,9 @@
     --magenta-100: 316 24% 20%;
     --magenta-200: 316 26% 30%;
 
-    --indigo-50: 228 26% 17%;
-    --indigo-100: 228 26% 21%;
-    --indigo-200: 228 26% 31%;
+    --indigo-50: 350 20% 17%;
+    --indigo-100: 350 20% 21%;
+    --indigo-200: 350 22% 31%;
 
     --state-success: 156 45% 62%;
     --state-success-soft: 158 28% 15%;
@@ -301,7 +301,9 @@
   .glass-bar {
     background-color: rgb(var(--glass-bar) / 0.94);
   }
-  @supports ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  @supports (
+    (backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))
+  ) {
     .glass-bar {
       background-color: rgb(var(--glass-bar) / 0.74);
       -webkit-backdrop-filter: saturate(150%) blur(12px);
@@ -406,3 +408,209 @@
     clip-path: inset(0 50% 0 0);
   }
 }
+
+/* Campus identity: flat burgundy, warm paper and photography. */
+@layer components {
+  .editorial-title {
+    font-family: Georgia, "Times New Roman", serif;
+    font-weight: 400;
+    letter-spacing: -0.035em;
+  }
+  .eyebrow {
+    font-size: 10px;
+    line-height: 1.6;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.16em;
+    color: hsl(var(--primary));
+  }
+  .campus-hero {
+    position: relative;
+    overflow: hidden;
+    border-bottom: 1px solid hsl(var(--border));
+  }
+  .campus-backdrop {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+  }
+  .campus-backdrop-image {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center 42%;
+    opacity: 0;
+    transition: opacity 1.4s ease;
+  }
+  .campus-backdrop-image.is-current {
+    opacity: 1;
+  }
+  .campus-veil {
+    position: absolute;
+    inset: 0;
+    background: hsl(var(--background) / 0.82);
+  }
+  .campus-photo-controls {
+    position: absolute;
+    top: 30px;
+    right: max(24px, calc((100vw - 1116px) / 2));
+    z-index: 15;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    color: hsl(var(--primary));
+  }
+  .photo-control {
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    padding: 6px;
+    border-radius: 4px;
+  }
+  .hero-caption {
+    color: hsl(var(--foreground) / 0.65);
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.02em;
+  }
+  .home-search {
+    width: 100%;
+    overflow: hidden;
+    border-radius: 8px;
+    border: 1px solid hsl(var(--border));
+    background: hsl(var(--card) / 0.96);
+    box-shadow: 0 10px 30px -20px rgb(69 30 38 / 0.25);
+  }
+  .contribute-panel {
+    background: #70232e;
+  }
+  .pathway-cell {
+    transition: background-color 150ms ease;
+  }
+  .pathway-cell:hover {
+    background: hsl(var(--indigo-50));
+  }
+  .profile-marquee {
+    width: 100%;
+  }
+  .marquee-viewport {
+    overflow: hidden;
+    padding: 4px 0 8px;
+  }
+  .marquee-track {
+    display: flex;
+    width: max-content;
+    animation: profile-drift 65s linear infinite;
+  }
+  .is-reverse .marquee-track {
+    animation-direction: reverse;
+    animation-duration: 75s;
+  }
+  .marquee-group {
+    display: flex;
+    align-items: stretch;
+    gap: 16px;
+    padding-right: 16px;
+    list-style: none;
+  }
+  .marquee-group > * {
+    width: 310px;
+    flex-shrink: 0;
+  }
+  .profile-marquee:hover .marquee-track,
+  .profile-marquee:focus-within .marquee-track,
+  .profile-marquee[data-paused="true"] .marquee-track {
+    animation-play-state: paused;
+  }
+  .student-shell {
+    display: grid;
+    grid-template-columns: 210px minmax(0, 1fr);
+    gap: 40px;
+  }
+  .student-sidebar {
+    position: sticky;
+    top: 88px;
+    align-self: start;
+    max-height: calc(100dvh - 112px);
+    overflow-y: auto;
+  }
+  .student-nav-link {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    border-radius: 6px;
+    padding: 11px 12px;
+    font-size: 12px;
+    font-weight: 500;
+    color: hsl(var(--muted-foreground));
+    transition:
+      background-color 150ms ease,
+      color 150ms ease;
+  }
+  .student-nav-link:hover {
+    background: hsl(var(--indigo-50));
+    color: hsl(var(--foreground));
+  }
+  .student-nav-link[aria-current="page"] {
+    background: hsl(var(--indigo-100));
+    color: hsl(var(--primary));
+  }
+  .student-nav-link svg {
+    width: 17px;
+    height: 17px;
+    flex-shrink: 0;
+  }
+}
+@keyframes profile-drift {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+@media (max-width: 767px) {
+  .campus-photo-controls {
+    top: 12px;
+    right: 16px;
+  }
+  .campus-veil {
+    background: hsl(var(--background) / 0.88);
+  }
+  .marquee-group > * {
+    width: 275px;
+  }
+  .student-shell {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 24px;
+  }
+  .student-sidebar {
+    position: static;
+    max-height: none;
+    overflow: visible;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  .marquee-track {
+    animation: none;
+  }
+  .marquee-viewport {
+    overflow-x: auto;
+  }
+  .marquee-copy {
+    display: none;
+  }
+  .campus-backdrop-image {
+    transition: none;
+  }
+  [data-state] {
+    animation-duration: 0.01ms !important;
+  }
+}
+
+/* Keep editorial headings consistent inside shared dialog and card primitives. */
+.editorial-title { font-family: Georgia, "Times New Roman", serif; font-weight: 400; letter-spacing: -0.035em; }

@@ -1,53 +1,66 @@
-import * as React from "react";
-
-import { Section } from "@/components/common/section";
-import { Skeleton } from "@/components/ui/skeleton";
-import { TopPersonCard } from "@/features/home/top-person-card";
+import Link from "next/link";
 import { getTopPersonByCategory } from "@/features/people/queries";
-
-/*
-  Best teacher - homepage ka ek hi "highlight" slot.
-
-  Ab yeh asli data par chalta hai: `getTopPersonByCategory` wohi teacher deta
-  hai jiske paas minimum verified reviews hain aur average sab se upar hai.
-  Koi eligible na ho to card khud imandar empty state dikhata hai.
-
-  YAAD RAHE: yahan kabhi koi hardcoded SMIU teacher ka naam mat likhna. Agar
-  demo data chahiye to wo seed/dev data me ho, production component me nahi.
-
-  Pehle is section ke sath ek lamba "How the top spot is earned" panel tha
-  (verified students only / minimum reviews / averaged never hand-picked). Wo
-  teeno baatein ek hi jumle me aa jati hain, is liye ab ek line hai.
-
-  Fetch Suspense ke andar hai (FeaturedPeople wala pattern) taake heading foran
-  aaye aur card ki jagah usi shape ka skeleton rahe.
-*/
-
-async function TopTeacher() {
-  const topTeacher = await getTopPersonByCategory({ category: "teacher" });
-
+import { PersonAvatar } from "@/features/people/person-avatar";
+import { RatingStars } from "@/components/common/rating-stars";
+import { ArrowRight } from "@/components/ui/icons";
+export async function BestTeacher() {
+  const person = await getTopPersonByCategory({ category: "teacher" });
   return (
-    <TopPersonCard
-      person={topTeacher}
-      noun="teacher"
-      browseHref="/teachers"
-      browseLabel="Browse teachers"
-    />
-  );
-}
-
-export function BestTeacher() {
-  return (
-    <Section
+    <section
       id="best-teacher"
-      eyebrow="Highlight"
-      title="Top rated teacher"
-      description="Rankings are based on verified student ratings and the minimum review threshold."
-      tinted
+      className="container"
+      aria-labelledby="top-rated-heading"
     >
-      <React.Suspense fallback={<Skeleton className="h-[9.5rem] w-full rounded-lg" />}>
-        <TopTeacher />
-      </React.Suspense>
-    </Section>
+      <div className="flex flex-col justify-between gap-6 border-y border-border py-8 sm:flex-row sm:items-center">
+        <div className="max-w-[340px]">
+          <p className="eyebrow">Recognised by students</p>
+          <h2 id="top-rated-heading" className="editorial-title mt-3 text-2xl">
+            Good teaching leaves a mark.
+          </h2>
+          <p className="mt-2 text-[13px] leading-6 text-muted-foreground">
+            The top spot is earned through student ratings and enough reviews to
+            count.
+          </p>
+        </div>
+        {person ? (
+          <Link
+            href={"/people/" + person.slug}
+            className="flex items-center gap-4 rounded-lg border border-border bg-card px-5 py-4 sm:min-w-[330px]"
+          >
+            <PersonAvatar
+              name={person.name}
+              gender={person.gender}
+              photoUrl={person.photoUrl}
+            />
+            <div className="min-w-0 flex-1">
+              <p className="text-[10px] font-semibold uppercase tracking-wider text-primary">
+                Top rated teacher
+              </p>
+              <h3 className="mt-1 text-sm font-semibold">{person.name}</h3>
+              <div className="mt-2">
+                <RatingStars value={person.rating} count={person.reviewCount} />
+              </div>
+            </div>
+            <ArrowRight
+              className="size-4 shrink-0 text-primary"
+              aria-hidden="true"
+            />
+          </Link>
+        ) : (
+          <div className="max-w-[320px]">
+            <p className="text-sm font-medium">
+              The next top spot is still being earned.
+            </p>
+            <Link
+              href="/rankings"
+              className="mt-3 inline-flex items-center gap-2 text-[13px] font-semibold text-primary"
+            >
+              Explore rankings
+              <ArrowRight className="size-4" aria-hidden="true" />
+            </Link>
+          </div>
+        )}
+      </div>
+    </section>
   );
 }

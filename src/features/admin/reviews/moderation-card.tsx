@@ -4,8 +4,8 @@ import * as React from "react";
 
 import Link from "next/link";
 import { useFormState, useFormStatus } from "react-dom";
-import { CheckCircle2, EyeOff, Star, StarOff, XCircle } from "lucide-react";
-import type { LucideIcon } from "lucide-react";
+import { CheckCircle2, EyeOff, Star, StarOff, XCircle } from "@/components/ui/icons";
+import type { InterfaceIcon } from "@/components/ui/icons";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -36,7 +36,7 @@ import { getCategoryMeta } from "@/lib/constants";
 interface ActionSpec {
   action: ModerationAction;
   label: string;
-  icon: LucideIcon;
+  icon: InterfaceIcon;
   variant: "default" | "outline" | "destructive" | "subtle";
 }
 

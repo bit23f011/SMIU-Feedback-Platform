@@ -62,7 +62,7 @@ export function ProfAuraLogo({
     setIsTouch(window.matchMedia("(hover: none)").matches);
   }, []);
   React.useEffect(() => {
-    if (animateMark && isTouch && !reduce) play(2600);
+    if (animateMark && isTouch && !reduce) play(4200);
   }, [animateMark, isTouch, reduce, play]);
 
   // Interactive = live ginti; warna hamesha settled (current year + UNIVERSITY).
@@ -73,9 +73,9 @@ export function ProfAuraLogo({
   const interactive = animateMark && !isTouch && !reduce;
   const hoverHandlers = interactive
     ? {
-        onMouseEnter: () => play(2200),
+        onMouseEnter: () => play(3800),
         onMouseLeave: reset,
-        onFocus: () => play(2200),
+        onFocus: () => play(3800),
         onBlur: reset,
       }
     : {};
