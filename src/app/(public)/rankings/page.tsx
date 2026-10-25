@@ -42,7 +42,11 @@ async function RankingControlsBar() {
   return <RankingControls options={options} />;
 }
 
-export default function RankingsPage({ searchParams }: { searchParams?: QueryParams }) {
+export default function RankingsPage({
+  searchParams,
+}: {
+  searchParams?: QueryParams;
+}) {
   const category = parsePersonCategory(firstParam(searchParams, "category"));
   const scope = parseRankingScope(firstParam(searchParams, "scope"));
   const departmentId = parseId(firstParam(searchParams, "dept"));
@@ -62,18 +66,31 @@ export default function RankingsPage({ searchParams }: { searchParams?: QueryPar
 
       <div className="mt-6">
         {/* Controls reference data parhte hain, is liye alag stream. */}
-        <React.Suspense fallback={<div className="h-9 w-full animate-pulse rounded-md bg-ink-100" />}>
+        <React.Suspense
+          fallback={
+            <div className="h-9 w-full animate-pulse rounded-md bg-ink-100" />
+          }
+        >
           <RankingControlsBar />
         </React.Suspense>
       </div>
 
-      <div className="mt-8 grid gap-8 lg:grid-cols-3">
-        <section aria-labelledby="best-heading" className="lg:col-span-3">
-          <h2 id="best-heading" className="text-lg font-semibold text-foreground">
+      <div className="mt-8 grid grid-cols-1 gap-8 lg:grid-cols-3">
+        <section
+          aria-labelledby="best-heading"
+          className="min-w-0 lg:col-span-3"
+        >
+          <h2
+            id="best-heading"
+            className="text-lg font-semibold text-foreground"
+          >
             Best {meta.label.toLowerCase()}
           </h2>
           <div className="mt-4">
-            <React.Suspense key={resultKey} fallback={<ListSkeleton rows={5} />}>
+            <React.Suspense
+              key={resultKey}
+              fallback={<ListSkeleton rows={5} />}
+            >
               <RankingsResult
                 category={category}
                 scope={scope}
@@ -85,12 +102,18 @@ export default function RankingsPage({ searchParams }: { searchParams?: QueryPar
           </div>
         </section>
 
-        <div className="lg:col-span-3">
-          <div className="grid gap-6 lg:grid-cols-2">
-            <React.Suspense key={`mr-${category}`} fallback={<ListSkeleton rows={4} />}>
+        <div className="min-w-0 lg:col-span-3">
+          <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+            <React.Suspense
+              key={`mr-${category}`}
+              fallback={<ListSkeleton rows={4} />}
+            >
               <MostReviewedSection category={category} />
             </React.Suspense>
-            <React.Suspense key={`tr-${category}`} fallback={<ListSkeleton rows={4} />}>
+            <React.Suspense
+              key={`tr-${category}`}
+              fallback={<ListSkeleton rows={4} />}
+            >
               <TrendingSection category={category} />
             </React.Suspense>
           </div>

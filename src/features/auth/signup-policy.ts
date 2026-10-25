@@ -38,7 +38,9 @@ export const getSignupPolicy = cache(async (): Promise<SignupPolicy> => {
     const { url, anonKey } = getSupabaseClientEnv();
     const response = await fetch(`${url}/auth/v1/settings`, {
       headers: { apikey: anonKey },
-      cache: "no-store",
+      // These are public configuration settings. Auth still enforces the current
+      // policy on every signup; credentials, tokens and sessions stay uncached.
+      next: { revalidate: 30 },
       signal: AbortSignal.timeout(10000),
     });
     if (!response.ok) {
@@ -58,7 +60,9 @@ export const getSignupPolicy = cache(async (): Promise<SignupPolicy> => {
 
     const emailConfirmationRequired = !settings.mailer_autoconfirm;
     const captchaRequired = Boolean(siteKey);
-    const invalidCaptcha = Boolean(configured(publicEnv.turnstileSiteKey) && !siteKey);
+    const invalidCaptcha = Boolean(
+      configured(publicEnv.turnstileSiteKey) && !siteKey,
+    );
     const available =
       settings.external?.email === true &&
       !settings.disable_signup &&

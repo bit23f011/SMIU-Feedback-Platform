@@ -1,5 +1,10 @@
 import Link from "next/link";
-import { ChevronLeft, ChevronRight, Inbox, TriangleAlert } from "@/components/ui/icons";
+import {
+  ChevronLeft,
+  ChevronRight,
+  Inbox,
+  TriangleAlert,
+} from "@/components/ui/icons";
 
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { EmptyState } from "@/components/common/empty-state";
@@ -44,7 +49,7 @@ function QueueTabs({ active }: { active: ReportStatus }) {
                   "transition-[background-color,border-color,color] duration-150 ease-out",
                   "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
                   isActive
-                    ? "border-indigo-200 bg-indigo-50 text-indigo-700"
+                    ? "border-indigo-200 bg-indigo-50 text-primary"
                     : "border-border bg-background text-ink-600 hover:bg-ink-50 hover:text-foreground",
                 )}
               >
@@ -75,7 +80,10 @@ function QueuePagination({
     "inline-flex cursor-not-allowed items-center gap-1 rounded-md border border-border/60 px-3 py-1.5 text-sm font-medium text-muted-foreground/60";
 
   return (
-    <nav aria-label="Queue pages" className="flex items-center justify-between gap-3 pt-2">
+    <nav
+      aria-label="Queue pages"
+      className="flex items-center justify-between gap-3 pt-2"
+    >
       {page > 1 ? (
         <Link href={hrefFor(status, page - 1)} className={linkClass} rel="prev">
           <ChevronLeft aria-hidden="true" className="size-4" />
@@ -88,7 +96,10 @@ function QueuePagination({
         </span>
       )}
 
-      <p className="text-sm tabular-nums text-muted-foreground" aria-live="polite">
+      <p
+        className="text-sm tabular-nums text-muted-foreground"
+        aria-live="polite"
+      >
         Page {page} of {pageCount}
       </p>
 
@@ -115,14 +126,20 @@ export async function ReportQueue({
   page: number;
 }) {
   const queue = await getAdminReportQueue(status, page);
-  const tab = REPORT_TABS.find((entry) => entry.status === status) ?? REPORT_TABS[0]!;
-  const pageCount = Math.max(1, Math.ceil(queue.total / ADMIN_REPORTS_PER_PAGE));
+  const tab =
+    REPORT_TABS.find((entry) => entry.status === status) ?? REPORT_TABS[0]!;
+  const pageCount = Math.max(
+    1,
+    Math.ceil(queue.total / ADMIN_REPORTS_PER_PAGE),
+  );
 
   return (
     <>
       <QueueTabs active={status} />
 
-      <p className="mt-4 text-sm leading-relaxed text-muted-foreground">{tab.help}</p>
+      <p className="mt-4 text-sm leading-relaxed text-muted-foreground">
+        {tab.help}
+      </p>
 
       {queue.failed ? (
         <Alert tone="danger" className="mt-4">
@@ -130,8 +147,8 @@ export async function ReportQueue({
           <div>
             <AlertTitle>This list did not load</AlertTitle>
             <AlertDescription>
-              Nothing has changed. Reload the page, and if it keeps failing, check that your
-              account still has the admin role.
+              Nothing has changed. Reload the page, and if it keeps failing,
+              check that your account still has the admin role.
             </AlertDescription>
           </div>
         </Alert>
@@ -150,7 +167,8 @@ export async function ReportQueue({
       {queue.reports.length > 0 ? (
         <div className="mt-4 space-y-4">
           <p className="text-sm tabular-nums text-muted-foreground">
-            {queue.total} {queue.total === 1 ? "report" : "reports"} in this list
+            {queue.total} {queue.total === 1 ? "report" : "reports"} in this
+            list
           </p>
 
           <ul className="list-none space-y-4">

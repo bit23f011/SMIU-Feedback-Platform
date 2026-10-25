@@ -5,7 +5,10 @@ const mocks = vi.hoisted(() => ({
   revalidatePath: vi.fn(),
   log: vi.fn(),
 }));
-vi.mock("next/cache", () => ({ revalidatePath: mocks.revalidatePath }));
+vi.mock("next/cache", () => ({
+  revalidatePath: mocks.revalidatePath,
+  revalidateTag: vi.fn(),
+}));
 vi.mock("@/lib/supabase/server", () => ({
   createSupabaseServerClient: () => ({ rpc: mocks.rpc }),
 }));

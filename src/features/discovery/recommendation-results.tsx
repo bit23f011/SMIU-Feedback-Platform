@@ -10,7 +10,10 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { PersonAvatar } from "@/features/people/person-avatar";
 import { getRecommendations } from "@/features/discovery/queries";
-import type { Recommendation, RecommendationInput } from "@/features/discovery/types";
+import type {
+  Recommendation,
+  RecommendationInput,
+} from "@/features/discovery/types";
 import { getCategoryMeta } from "@/lib/constants";
 
 /*
@@ -40,12 +43,16 @@ function RecommendationCard({ person }: { person: Recommendation }) {
   return (
     <Card className="flex flex-col p-5">
       <div className="flex items-start gap-3.5">
-        <PersonAvatar name={person.name} gender={person.gender} photoUrl={person.photoUrl} />
+        <PersonAvatar
+          name={person.name}
+          gender={person.gender}
+          photoUrl={person.photoUrl}
+        />
         <div className="min-w-0 flex-1">
           <h3 className="font-display text-base font-semibold leading-snug tracking-tight text-foreground">
             <Link
               href={`/people/${person.slug}`}
-              className="rounded-sm outline-none transition-colors duration-150 ease-out hover:text-indigo-700 focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+              className="rounded-sm outline-none transition-colors duration-150 ease-out hover:text-primary focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
             >
               {person.name}
             </Link>
@@ -58,7 +65,9 @@ function RecommendationCard({ person }: { person: Recommendation }) {
 
       <div className="mt-4 flex flex-wrap items-center gap-1.5">
         <Badge variant="category">{meta.singular}</Badge>
-        {role?.department ? <Badge variant="brand">{role.department}</Badge> : null}
+        {role?.department ? (
+          <Badge variant="brand">{role.department}</Badge>
+        ) : null}
       </div>
 
       <div className="mt-4 border-t border-border/80 pt-3.5">
@@ -67,13 +76,17 @@ function RecommendationCard({ person }: { person: Recommendation }) {
 
       {strengths.length > 0 ? (
         <div className="mt-4">
-          <p className="text-xs font-medium uppercase tracking-wide text-ink-500">Key strengths</p>
+          <p className="text-xs font-medium uppercase tracking-wide text-ink-500">
+            Key strengths
+          </p>
           <div className="mt-2 flex flex-wrap gap-1.5">
             {strengths.map((strength) => (
               <Badge key={strength.key} variant="accent">
                 {strength.label}
                 {strength.averageStar !== null ? (
-                  <span className="tabular-nums">{strength.averageStar.toFixed(1)}</span>
+                  <span className="tabular-nums">
+                    {strength.averageStar.toFixed(1)}
+                  </span>
                 ) : null}
               </Badge>
             ))}
@@ -83,10 +96,15 @@ function RecommendationCard({ person }: { person: Recommendation }) {
 
       {person.reasons.length > 0 ? (
         <div className="mt-4 border-t border-border/80 pt-3.5">
-          <p className="text-xs font-medium uppercase tracking-wide text-ink-500">Why suggested</p>
+          <p className="text-xs font-medium uppercase tracking-wide text-ink-500">
+            Why suggested
+          </p>
           <ul className="mt-2 space-y-1.5">
             {person.reasons.map((reason) => (
-              <li key={reason} className="flex items-start gap-2 text-sm text-ink-700">
+              <li
+                key={reason}
+                className="flex items-start gap-2 text-sm text-ink-700"
+              >
                 <CheckCircle2
                   aria-hidden="true"
                   className="mt-0.5 size-4 shrink-0 text-indigo-500"
@@ -101,7 +119,11 @@ function RecommendationCard({ person }: { person: Recommendation }) {
   );
 }
 
-export async function RecommendationResults({ input }: { input: RecommendationInput }) {
+export async function RecommendationResults({
+  input,
+}: {
+  input: RecommendationInput;
+}) {
   const recommendations = await getRecommendations(input);
 
   if (recommendations.length === 0) {
@@ -123,8 +145,8 @@ export async function RecommendationResults({ input }: { input: RecommendationIn
   return (
     <div className="space-y-4">
       <p className="text-xs text-muted-foreground">
-        Suggestions use student ratings, how closely each profile matches your choices, and
-        recent review activity. Nothing here is paid or promoted.
+        Suggestions use student ratings, how closely each profile matches your
+        choices, and recent review activity. Nothing here is paid or promoted.
       </p>
       <ul className="grid list-none gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {recommendations.map((person) => (

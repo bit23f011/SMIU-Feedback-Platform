@@ -160,9 +160,6 @@ export function SiteExperienceProvider({
             ))}
           </ol>
           <div className="flex flex-wrap items-center justify-between gap-4 border-t border-border px-6 py-5 sm:px-8">
-            <p className="max-w-[250px] text-xs leading-relaxed text-muted-foreground">
-              Independent student feedback. Not an official university service.
-            </p>
             <Button onClick={() => closeGuide(false)}>Start exploring</Button>
           </div>
         </DialogContent>

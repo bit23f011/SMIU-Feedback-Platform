@@ -30,7 +30,12 @@ export interface CourseListProps {
   page?: number;
 }
 
-export async function CourseList({ search, departmentId, semesterId, page = 1 }: CourseListProps) {
+export async function CourseList({
+  search,
+  departmentId,
+  semesterId,
+  page = 1,
+}: CourseListProps) {
   const { courses, total, failed } = await searchCourses({
     search,
     departmentId,
@@ -64,7 +69,9 @@ export async function CourseList({ search, departmentId, semesterId, page = 1 }:
         description={`This search has ${pages === 1 ? "one page" : `${pages} pages`} of results.`}
         action={
           <Button asChild variant="outline" size="sm">
-            <Link href={pageHref("/courses", query, 1)}>Go to the first page</Link>
+            <Link href={pageHref("/courses", query, 1)}>
+              Go to the first page
+            </Link>
           </Button>
         }
       />
@@ -76,7 +83,11 @@ export async function CourseList({ search, departmentId, semesterId, page = 1 }:
       <EmptyState
         tone="no-results"
         icon={<SearchX />}
-        title={search ? `No courses matched “${search}”` : "No courses matched these filters"}
+        title={
+          search
+            ? `No courses matched “${search}”`
+            : "No courses matched these filters"
+        }
         description="Try the course code (for example “CS-201”), a shorter part of the title, or remove a filter."
         action={
           <Button asChild variant="outline" size="sm">
@@ -98,7 +109,11 @@ export async function CourseList({ search, departmentId, semesterId, page = 1 }:
 
   return (
     <div className="space-y-5">
-      <p className="text-sm text-muted-foreground" role="status" aria-live="polite">
+      <p
+        className="text-sm text-muted-foreground"
+        role="status"
+        aria-live="polite"
+      >
         {pages > 1 ? (
           <>
             Showing {first} to {last} of {formatCompactNumber(total)}{" "}
@@ -112,7 +127,8 @@ export async function CourseList({ search, departmentId, semesterId, page = 1 }:
         {search ? (
           <>
             {" "}
-            matching <span className="font-medium text-foreground">“{search}”</span>
+            matching{" "}
+            <span className="font-medium text-foreground">“{search}”</span>
           </>
         ) : null}
       </p>
@@ -122,7 +138,7 @@ export async function CourseList({ search, departmentId, semesterId, page = 1 }:
           <li key={course.id} className="flex">
             <Card className="group relative flex w-full flex-col p-5 transition-[border-color,box-shadow] duration-150 ease-out hover:border-ink-300 hover:shadow-sm focus-within:border-primary">
               {course.code ? (
-                <p className="font-mono text-xs font-medium uppercase tracking-wide text-indigo-600">
+                <p className="font-mono text-xs font-medium uppercase tracking-wide text-primary">
                   {course.code}
                 </p>
               ) : null}
@@ -134,18 +150,24 @@ export async function CourseList({ search, departmentId, semesterId, page = 1 }:
                   nahi hota.
                 */}
                 <Link href={`/courses/${course.slug}`} className="outline-none">
-                  <span aria-hidden="true" className="absolute inset-0 rounded-lg" />
+                  <span
+                    aria-hidden="true"
+                    className="absolute inset-0 rounded-lg"
+                  />
                   {course.title}
                 </Link>
               </h3>
 
               <div className="mt-4 flex flex-wrap items-center gap-1.5">
-                {course.departmentShort ?? course.departmentName ? (
-                  <Badge variant="brand">{course.departmentShort ?? course.departmentName}</Badge>
+                {(course.departmentShort ?? course.departmentName) ? (
+                  <Badge variant="brand">
+                    {course.departmentShort ?? course.departmentName}
+                  </Badge>
                 ) : null}
                 {typeof course.creditHours === "number" ? (
                   <Badge>
-                    {course.creditHours} credit {course.creditHours === 1 ? "hour" : "hours"}
+                    {course.creditHours} credit{" "}
+                    {course.creditHours === 1 ? "hour" : "hours"}
                   </Badge>
                 ) : null}
               </div>

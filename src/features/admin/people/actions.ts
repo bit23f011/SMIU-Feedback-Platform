@@ -1,9 +1,13 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
+import { revalidatePublicPath } from "@/lib/supabase/cache-invalidation";
 
 import { createSupabaseServerClient } from "@/lib/supabase/server";
-import { GENERIC_ADMIN_ERROR, isUuid, pickSafeMessage } from "@/features/admin/shared";
+import {
+  GENERIC_ADMIN_ERROR,
+  isUuid,
+  pickSafeMessage,
+} from "@/features/admin/shared";
 import {
   isPersonCategory,
   isPersonGender,
@@ -54,8 +58,8 @@ function idOrNull(formData: FormData, key: string): string | null {
   return isUuid(v) ? v : null;
 }
 function revalidatePerson(personId: string | null): void {
-  revalidatePath("/admin/people");
-  if (personId) revalidatePath(`/admin/people/${personId}`);
+  revalidatePublicPath("/admin/people");
+  if (personId) revalidatePublicPath(`/admin/people/${personId}`);
 }
 
 // ---------------------------------------------------------------------------
@@ -69,7 +73,8 @@ export async function createPersonAction(
   if (!fullName) return { ok: false, error: "A name is required." };
 
   const categoryRaw = formData.get("category");
-  if (!isPersonCategory(categoryRaw)) return { ok: false, error: "Choose a category." };
+  if (!isPersonCategory(categoryRaw))
+    return { ok: false, error: "Choose a category." };
   const category = categoryRaw;
 
   const genderRaw = formData.get("gender");
@@ -79,13 +84,18 @@ export async function createPersonAction(
   let teacherType: TeacherType | null = null;
   if (category === "teacher") {
     const ttRaw = formData.get("teacherType");
-    if (!isTeacherType(ttRaw)) return { ok: false, error: "Choose a teacher type." };
+    if (!isTeacherType(ttRaw))
+      return { ok: false, error: "Choose a teacher type." };
     teacherType = ttRaw;
   }
 
   const departmentId = idOrNull(formData, "departmentId");
   // Internal teacher -> department zaroori (Faculty se judne ke liye).
-  if (category === "teacher" && teacherType === "internal" && departmentId === null) {
+  if (
+    category === "teacher" &&
+    teacherType === "internal" &&
+    departmentId === null
+  ) {
     return { ok: false, error: "Choose a department." };
   }
   const positionId = idOrNull(formData, "positionId");
@@ -102,8 +112,12 @@ export async function createPersonAction(
       p_display_name: nullableStr(formData, "displayName"),
       p_headline: nullableStr(formData, "headline"),
     });
-    if (error) return { ok: false, error: pickSafeMessage(error.message, SAFE_MESSAGES) };
-    revalidatePath("/admin/people");
+    if (error)
+      return {
+        ok: false,
+        error: pickSafeMessage(error.message, SAFE_MESSAGES),
+      };
+    revalidatePublicPath("/admin/people");
     return { ok: true, personId: typeof data === "string" ? data : undefined };
   } catch {
     return { ok: false, error: GENERIC_ADMIN_ERROR };
@@ -126,7 +140,8 @@ export async function updatePersonAction(
   if (id === null) return { ok: false, error: "That item is not available." };
 
   const fullName = str(formData, "fullName");
-  if (!fullName) return { ok: false, error: "A name is required.", personId: id };
+  if (!fullName)
+    return { ok: false, error: "A name is required.", personId: id };
 
   const genderRaw = formData.get("gender");
   const gender = isPersonGender(genderRaw) ? genderRaw : null;
@@ -145,7 +160,12 @@ export async function updatePersonAction(
       p_teacher_type: teacherType,
       p_is_verified: formData.get("isVerified") === "true",
     });
-    if (error) return { ok: false, error: pickSafeMessage(error.message, SAFE_MESSAGES), personId: id };
+    if (error)
+      return {
+        ok: false,
+        error: pickSafeMessage(error.message, SAFE_MESSAGES),
+        personId: id,
+      };
     revalidatePerson(id);
     return { ok: true, personId: typeof data === "string" ? data : id };
   } catch {
@@ -161,10 +181,12 @@ export async function addRoleAction(
   formData: FormData,
 ): Promise<RoleActionState> {
   const personId = idOrNull(formData, "personId");
-  if (personId === null) return { ok: false, error: "That item is not available." };
+  if (personId === null)
+    return { ok: false, error: "That item is not available." };
 
   const categoryRaw = formData.get("category");
-  if (!isPersonCategory(categoryRaw)) return { ok: false, error: "Choose a category." };
+  if (!isPersonCategory(categoryRaw))
+    return { ok: false, error: "Choose a category." };
 
   try {
     const supabase = createSupabaseServerClient();
@@ -175,7 +197,11 @@ export async function addRoleAction(
       p_position_id: idOrNull(formData, "positionId"),
       p_is_primary: formData.get("isPrimary") === "true",
     });
-    if (error) return { ok: false, error: pickSafeMessage(error.message, SAFE_MESSAGES) };
+    if (error)
+      return {
+        ok: false,
+        error: pickSafeMessage(error.message, SAFE_MESSAGES),
+      };
     revalidatePerson(personId);
     return { ok: true, roleId: typeof data === "string" ? data : undefined };
   } catch {
@@ -188,7 +214,8 @@ export async function setRoleActiveAction(
   formData: FormData,
 ): Promise<RoleActionState> {
   const roleId = idOrNull(formData, "roleId");
-  if (roleId === null) return { ok: false, error: "That item is not available." };
+  if (roleId === null)
+    return { ok: false, error: "That item is not available." };
   const personId = idOrNull(formData, "personId");
 
   try {
@@ -197,7 +224,12 @@ export async function setRoleActiveAction(
       p_role_id: roleId,
       p_active: formData.get("active") === "true",
     });
-    if (error) return { ok: false, error: pickSafeMessage(error.message, SAFE_MESSAGES), roleId };
+    if (error)
+      return {
+        ok: false,
+        error: pickSafeMessage(error.message, SAFE_MESSAGES),
+        roleId,
+      };
     revalidatePerson(personId);
     return { ok: true, roleId };
   } catch {
@@ -210,13 +242,21 @@ export async function setPrimaryRoleAction(
   formData: FormData,
 ): Promise<RoleActionState> {
   const roleId = idOrNull(formData, "roleId");
-  if (roleId === null) return { ok: false, error: "That item is not available." };
+  if (roleId === null)
+    return { ok: false, error: "That item is not available." };
   const personId = idOrNull(formData, "personId");
 
   try {
     const supabase = createSupabaseServerClient();
-    const { error } = await supabase.rpc("admin_set_primary_role", { p_role_id: roleId });
-    if (error) return { ok: false, error: pickSafeMessage(error.message, SAFE_MESSAGES), roleId };
+    const { error } = await supabase.rpc("admin_set_primary_role", {
+      p_role_id: roleId,
+    });
+    if (error)
+      return {
+        ok: false,
+        error: pickSafeMessage(error.message, SAFE_MESSAGES),
+        roleId,
+      };
     revalidatePerson(personId);
     return { ok: true, roleId };
   } catch {
@@ -232,7 +272,8 @@ export async function addAssignmentAction(
   formData: FormData,
 ): Promise<AssignmentActionState> {
   const personId = idOrNull(formData, "personId");
-  if (personId === null) return { ok: false, error: "That item is not available." };
+  if (personId === null)
+    return { ok: false, error: "That item is not available." };
 
   const courseId = idOrNull(formData, "courseId");
   if (courseId === null) return { ok: false, error: "Choose a course." };
@@ -251,9 +292,16 @@ export async function addAssignmentAction(
       p_section: nullableStr(formData, "section"),
       p_category: category,
     });
-    if (error) return { ok: false, error: pickSafeMessage(error.message, SAFE_MESSAGES) };
+    if (error)
+      return {
+        ok: false,
+        error: pickSafeMessage(error.message, SAFE_MESSAGES),
+      };
     revalidatePerson(personId);
-    return { ok: true, assignmentId: typeof data === "string" ? data : undefined };
+    return {
+      ok: true,
+      assignmentId: typeof data === "string" ? data : undefined,
+    };
   } catch {
     return { ok: false, error: GENERIC_ADMIN_ERROR };
   }
@@ -264,7 +312,8 @@ export async function setAssignmentActiveAction(
   formData: FormData,
 ): Promise<AssignmentActionState> {
   const assignmentId = idOrNull(formData, "assignmentId");
-  if (assignmentId === null) return { ok: false, error: "That item is not available." };
+  if (assignmentId === null)
+    return { ok: false, error: "That item is not available." };
   const personId = idOrNull(formData, "personId");
 
   try {
@@ -274,7 +323,11 @@ export async function setAssignmentActiveAction(
       p_active: formData.get("active") === "true",
     });
     if (error) {
-      return { ok: false, error: pickSafeMessage(error.message, SAFE_MESSAGES), assignmentId };
+      return {
+        ok: false,
+        error: pickSafeMessage(error.message, SAFE_MESSAGES),
+        assignmentId,
+      };
     }
     revalidatePerson(personId);
     return { ok: true, assignmentId };

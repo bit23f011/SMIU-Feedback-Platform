@@ -34,14 +34,16 @@ export function HowItWorks() {
           <li key={step.title} className="border-t border-border pt-4">
             <span
               aria-hidden="true"
-              className="inline-flex size-7 items-center justify-center rounded-md border border-indigo-200 bg-indigo-50 text-[0.8125rem] font-semibold text-indigo-700 dark:text-indigo-200"
+              className="inline-flex size-7 items-center justify-center rounded-md border border-indigo-200 bg-indigo-50 text-[0.8125rem] font-semibold text-primary dark:text-indigo-200"
             >
               {index + 1}
             </span>
             <h3 className="mt-3 font-display text-base font-semibold text-foreground">
               {step.title}
             </h3>
-            <p className="mt-1.5 text-sm leading-relaxed text-muted-foreground">{step.body}</p>
+            <p className="mt-1.5 text-sm leading-relaxed text-muted-foreground">
+              {step.body}
+            </p>
           </li>
         ))}
       </ol>

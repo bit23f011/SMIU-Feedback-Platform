@@ -7,7 +7,10 @@ const mocks = vi.hoisted(() => ({
   getReviewCriteria: vi.fn(),
   log: vi.fn(),
 }));
-vi.mock("next/cache", () => ({ revalidatePath: vi.fn() }));
+vi.mock("next/cache", () => ({
+  revalidatePath: vi.fn(),
+  revalidateTag: vi.fn(),
+}));
 vi.mock("@/lib/server/diagnostics", () => ({ logBackendError: mocks.log }));
 vi.mock("@/features/auth/session", () => ({
   getCurrentUser: mocks.getCurrentUser,
@@ -63,6 +66,32 @@ beforeEach(() => {
 });
 
 describe("review submission failures", () => {
+  it("shows a clear message for a parallel submission without replaying the write", async () => {
+    mocks.rpc.mockResolvedValue({
+      error: {
+        code: "55P03",
+        message:
+          "Another review is being saved from your account. Please try again in a moment.",
+      },
+    });
+    expect(
+      (await submitReviewAction(EMPTY_REVIEW_STATE, reviewForm())).formError,
+    ).toContain("Another review is being saved");
+    expect(mocks.rpc).toHaveBeenCalledTimes(1);
+  });
+
+  it("reports a duplicate scope without showing a constraint name or retrying", async () => {
+    mocks.rpc.mockResolvedValue({
+      error: {
+        code: "23505",
+        message: "You have already reviewed this course for this semester.",
+      },
+    });
+    expect(
+      (await submitReviewAction(EMPTY_REVIEW_STATE, reviewForm())).formError,
+    ).toBe("You have already reviewed this course for this semester.");
+    expect(mocks.rpc).toHaveBeenCalledTimes(1);
+  });
   it("gives admins a student-account message before calling the write RPC", async () => {
     mocks.getCurrentUser.mockResolvedValue({
       isVerified: true,

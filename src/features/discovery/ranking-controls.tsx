@@ -66,7 +66,9 @@ export function RankingControls({ options }: { options: FilterOptions }) {
       }
       const query = params.toString();
       startTransition(() => {
-        router.replace(query ? `${pathname}?${query}` : pathname, { scroll: false });
+        router.replace(query ? `${pathname}?${query}` : pathname, {
+          scroll: false,
+        });
       });
     },
     [pathname, router, searchParams],
@@ -74,13 +76,20 @@ export function RankingControls({ options }: { options: FilterOptions }) {
 
   const onScopeChange = (value: string) => {
     // Scope badla to purani id-selection saaf: sirf nayi scope ki id maani rakhti hai.
-    setParams({ scope: value === "university" ? ANY : value, dept: ANY, course: ANY, semester: ANY });
+    setParams({
+      scope: value === "university" ? ANY : value,
+      dept: ANY,
+      course: ANY,
+      semester: ANY,
+    });
   };
 
   const courses = React.useMemo(
     () =>
       departmentId
-        ? options.courses.filter((course) => course.departmentId === departmentId)
+        ? options.courses.filter(
+            (course) => course.departmentId === departmentId,
+          )
         : options.courses,
     [departmentId, options.courses],
   );
@@ -101,7 +110,7 @@ export function RankingControls({ options }: { options: FilterOptions }) {
                   className={cn(
                     "inline-flex h-9 items-center whitespace-nowrap rounded-md border px-3 text-[0.8125rem] font-medium transition-[background-color,border-color,color] duration-150 ease-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
                     isActive
-                      ? "border-indigo-200 bg-indigo-50 text-indigo-700"
+                      ? "border-indigo-200 bg-indigo-50 text-primary"
                       : "border-border bg-background text-ink-600 hover:border-ink-300 hover:bg-ink-50 hover:text-foreground",
                   )}
                 >

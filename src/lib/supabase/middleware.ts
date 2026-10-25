@@ -4,6 +4,7 @@ import { createServerClient, type CookieOptions } from "@supabase/ssr";
 import type { User } from "@supabase/supabase-js";
 
 import { getSupabaseClientEnv } from "@/lib/env";
+import { hasSupabaseAuthCookie } from "@/lib/supabase/auth-cookie";
 import type { Database } from "@/lib/supabase/database.types";
 
 // @supabase/ssr ka `cookies` option union type hai, is liye setAll ke parameters
@@ -33,6 +34,9 @@ export async function updateSession(
     ? { request: { headers: requestHeaders } }
     : { request };
   let response = NextResponse.next(nextInit);
+  if (!hasSupabaseAuthCookie(request.cookies.getAll())) {
+    return { response, user: null };
+  }
 
   const { url, anonKey } = getSupabaseClientEnv();
 
@@ -42,7 +46,9 @@ export async function updateSession(
         return request.cookies.getAll();
       },
       setAll(cookiesToSet: CookieToSet[]) {
-        cookiesToSet.forEach(({ name, value }) => request.cookies.set(name, value));
+        cookiesToSet.forEach(({ name, value }) =>
+          request.cookies.set(name, value),
+        );
         response = NextResponse.next(nextInit);
         cookiesToSet.forEach(({ name, value, options }) =>
           response.cookies.set(name, value, options),

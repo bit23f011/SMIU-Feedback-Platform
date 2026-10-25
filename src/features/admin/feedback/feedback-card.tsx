@@ -11,9 +11,7 @@ import { Card } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Select } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
-import {
-  updateFeedbackAction,
-} from "@/features/admin/feedback/actions";
+import { updateFeedbackAction } from "@/features/admin/feedback/actions";
 import { EMPTY_FEEDBACK_ACTION_STATE } from "@/features/admin/feedback/form-state";
 import {
   FEEDBACK_STATUSES,
@@ -54,7 +52,7 @@ function ExperienceStars({ rating }: { rating: number }) {
             strokeWidth={1.75}
             className={cn(
               "size-4",
-              step <= rating ? "fill-coral-400 text-coral-500" : "fill-transparent text-ink-300",
+              step <= rating ? "text-rating-filled" : "text-rating-empty",
             )}
           />
         ))}
@@ -86,7 +84,10 @@ function ImportantSubmit({ isImportant }: { isImportant: boolean }) {
       variant={isImportant ? "subtle" : "ghost"}
       disabled={pending}
     >
-      <Bookmark aria-hidden="true" className={cn(isImportant && "fill-current")} />
+      <Bookmark
+        aria-hidden="true"
+        className={cn(isImportant && "fill-current")}
+      />
       {pending ? "Saving" : isImportant ? "Unmark important" : "Mark important"}
     </Button>
   );
@@ -112,18 +113,28 @@ export function FeedbackCard({ feedback }: { feedback: AdminFeedback }) {
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div className="min-w-0 space-y-1.5">
             <div className="flex flex-wrap items-center gap-2">
-              <Badge variant="accent">{FEEDBACK_TYPE_LABELS[feedback.type]}</Badge>
-              <Badge variant="default">{FEEDBACK_STATUS_LABELS[feedback.status]}</Badge>
+              <Badge variant="accent">
+                {FEEDBACK_TYPE_LABELS[feedback.type]}
+              </Badge>
+              <Badge variant="default">
+                {FEEDBACK_STATUS_LABELS[feedback.status]}
+              </Badge>
               <Badge variant="outline">
                 {feedback.fromStudent ? "From a student" : "From a visitor"}
               </Badge>
-              {feedback.isImportant ? <Badge variant="category">Important</Badge> : null}
+              {feedback.isImportant ? (
+                <Badge variant="category">Important</Badge>
+              ) : null}
             </div>
-            {feedback.rating !== null ? <ExperienceStars rating={feedback.rating} /> : null}
+            {feedback.rating !== null ? (
+              <ExperienceStars rating={feedback.rating} />
+            ) : null}
           </div>
 
           {created ? (
-            <p className="shrink-0 text-xs text-muted-foreground">Sent {created}</p>
+            <p className="shrink-0 text-xs text-muted-foreground">
+              Sent {created}
+            </p>
           ) : null}
         </div>
 
@@ -139,7 +150,9 @@ export function FeedbackCard({ feedback }: { feedback: AdminFeedback }) {
             <span>for a reply only, never shown publicly</span>
           </p>
         ) : (
-          <p className="mt-3 text-xs text-muted-foreground">No contact email was given.</p>
+          <p className="mt-3 text-xs text-muted-foreground">
+            No contact email was given.
+          </p>
         )}
 
         <div className="mt-5 flex flex-wrap items-end gap-x-6 gap-y-4 border-t border-border pt-4">
@@ -167,7 +180,11 @@ export function FeedbackCard({ feedback }: { feedback: AdminFeedback }) {
 
           <form action={importantForm}>
             <input type="hidden" name="feedbackId" value={feedback.id} />
-            <input type="hidden" name="important" value={feedback.isImportant ? "false" : "true"} />
+            <input
+              type="hidden"
+              name="important"
+              value={feedback.isImportant ? "false" : "true"}
+            />
             <ImportantSubmit isImportant={feedback.isImportant} />
           </form>
         </div>

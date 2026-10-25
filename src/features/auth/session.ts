@@ -1,4 +1,6 @@
 import { cache } from "react";
+import { cookies } from "next/headers";
+import { hasSupabaseAuthCookie } from "@/lib/supabase/auth-cookie";
 
 import { redirect } from "next/navigation";
 import type { User } from "@supabase/supabase-js";
@@ -30,6 +32,7 @@ export interface SessionUser {
 
 /** Logged-in user + uska profile. Logged out par null. */
 export const getCurrentUser = cache(async (): Promise<SessionUser | null> => {
+  if (!hasSupabaseAuthCookie(cookies().getAll())) return null;
   const supabase = createSupabaseServerClient();
 
   const {
@@ -94,7 +97,10 @@ export async function requireAdmin(): Promise<SessionUser> {
   poora user object client tak nahi jata. Unverified user ko "signed out"
   dikhate hain - kyunki wo abhi kuch kar bhi nahi sakta.
 */
-export async function getHeaderAccount(): Promise<{ email: string; isAdmin: boolean } | null> {
+export async function getHeaderAccount(): Promise<{
+  email: string;
+  isAdmin: boolean;
+} | null> {
   const session = await getCurrentUser();
 
   if (!session || !session.isVerified) return null;

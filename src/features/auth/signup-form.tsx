@@ -10,7 +10,6 @@ import { signUpAction } from "@/features/auth/actions";
 import { EMPTY_AUTH_STATE } from "@/features/auth/form-state";
 import { FormError, FormField } from "@/features/auth/form-field";
 import { StudentIdInput } from "@/features/auth/student-id-input";
-import { STUDENT_EMAIL_DOMAIN } from "@/features/auth/schemas";
 import { Turnstile } from "@/features/auth/turnstile";
 
 /*
@@ -29,7 +28,13 @@ import { Turnstile } from "@/features/auth/turnstile";
   (Zod) aur asli lock DB trigger me hai.
 */
 
-function SubmitButton({ captchaReady }: { captchaReady: boolean }) {
+function SubmitButton({
+  captchaReady,
+  completingSignIn,
+}: {
+  captchaReady: boolean;
+  completingSignIn: boolean;
+}) {
   // useFormStatus hamesha apne parent <form> ka status deta hai.
   const { pending } = useFormStatus();
 
@@ -40,7 +45,13 @@ function SubmitButton({ captchaReady }: { captchaReady: boolean }) {
       size="lg"
       disabled={pending || !captchaReady}
     >
-      {pending ? "Creating your account…" : "Create account"}
+      {pending
+        ? completingSignIn
+          ? "Opening your account…"
+          : "Creating your account…"
+        : completingSignIn
+          ? "Open account"
+          : "Create account"}
     </Button>
   );
 }
@@ -53,11 +64,7 @@ export function SignupForm({
   nonce?: string;
 }) {
   const [state, formAction] = useFormState(signUpAction, EMPTY_AUTH_STATE);
-  const [studentId, setStudentId] = React.useState("");
   const [captchaVerified, setCaptchaVerified] = React.useState(false);
-
-  const cleanId = studentId.trim().toLowerCase();
-  const previewEmail = cleanId ? `${cleanId}@${STUDENT_EMAIL_DOMAIN}` : null;
 
   return (
     <form action={formAction} className="space-y-4" noValidate>
@@ -66,7 +73,6 @@ export function SignupForm({
       <FormField
         id="signup-student-id"
         label="Student ID"
-        hint="Example: bit21f002"
         errors={state.fieldErrors?.studentId}
       >
         {(field) => (
@@ -76,36 +82,16 @@ export function SignupForm({
             autoComplete="username"
             autoCapitalize="none"
             spellCheck={false}
-            value={studentId}
-            onValueChange={setStudentId}
+            placeholder="e.g. bit21f002"
             maxLength={32}
             required
           />
         )}
       </FormField>
 
-      {/* Account email ID se banti hai; signup me confirmation email nahi bhejte. */}
-      <p
-        aria-live="polite"
-        className="rounded-md border border-border bg-surface px-3 py-2 text-xs leading-relaxed text-muted-foreground"
-      >
-        {previewEmail ? (
-          <>
-            Your university email:{" "}
-            <span className="font-medium text-foreground">{previewEmail}</span>
-          </>
-        ) : (
-          <>
-            Your university email is created from your student ID. You do not
-            type it yourself.
-          </>
-        )}
-      </p>
-
       <FormField
         id="signup-password"
         label="Password"
-        hint="At least 12 characters. A short sentence works well."
         errors={state.fieldErrors?.password}
       >
         {(field) => (
@@ -115,6 +101,7 @@ export function SignupForm({
             type="password"
             autoComplete="new-password"
             minLength={12}
+            placeholder="At least 12 characters"
             maxLength={72}
             required
           />
@@ -153,10 +140,9 @@ export function SignupForm({
           />
           <label
             htmlFor="signup-terms"
-            className="cursor-pointer text-sm leading-relaxed text-ink-700"
+            className="cursor-pointer text-xs leading-relaxed text-ink-700"
           >
-            I understand my reviews are published anonymously and must be honest
-            and respectful.
+            I agree to share honest, respectful, anonymous reviews.
           </label>
         </div>
 
@@ -176,11 +162,15 @@ export function SignupForm({
           siteKey={turnstileSiteKey}
           nonce={nonce}
           resetKey={state}
+          action={state.completeSignIn ? "signin" : "signup"}
           onVerifiedChange={setCaptchaVerified}
         />
       ) : null}
 
-      <SubmitButton captchaReady={!turnstileSiteKey || captchaVerified} />
+      <SubmitButton
+        captchaReady={!turnstileSiteKey || captchaVerified}
+        completingSignIn={Boolean(state.completeSignIn)}
+      />
     </form>
   );
 }

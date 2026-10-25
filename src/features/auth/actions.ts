@@ -71,7 +71,7 @@ function captchaTokenFromForm(formData: FormData): string | undefined {
 // SIGN UP
 // -----------------------------------------------------------------------------
 export async function signUpAction(
-  _previous: AuthFormState,
+  previous: AuthFormState,
   formData: FormData,
 ): Promise<AuthFormState> {
   const parsed = signUpSchema.safeParse({
@@ -85,11 +85,20 @@ export async function signUpAction(
     return { ok: false, fieldErrors: parsed.error.flatten().fieldErrors };
   }
 
-  if (!(await isFeatureEnabled("student_signup"))) {
+  // Continuation never grants access itself: login checks credentials and a fresh CAPTCHA.
+  if (previous.completeSignIn) {
+    const state = await signInAction(previous, formData);
+    return { ...state, completeSignIn: true };
+  }
+
+  const [signupEnabled, policy] = await Promise.all([
+    isFeatureEnabled("student_signup"),
+    getSignupPolicy(),
+  ]);
+  if (!signupEnabled) {
     return { ok: false, formError: SIGNUP_PAUSED };
   }
 
-  const policy = await getSignupPolicy();
   if (!policy.available || policy.emailConfirmationRequired) {
     return { ok: false, formError: SIGNUP_UNAVAILABLE };
   }
@@ -99,6 +108,7 @@ export async function signUpAction(
   const email = studentIdToEmail(parsed.data.studentId);
 
   let signedIn = false;
+  let accountCreated = false;
   try {
     const captchaToken = captchaTokenFromForm(formData);
     if (policy.captchaRequired && !captchaToken) {
@@ -120,9 +130,56 @@ export async function signUpAction(
       logBackendError("auth.signup", error);
       return { ok: false, formError: signupErrorMessage(error) };
     }
-    signedIn = Boolean(data.session && data.user?.email_confirmed_at);
+    accountCreated = Boolean(data.user?.email_confirmed_at);
+    signedIn = Boolean(data.session && accountCreated);
+    if (!signedIn && data.user?.email_confirmed_at) {
+      // Signup consumes a CAPTCHA token. The same form obtains a fresh challenge
+      // for recovery; never replay the signup token or bypass configured CAPTCHA.
+      if (policy.captchaRequired || captchaToken) {
+        return {
+          ok: false,
+          completeSignIn: true,
+          formError:
+            "Your account was created. Complete the security check to open your account.",
+        };
+      }
+      const login = await supabase.auth.signInWithPassword({
+        email,
+        password: parsed.data.password,
+      });
+      if (login.error) {
+        logBackendError("auth.signup.signin", login.error);
+        return {
+          ok: false,
+          completeSignIn: true,
+          formError:
+            login.error.status === 429
+              ? "Too many attempts. Please wait a few minutes and try again."
+              : "Your account was created, but sign in could not finish. Please try opening your account again.",
+        };
+      }
+      signedIn = Boolean(
+        login.data.session && login.data.user?.email_confirmed_at,
+      );
+      if (!signedIn) {
+        return {
+          ok: false,
+          completeSignIn: true,
+          formError:
+            "Your account was created, but sign in could not finish. Please try opening your account again.",
+        };
+      }
+    }
   } catch (error) {
     logBackendError("auth.signup", error);
+    if (accountCreated) {
+      return {
+        ok: false,
+        completeSignIn: true,
+        formError:
+          "Your account was created, but sign in could not finish. Please try opening your account again.",
+      };
+    }
     return { ok: false, formError: SIGNUP_UNAVAILABLE };
   }
 
@@ -167,11 +224,23 @@ export async function signInAction(
   const supabase = createSupabaseServerClient();
 
   // Signup ki tarah, login par bhi email server par banti hai.
-  const { data, error } = await supabase.auth.signInWithPassword({
-    email: studentIdToEmail(parsed.data.studentId),
-    password: parsed.data.password,
-    ...(captchaToken ? { options: { captchaToken } } : {}),
-  });
+  const result = await supabase.auth
+    .signInWithPassword({
+      email: studentIdToEmail(parsed.data.studentId),
+      password: parsed.data.password,
+      ...(captchaToken ? { options: { captchaToken } } : {}),
+    })
+    .catch((error: unknown) => {
+      logBackendError("auth.signin", error);
+      return null;
+    });
+  if (!result) {
+    return {
+      ok: false,
+      formError: "We could not complete sign in. Please try again later.",
+    };
+  }
+  const { data, error } = result;
 
   if (error) {
     if (error.status === 429) {
@@ -198,7 +267,8 @@ export async function signInAction(
     if (isUnconfirmed) {
       return {
         ok: false,
-        formError: "This account is not ready to sign in yet. Please contact the site administrator.",
+        formError:
+          "This account is not ready to sign in yet. Please contact the site administrator.",
       };
     }
 
@@ -212,8 +282,11 @@ export async function signInAction(
   }
 
   // Auto-confirmed account hi DB ke student gate se guzarta hai.
-  if (!data.user?.email_confirmed_at) {
-    return { ok: false, formError: "We could not complete sign in. Please try again later." };
+  if (!data.session || !data.user?.email_confirmed_at) {
+    return {
+      ok: false,
+      formError: "We could not complete sign in. Please try again later.",
+    };
   }
 
   revalidatePath("/", "layout");

@@ -1,7 +1,15 @@
 import * as React from "react";
 
 import Link from "next/link";
-import { Check, ChevronLeft, ChevronRight, MessageSquare, PencilLine, Star, X } from "@/components/ui/icons";
+import {
+  Check,
+  ChevronLeft,
+  ChevronRight,
+  MessageSquare,
+  PencilLine,
+  Star,
+  X,
+} from "@/components/ui/icons";
 
 import { EmptyState } from "@/components/common/empty-state";
 import { RatingStars } from "@/components/common/rating-stars";
@@ -42,7 +50,9 @@ function AnswerChip({ answer }: { answer: ReviewAnswer }) {
     return (
       <span className="inline-flex items-center gap-1.5 rounded-md border border-ink-200 bg-ink-50 px-2 py-0.5 text-xs text-ink-700">
         <span>{answer.label}</span>
-        <span className="font-semibold tabular-nums text-foreground">{answer.star}/5</span>
+        <span className="font-semibold tabular-nums text-foreground">
+          {answer.star}/5
+        </span>
       </span>
     );
   }
@@ -95,7 +105,10 @@ export function ReviewCard({ review }: { review: PublicReview }) {
             </span>
           ) : null}
         </div>
-        <time dateTime={review.createdAt} className="text-xs text-muted-foreground">
+        <time
+          dateTime={review.createdAt}
+          className="text-xs text-muted-foreground"
+        >
           {formatMonth(review.createdAt)}
         </time>
       </div>
@@ -105,7 +118,9 @@ export function ReviewCard({ review }: { review: PublicReview }) {
       </div>
 
       {context ? (
-        <p className="mt-2 text-xs font-medium text-muted-foreground">{context}</p>
+        <p className="mt-2 text-xs font-medium text-muted-foreground">
+          {context}
+        </p>
       ) : null}
 
       {review.comment ? (
@@ -157,10 +172,12 @@ function ReviewPagination({
   page,
   pageCount,
   baseHref,
+  replaceHistory = false,
 }: {
   page: number;
   pageCount: number;
   baseHref: string;
+  replaceHistory?: boolean;
 }) {
   if (pageCount <= 1) return null;
 
@@ -173,9 +190,17 @@ function ReviewPagination({
     "inline-flex cursor-not-allowed items-center gap-1 rounded-md border border-border/60 px-3 py-1.5 text-sm font-medium text-muted-foreground/60";
 
   return (
-    <nav aria-label="Review pages" className="flex items-center justify-between gap-3 pt-2">
+    <nav
+      aria-label="Review pages"
+      className="flex flex-wrap items-center justify-between gap-3 pt-2"
+    >
       {page > 1 ? (
-        <Link href={hrefFor(page - 1)} className={linkClass} rel="prev">
+        <Link
+          href={hrefFor(page - 1)}
+          replace={replaceHistory}
+          className={linkClass}
+          rel="prev"
+        >
           <ChevronLeft aria-hidden="true" className="size-4" />
           Previous
         </Link>
@@ -186,12 +211,20 @@ function ReviewPagination({
         </span>
       )}
 
-      <p className="text-sm tabular-nums text-muted-foreground" aria-live="polite">
+      <p
+        className="text-sm tabular-nums text-muted-foreground"
+        aria-live="polite"
+      >
         Page {page} of {pageCount}
       </p>
 
       {page < pageCount ? (
-        <Link href={hrefFor(page + 1)} className={linkClass} rel="next">
+        <Link
+          href={hrefFor(page + 1)}
+          replace={replaceHistory}
+          className={linkClass}
+          rel="next"
+        >
           Next
           <ChevronRight aria-hidden="true" className="size-4" />
         </Link>
@@ -211,12 +244,14 @@ export function ReviewList({
   page = 1,
   perPage,
   baseHref,
+  replaceHistory = false,
 }: {
   reviews: PublicReview[];
   total?: number;
   page?: number;
   perPage?: number;
   baseHref?: string;
+  replaceHistory?: boolean;
 }) {
   if (reviews.length === 0) {
     return (
@@ -229,7 +264,9 @@ export function ReviewList({
   }
 
   const pageCount =
-    total && perPage && perPage > 0 ? Math.max(Math.ceil(total / perPage), 1) : 1;
+    total && perPage && perPage > 0
+      ? Math.max(Math.ceil(total / perPage), 1)
+      : 1;
 
   return (
     <div className="space-y-4">
@@ -238,7 +275,12 @@ export function ReviewList({
       ))}
 
       {baseHref ? (
-        <ReviewPagination page={page} pageCount={pageCount} baseHref={baseHref} />
+        <ReviewPagination
+          page={page}
+          pageCount={pageCount}
+          baseHref={baseHref}
+          replaceHistory={replaceHistory}
+        />
       ) : null}
     </div>
   );

@@ -1,4 +1,5 @@
 import { cache } from "react";
+import { createSupabasePublicClient } from "@/lib/supabase/public";
 
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { logBackendError } from "@/lib/server/diagnostics";
@@ -43,7 +44,7 @@ import {
 export const getReviewCriteria = cache(
   async (category: PersonCategory): Promise<ReviewCriterion[]> => {
     try {
-      const supabase = createSupabaseServerClient();
+      const supabase = createSupabasePublicClient();
 
       const { data, error } = await supabase
         .from("review_criteria")
@@ -90,7 +91,7 @@ export async function getPersonRatingStats(
   personId: string,
 ): Promise<PersonRatingStats> {
   try {
-    const supabase = createSupabaseServerClient();
+    const supabase = createSupabasePublicClient();
 
     const { data, error } = await supabase
       .from("person_rating_stats")
@@ -137,7 +138,7 @@ export async function getRatingStatsForPeople(
   if (personIds.length === 0) return result;
 
   try {
-    const supabase = createSupabaseServerClient();
+    const supabase = createSupabasePublicClient();
 
     const { data, error } = await supabase
       .from("person_rating_stats")
@@ -179,7 +180,7 @@ export async function getPersonCriteriaStats(
   personId: string,
 ): Promise<PersonCriterionStat[]> {
   try {
-    const supabase = createSupabaseServerClient();
+    const supabase = createSupabasePublicClient();
 
     const { data, error } = await supabase
       .from("person_criteria_stats")
@@ -271,7 +272,7 @@ export async function getPersonReviews(
   const empty: PublicReviewPage = { reviews: [], total: 0 };
 
   try {
-    const supabase = createSupabaseServerClient();
+    const supabase = createSupabasePublicClient();
 
     const perPage = options.perPage ?? REVIEWS_PER_PAGE;
     // Page number kabhi bhi URL se aata hai, is liye yahan sanitise karna zaroori
@@ -408,7 +409,7 @@ export const getUniversityReviewCatalog = cache(
   async (universityId: string): Promise<ReviewCatalog> => {
     const empty: ReviewCatalog = { courses: [], semesters: [], failed: true };
     try {
-      const supabase = createSupabaseServerClient();
+      const supabase = createSupabasePublicClient();
       // PostgREST ki 1,000-row limit se lambi shared list truncate na ho.
       async function readCourses() {
         const items: ReviewCourseOption[] = [];
@@ -467,7 +468,7 @@ export const getUniversityReviewCatalog = cache(
 export const getPersonReviewCatalog = cache(
   async (personId: string): Promise<ReviewCatalog> => {
     try {
-      const supabase = createSupabaseServerClient();
+      const supabase = createSupabasePublicClient();
       const { data, error } = await supabase
         .from("people")
         .select("university_id")

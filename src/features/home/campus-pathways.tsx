@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { ArrowRight } from "@/components/ui/icons";
-import { GuideButton } from "@/components/layout/site-experience";
+import { PathwaysHelp } from "@/features/home/pathways-help";
 const PATHS = [
   {
     number: "01",
@@ -40,12 +40,13 @@ export function CampusPathways() {
     >
       <div className="mb-6 flex flex-wrap items-end justify-between gap-4">
         <div>
-          <p className="eyebrow">Choose where to begin</p>
-          <h2 id="pathways-heading" className="editorial-title mt-3 text-3xl">
-            What would you like to know?
-          </h2>
+          <div className="flex items-center gap-3">
+            <h2 id="pathways-heading" className="editorial-title text-3xl">
+              What would you like to know?
+            </h2>
+            <PathwaysHelp />
+          </div>
         </div>
-        <GuideButton className="text-xs">New here? A quick guide</GuideButton>
       </div>
       <div className="grid gap-0 overflow-hidden rounded-lg border border-border bg-card md:grid-cols-3">
         {PATHS.map((path) => (

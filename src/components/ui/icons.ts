@@ -34,6 +34,7 @@ export { Image as ImagePlus } from "@phosphor-icons/react/dist/ssr/Image";
 export { Images as Images } from "@phosphor-icons/react/dist/ssr/Images";
 export { Tray as Inbox } from "@phosphor-icons/react/dist/ssr/Tray";
 export { Info as Info } from "@phosphor-icons/react/dist/ssr/Info";
+export { Question as Question } from "@phosphor-icons/react/dist/ssr/Question";
 export { Laptop as Laptop } from "@phosphor-icons/react/dist/ssr/Laptop";
 export { Stack as Layers } from "@phosphor-icons/react/dist/ssr/Stack";
 export { SquaresFour as LayoutDashboard } from "@phosphor-icons/react/dist/ssr/SquaresFour";

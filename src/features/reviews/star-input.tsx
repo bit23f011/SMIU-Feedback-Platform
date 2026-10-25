@@ -49,14 +49,24 @@ export function StarInput({
   const hintId = `${name}-hint`;
 
   const describedBy =
-    [hasError ? errorId : null, hint ? hintId : null].filter(Boolean).join(" ") || undefined;
+    [hasError ? errorId : null, hint ? hintId : null]
+      .filter(Boolean)
+      .join(" ") || undefined;
 
   return (
-    <fieldset className={cn("space-y-1.5", className)} aria-describedby={describedBy}>
-      <legend className="text-sm font-medium leading-none text-ink-800">{legend}</legend>
+    <fieldset
+      className={cn("space-y-1.5", className)}
+      aria-describedby={describedBy}
+    >
+      <legend className="text-sm font-medium leading-none text-ink-800">
+        {legend}
+      </legend>
 
       {hint ? (
-        <p id={hintId} className="text-xs leading-relaxed text-muted-foreground">
+        <p
+          id={hintId}
+          className="text-xs leading-relaxed text-muted-foreground"
+        >
           {hint}
         </p>
       ) : null}
@@ -69,7 +79,7 @@ export function StarInput({
         {STAR_VALUES.map((star) => (
           <label
             key={star}
-            className="group cursor-pointer rounded-sm p-0.5"
+            className="group flex size-10 shrink-0 cursor-pointer items-center justify-center rounded-sm"
             onMouseEnter={() => setHovered(star)}
           >
             <input
@@ -89,8 +99,8 @@ export function StarInput({
                 "size-7 transition-colors duration-100 ease-out",
                 "peer-focus-visible:rounded-sm peer-focus-visible:ring-2 peer-focus-visible:ring-ring",
                 star <= shown
-                  ? "fill-coral-400 text-coral-500"
-                  : "fill-transparent text-ink-300 group-hover:text-ink-400",
+                  ? "text-rating-filled"
+                  : "text-rating-empty group-hover:text-rating-filled",
               )}
             />
             <span className="sr-only">
@@ -111,7 +121,11 @@ export function StarInput({
       </div>
 
       {hasError ? (
-        <p id={errorId} role="alert" className="text-xs font-medium text-state-danger">
+        <p
+          id={errorId}
+          role="alert"
+          className="text-xs font-medium text-state-danger"
+        >
           {errors![0]}
         </p>
       ) : null}
@@ -157,14 +171,24 @@ export function OverallInput({
   const hintId = `${name}-hint`;
 
   const describedBy =
-    [hasError ? errorId : null, hint ? hintId : null].filter(Boolean).join(" ") || undefined;
+    [hasError ? errorId : null, hint ? hintId : null]
+      .filter(Boolean)
+      .join(" ") || undefined;
 
   return (
-    <fieldset className={cn("space-y-1.5", className)} aria-describedby={describedBy}>
-      <legend className="text-sm font-medium leading-none text-ink-800">{legend}</legend>
+    <fieldset
+      className={cn("space-y-1.5", className)}
+      aria-describedby={describedBy}
+    >
+      <legend className="text-sm font-medium leading-none text-ink-800">
+        {legend}
+      </legend>
 
       {hint ? (
-        <p id={hintId} className="text-xs leading-relaxed text-muted-foreground">
+        <p
+          id={hintId}
+          className="text-xs leading-relaxed text-muted-foreground"
+        >
           {hint}
         </p>
       ) : null}
@@ -200,7 +224,10 @@ export function OverallInput({
         <span aria-hidden="true">1 = poor</span>
         <span
           aria-hidden="true"
-          className={cn("tabular-nums", value > 0 ? "font-medium text-foreground" : "text-ink-400")}
+          className={cn(
+            "tabular-nums",
+            value > 0 ? "font-medium text-foreground" : "text-ink-400",
+          )}
         >
           {value > 0 ? `${value} / 10` : "Not set"}
         </span>
@@ -208,7 +235,11 @@ export function OverallInput({
       </div>
 
       {hasError ? (
-        <p id={errorId} role="alert" className="text-xs font-medium text-state-danger">
+        <p
+          id={errorId}
+          role="alert"
+          className="text-xs font-medium text-state-danger"
+        >
           {errors![0]}
         </p>
       ) : null}
@@ -240,21 +271,36 @@ export function YesNoInput({
   const hintId = `${name}-hint`;
 
   const describedBy =
-    [hasError ? errorId : null, hint ? hintId : null].filter(Boolean).join(" ") || undefined;
+    [hasError ? errorId : null, hint ? hintId : null]
+      .filter(Boolean)
+      .join(" ") || undefined;
 
   const options = [
     { value: "yes", label: "Yes" },
     { value: "no", label: "No" },
   ] as const;
 
-  const initial = defaultValue === null || defaultValue === undefined ? "" : defaultValue ? "yes" : "no";
+  const initial =
+    defaultValue === null || defaultValue === undefined
+      ? ""
+      : defaultValue
+        ? "yes"
+        : "no";
 
   return (
-    <fieldset className={cn("space-y-1.5", className)} aria-describedby={describedBy}>
-      <legend className="text-sm font-medium leading-none text-ink-800">{legend}</legend>
+    <fieldset
+      className={cn("space-y-1.5", className)}
+      aria-describedby={describedBy}
+    >
+      <legend className="text-sm font-medium leading-none text-ink-800">
+        {legend}
+      </legend>
 
       {hint ? (
-        <p id={hintId} className="text-xs leading-relaxed text-muted-foreground">
+        <p
+          id={hintId}
+          className="text-xs leading-relaxed text-muted-foreground"
+        >
           {hint}
         </p>
       ) : null}
@@ -275,7 +321,7 @@ export function YesNoInput({
                 "inline-flex h-9 min-w-[4.5rem] items-center justify-center rounded-md border border-input bg-background px-4 text-sm font-medium text-ink-700 shadow-xs",
                 "transition-colors duration-150 ease-out hover:border-ink-400 hover:bg-ink-50",
                 "peer-focus-visible:ring-2 peer-focus-visible:ring-ring peer-focus-visible:ring-offset-2",
-                "peer-checked:border-primary peer-checked:bg-indigo-50 peer-checked:text-indigo-700",
+                "peer-checked:border-primary peer-checked:bg-indigo-50 peer-checked:text-primary",
               )}
             >
               {option.label}
@@ -285,7 +331,11 @@ export function YesNoInput({
       </div>
 
       {hasError ? (
-        <p id={errorId} role="alert" className="text-xs font-medium text-state-danger">
+        <p
+          id={errorId}
+          role="alert"
+          className="text-xs font-medium text-state-danger"
+        >
           {errors![0]}
         </p>
       ) : null}

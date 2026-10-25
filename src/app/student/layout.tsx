@@ -3,6 +3,7 @@ import { SiteHeader } from "@/components/layout/site-header";
 import { StudentNav } from "@/features/student/student-nav";
 import { requireStudent } from "@/features/auth/session";
 import { NotificationBanner } from "@/features/notifications/notification-banner";
+import { Suspense } from "react";
 export default async function StudentLayout({
   children,
 }: {
@@ -10,35 +11,29 @@ export default async function StudentLayout({
 }) {
   const session = await requireStudent();
   return (
-    <div className="flex min-h-dvh flex-col">
+    <div className="student-layout flex flex-col">
       <SiteHeader
         account={{
           email: session.profile?.email ?? "",
           isAdmin: session.profile?.role === "admin",
         }}
       />
-      <NotificationBanner />
-      <main id="main-content" className="flex-1">
-        <div className="container py-5">
-          <div className="flex items-center gap-2 border-b border-border pb-4 text-[11px] text-muted-foreground">
-            <span>SMIU</span>
-            <span aria-hidden="true">/</span>
-            <span className="font-medium text-foreground">
-              Student workspace
-            </span>
-            <span className="ml-auto hidden sm:block">Only visible to you</span>
+      <Suspense fallback={null}>
+        <NotificationBanner />
+      </Suspense>
+      <div className="student-workspace min-h-0 flex-1">
+        <div className="student-shell">
+          <aside className="student-sidebar">
+            <StudentNav />
+          </aside>
+          <div className="student-content min-w-0">
+            <main id="main-content" className="pb-10 pt-5 md:pb-12 md:pt-7">
+              {children}
+            </main>
+            <SiteFooter />
           </div>
         </div>
-        <div className="container pb-12 pt-4 md:pb-16">
-          <div className="student-shell">
-            <aside className="student-sidebar">
-              <StudentNav />
-            </aside>
-            <div className="min-w-0">{children}</div>
-          </div>
-        </div>
-      </main>
-      <SiteFooter />
+      </div>
     </div>
   );
 }

@@ -1,4 +1,5 @@
 import { cookies } from "next/headers";
+import { cache } from "react";
 
 import { createServerClient, type CookieOptions } from "@supabase/ssr";
 import type { SupabaseClient } from "@supabase/supabase-js";
@@ -24,7 +25,7 @@ type CookieToSet = { name: string; value: string; options?: CookieOptions };
 // Server-side Supabase client (Server Components, Route Handlers, Server Actions).
 // Cookies se auth session read/write hoti hai. anon key hi use hoti hai -
 // RLS is client ko user ke permissions tak seemit rakhti hai.
-export function createSupabaseServerClient(): TypedSupabaseClient {
+export const createSupabaseServerClient = cache((): TypedSupabaseClient => {
   const cookieStore = cookies();
   const { url, anonKey } = getSupabaseClientEnv();
 
@@ -47,4 +48,4 @@ export function createSupabaseServerClient(): TypedSupabaseClient {
   });
 
   return client as unknown as TypedSupabaseClient;
-}
+});

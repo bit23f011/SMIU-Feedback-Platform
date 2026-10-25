@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { FormError } from "@/features/auth/form-field";
 import { deleteReviewAction } from "@/features/reviews/actions";
 import { EMPTY_REVIEW_STATE } from "@/features/reviews/form-state";
+import { useRefreshProfileOnSuccess } from "@/features/people/profile-refresh";
 
 /*
   Review delete karne ka do-qadam confirm.
@@ -38,13 +39,22 @@ export function DeleteReviewButton({
   personSlug: string;
 }) {
   const [confirming, setConfirming] = React.useState(false);
-  const [state, formAction] = useFormState(deleteReviewAction, EMPTY_REVIEW_STATE);
+  const [state, formAction] = useFormState(
+    deleteReviewAction,
+    EMPTY_REVIEW_STATE,
+  );
+  useRefreshProfileOnSuccess(state.ok);
 
   if (!confirming) {
     return (
       <div className="space-y-2">
         <FormError message={state.formError} />
-        <Button type="button" variant="ghost" size="sm" onClick={() => setConfirming(true)}>
+        <Button
+          type="button"
+          variant="ghost"
+          size="sm"
+          onClick={() => setConfirming(true)}
+        >
           Delete review
         </Button>
       </div>
@@ -55,13 +65,19 @@ export function DeleteReviewButton({
     <div className="space-y-2 rounded-md border border-state-danger/25 bg-state-danger-soft p-3">
       <FormError message={state.formError} />
       <p className="text-sm leading-relaxed text-state-danger">
-        Delete this review permanently? You will not be able to review this person again.
+        Delete this review permanently? You will not be able to review this
+        person again.
       </p>
       <form action={formAction} className="flex flex-wrap items-center gap-2">
         <input type="hidden" name="reviewId" value={reviewId} />
         <input type="hidden" name="personSlug" value={personSlug} />
         <ConfirmButton />
-        <Button type="button" variant="outline" size="sm" onClick={() => setConfirming(false)}>
+        <Button
+          type="button"
+          variant="outline"
+          size="sm"
+          onClick={() => setConfirming(false)}
+        >
           Cancel
         </Button>
       </form>

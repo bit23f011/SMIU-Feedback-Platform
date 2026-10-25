@@ -1,9 +1,13 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
+import { revalidatePublicPath } from "@/lib/supabase/cache-invalidation";
 
 import { createSupabaseServerClient } from "@/lib/supabase/server";
-import { GENERIC_ADMIN_ERROR, isUuid, pickSafeMessage } from "@/features/admin/shared";
+import {
+  GENERIC_ADMIN_ERROR,
+  isUuid,
+  pickSafeMessage,
+} from "@/features/admin/shared";
 import {
   HOME_IMAGE_ALLOWED_TYPES,
   HOME_IMAGE_BUCKET,
@@ -37,7 +41,8 @@ const SAFE_MESSAGES = new Set<string>([
   "That image is not available.",
 ]);
 
-const UPLOAD_FAILED = "We could not save that image right now. Please try again.";
+const UPLOAD_FAILED =
+  "We could not save that image right now. Please try again.";
 
 function cleanAlt(value: FormDataEntryValue | null): string | null {
   if (typeof value !== "string") return null;
@@ -58,16 +63,28 @@ export async function uploadHomeImageAction(
   const altText = cleanAlt(formData.get("altText"));
 
   // File maujood aur asal file ho (khali submit nahi).
-  if (!raw || typeof raw === "string" || typeof raw.arrayBuffer !== "function" || raw.size === 0) {
+  if (
+    !raw ||
+    typeof raw === "string" ||
+    typeof raw.arrayBuffer !== "function" ||
+    raw.size === 0
+  ) {
     return { ok: false, error: "Choose an image to upload." };
   }
 
   if (!HOME_IMAGE_ALLOWED_TYPES.has(raw.type)) {
-    return { ok: false, error: "That file is not a supported image (use JPG, PNG, WebP, AVIF or GIF)." };
+    return {
+      ok: false,
+      error:
+        "That file is not a supported image (use JPG, PNG, WebP, AVIF or GIF).",
+    };
   }
 
   if (raw.size > HOME_IMAGE_MAX_BYTES) {
-    return { ok: false, error: "That image is larger than 3 MB. Please pick a smaller file." };
+    return {
+      ok: false,
+      error: "That image is larger than 3 MB. Please pick a smaller file.",
+    };
   }
 
   const ext = HOME_IMAGE_EXTENSION[raw.type] ?? "img";
@@ -94,14 +111,17 @@ export async function uploadHomeImageAction(
 
     if (rpcError) {
       await supabase.storage.from(HOME_IMAGE_BUCKET).remove([path]);
-      return { ok: false, error: pickSafeMessage(rpcError.message, SAFE_MESSAGES) };
+      return {
+        ok: false,
+        error: pickSafeMessage(rpcError.message, SAFE_MESSAGES),
+      };
     }
   } catch {
     return { ok: false, error: UPLOAD_FAILED };
   }
 
-  revalidatePath("/admin/home-images");
-  revalidatePath("/");
+  revalidatePublicPath("/admin/home-images");
+  revalidatePublicPath("/");
   return { ok: true };
 }
 
@@ -119,9 +139,14 @@ export async function deleteHomeImageAction(
   try {
     const supabase = createSupabaseServerClient();
 
-    const { data, error } = await supabase.rpc("admin_delete_home_image", { p_id: id });
+    const { data, error } = await supabase.rpc("admin_delete_home_image", {
+      p_id: id,
+    });
     if (error) {
-      return { ok: false, error: pickSafeMessage(error.message, SAFE_MESSAGES) };
+      return {
+        ok: false,
+        error: pickSafeMessage(error.message, SAFE_MESSAGES),
+      };
     }
 
     // data = storage_path. Best-effort object delete (row to ja chuki).
@@ -132,7 +157,7 @@ export async function deleteHomeImageAction(
     return { ok: false, error: GENERIC_ADMIN_ERROR };
   }
 
-  revalidatePath("/admin/home-images");
-  revalidatePath("/");
+  revalidatePublicPath("/admin/home-images");
+  revalidatePublicPath("/");
   return { ok: true };
 }

@@ -17,6 +17,8 @@ export interface AuthFormState {
   formError?: string;
   /** Field-wise errors: { email: ["..."] } */
   fieldErrors?: Record<string, string[]>;
+  /** Retry login on the same form after Auth created an account without a session. */
+  completeSignIn?: boolean;
 }
 
 // useFormState ko shuru me yeh khali state milti hai (abhi koi submit nahi hua).

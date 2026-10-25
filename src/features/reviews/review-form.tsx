@@ -32,6 +32,7 @@ import {
   type ReviewScope,
 } from "@/features/reviews/types";
 import { hasAvailableReviewContext } from "@/features/reviews/review-context";
+import { useRefreshProfileOnSuccess } from "@/features/people/profile-refresh";
 
 /*
   Review likhne/edit karne ka form.
@@ -167,6 +168,7 @@ export function ReviewForm({
   const mode: "create" | "edit" = existing ? "edit" : "create";
   const action = existing ? updateReviewAction : submitReviewAction;
   const [state, formAction] = useFormState(action, EMPTY_REVIEW_STATE);
+  useRefreshProfileOnSuccess(state.ok);
   const existingContext = existing ? formatReviewContext(existing) : null;
 
   return (

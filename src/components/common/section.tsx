@@ -41,7 +41,11 @@ export function Section({
     <section
       id={id}
       aria-labelledby={headingId}
-      className={cn("py-14 md:py-16", tinted && "border-y border-border bg-surface", className)}
+      className={cn(
+        "py-14 md:py-16",
+        tinted && "border-y border-border bg-surface",
+        className,
+      )}
     >
       <div className={cn("container", containerClassName)}>
         {title || description || link ? (
@@ -53,18 +57,23 @@ export function Section({
                 </p>
               ) : null}
               {title ? (
-                <h2 id={headingId} className="text-2xl font-semibold text-foreground md:text-[1.75rem]">
+                <h2
+                  id={headingId}
+                  className="text-2xl font-semibold text-foreground md:text-[1.75rem]"
+                >
                   {title}
                 </h2>
               ) : null}
               {description ? (
-                <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{description}</p>
+                <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+                  {description}
+                </p>
               ) : null}
             </div>
             {link ? (
               <Link
                 href={link.href}
-                className="group inline-flex shrink-0 items-center gap-1.5 text-sm font-medium text-primary transition-colors duration-150 ease-out hover:text-indigo-700"
+                className="group inline-flex shrink-0 items-center gap-1.5 text-sm font-medium text-primary transition-colors duration-150 ease-out hover:text-primary"
               >
                 {link.label}
                 <ArrowRight

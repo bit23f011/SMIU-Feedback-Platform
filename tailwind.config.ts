@@ -37,6 +37,15 @@ const config: Config = {
     },
     extend: {
       colors: {
+        campus: {
+          soft: "hsl(var(--campus-soft))",
+          ink: "hsl(var(--campus-ink))",
+          border: "hsl(var(--campus-border))",
+        },
+        rating: {
+          filled: "hsl(var(--rating-filled))",
+          empty: "hsl(var(--rating-empty))",
+        },
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
         ring: "hsl(var(--ring))",

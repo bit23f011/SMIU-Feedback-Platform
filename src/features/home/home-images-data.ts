@@ -1,4 +1,4 @@
-import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { createSupabasePublicClient } from "@/lib/supabase/public";
 import { HOME_IMAGE_BUCKET } from "@/features/admin/home-images/types";
 
 /* Homepage hero panel me dikhne wali ek image. */
@@ -20,13 +20,12 @@ export interface HomeHeroImage {
     ya koi bhi error - to khali array. Homepage kabhi crash nahi karti; sirf
     purana single-column hero dikhta hai.
 
-  NOTE: createSupabaseServerClient cookies() use karta hai, is liye homepage
-  dynamic rehta hai aur admin ka add/delete turant nazar aata hai (build ki
-  zaroorat nahi).
+  Active photos use a short anonymous cache. Admin image mutations expire its
+  tag immediately, so a new build is not needed after image changes.
 */
 export async function getActiveHomeImages(): Promise<HomeHeroImage[]> {
   try {
-    const supabase = createSupabaseServerClient();
+    const supabase = createSupabasePublicClient();
 
     const { data, error } = await supabase
       .from("home_images")
@@ -40,7 +39,9 @@ export async function getActiveHomeImages(): Promise<HomeHeroImage[]> {
 
     return data.map((row) => ({
       id: row.id,
-      url: supabase.storage.from(HOME_IMAGE_BUCKET).getPublicUrl(row.storage_path).data.publicUrl,
+      url: supabase.storage
+        .from(HOME_IMAGE_BUCKET)
+        .getPublicUrl(row.storage_path).data.publicUrl,
       alt: row.alt_text ?? "",
     }));
   } catch {

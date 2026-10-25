@@ -39,7 +39,7 @@ export function CategoryTabs({ active, className }: CategoryTabsProps) {
                   "transition-[background-color,border-color,color] duration-150 ease-out",
                   "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
                   isActive
-                    ? "border-indigo-200 bg-indigo-50 text-indigo-700"
+                    ? "border-indigo-200 bg-indigo-50 text-primary"
                     : "border-border bg-background text-ink-600 hover:border-ink-300 hover:bg-ink-50 hover:text-foreground",
                 )}
               >

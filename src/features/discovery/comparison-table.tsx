@@ -41,15 +41,27 @@ type Row =
 /** §43 ki exact tarteeb. */
 const ROWS: Row[] = [
   { kind: "overall" },
-  { kind: "criterion", key: "course_knowledge", fallbackLabel: "Course knowledge" },
+  {
+    kind: "criterion",
+    key: "course_knowledge",
+    fallbackLabel: "Course knowledge",
+  },
   { kind: "criterion", key: "teaching_way", fallbackLabel: "Teaching way" },
   { kind: "criterion", key: "nature", fallbackLabel: "Nature" },
   { kind: "criterion", key: "strictness", fallbackLabel: "Strictness" },
   { kind: "criterion", key: "communication", fallbackLabel: "Communication" },
   { kind: "criterion", key: "grading", fallbackLabel: "Grading and marking" },
-  { kind: "criterion", key: "helpfulness", fallbackLabel: "Helpfulness and student support" },
+  {
+    kind: "criterion",
+    key: "helpfulness",
+    fallbackLabel: "Helpfulness and student support",
+  },
   { kind: "reviewCount" },
-  { kind: "criterion", key: "recommend_freshers", fallbackLabel: "Recommend for freshers" },
+  {
+    kind: "criterion",
+    key: "recommend_freshers",
+    fallbackLabel: "Recommend for freshers",
+  },
   {
     kind: "criterion",
     key: "recommend_other_courses",
@@ -66,26 +78,39 @@ interface Cell {
   value: number | null;
 }
 
-const HIDDEN: Cell = { text: "·", hiddenReason: "Not enough responses yet", value: null };
+const HIDDEN: Cell = {
+  text: "·",
+  hiddenReason: "Not enough responses yet",
+  value: null,
+};
 
 function criterionCell(criterion: CriterionAggregate | undefined): Cell {
   if (!criterion) return HIDDEN;
 
   if (criterion.kind === "star") {
-    if (criterion.starResponses < MIN_RESPONSES_TO_SHOW || criterion.averageStar === null) {
+    if (
+      criterion.starResponses < MIN_RESPONSES_TO_SHOW ||
+      criterion.averageStar === null
+    ) {
       return HIDDEN;
     }
-    return { text: `${criterion.averageStar.toFixed(1)}/5`, value: criterion.averageStar };
+    return {
+      text: `${criterion.averageStar.toFixed(1)}/5`,
+      value: criterion.averageStar,
+    };
   }
 
   // yes_no: value leader compare me shamil nahi (isliye null), sirf dikhane ke liye.
   const percent = yesPercent(criterion);
-  if (criterion.boolResponses < MIN_RESPONSES_TO_SHOW || percent === null) return HIDDEN;
+  if (criterion.boolResponses < MIN_RESPONSES_TO_SHOW || percent === null)
+    return HIDDEN;
   return { text: `${percent}% yes`, value: null };
 }
 
 /** Ek person ke criteria ko key -> aggregate map me badlo. */
-function criteriaMap(person: ComparisonPerson): Map<string, CriterionAggregate> {
+function criteriaMap(
+  person: ComparisonPerson,
+): Map<string, CriterionAggregate> {
   const map = new Map<string, CriterionAggregate>();
   for (const criterion of person.criteria) map.set(criterion.key, criterion);
   return map;
@@ -156,11 +181,13 @@ export function ComparisonTable({ people }: { people: ComparisonPerson[] }) {
                   />
                   <Link
                     href={`/people/${person.slug}`}
-                    className="rounded-sm font-display text-sm font-semibold leading-snug tracking-tight text-foreground outline-none hover:text-indigo-700 focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                    className="rounded-sm font-display text-sm font-semibold leading-snug tracking-tight text-foreground outline-none hover:text-primary focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                   >
                     {person.name}
                   </Link>
-                  <span className="text-xs font-normal text-muted-foreground">{categoryLabel}</span>
+                  <span className="text-xs font-normal text-muted-foreground">
+                    {categoryLabel}
+                  </span>
                 </span>
               </th>
             ))}
@@ -176,7 +203,10 @@ export function ComparisonTable({ people }: { people: ComparisonPerson[] }) {
               if (row.kind === "overall") {
                 return person.rating === null
                   ? { text: "·", hiddenReason: "Not rated yet", value: null }
-                  : { text: `${person.rating.toFixed(1)}/${OVERALL_MAX}`, value: person.rating };
+                  : {
+                      text: `${person.rating.toFixed(1)}/${OVERALL_MAX}`,
+                      value: person.rating,
+                    };
               }
               if (row.kind === "reviewCount") {
                 const count = person.reviewCount ?? 0;
@@ -190,7 +220,9 @@ export function ComparisonTable({ people }: { people: ComparisonPerson[] }) {
               .map((cell) => cell.value)
               .filter((value): value is number => value !== null);
             const leader =
-              people.length > 1 && numericValues.length > 1 ? Math.max(...numericValues) : null;
+              people.length > 1 && numericValues.length > 1
+                ? Math.max(...numericValues)
+                : null;
 
             const label =
               row.kind === "overall"

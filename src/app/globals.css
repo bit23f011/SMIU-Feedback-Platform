@@ -112,6 +112,11 @@
     /* ---- Chrome ---- */
     --glass-bar: 248 243 241;
     --accent-line: 3 87% 66%;
+    --campus-soft: 148 23% 91%;
+    --campus-ink: 151 30% 24%;
+    --campus-border: 149 20% 72%;
+    --rating-filled: 32 86% 36%;
+    --rating-empty: 220 10% 43%;
   }
 
   .dark {
@@ -185,6 +190,11 @@
     --logo-glyph: 227 45% 16%;
 
     --glass-bar: 22 24 32;
+    --campus-soft: 151 17% 18%;
+    --campus-ink: 147 28% 85%;
+    --campus-border: 149 17% 35%;
+    --rating-filled: 38 88% 65%;
+    --rating-empty: 220 13% 67%;
   }
 }
 
@@ -449,7 +459,20 @@
   .campus-veil {
     position: absolute;
     inset: 0;
-    background: hsl(var(--background) / 0.82);
+    background: transparent;
+  }
+  .hero-copy {
+    background: hsl(var(--campus-soft) / 0.95);
+    border: 1px solid hsl(var(--campus-border) / 0.65);
+  }
+  .hero-copy h1 {
+    font-size: clamp(2.5rem, 5vw, 4.5rem);
+  }
+  .campus-hero .hero-copy + .home-search + div {
+    width: fit-content;
+    border-radius: 6px;
+    padding: 10px 12px;
+    background: hsl(var(--campus-soft) / 0.95);
   }
   .campus-photo-controls {
     position: absolute;
@@ -458,8 +481,11 @@
     z-index: 15;
     display: flex;
     align-items: center;
-    gap: 12px;
-    color: hsl(var(--primary));
+    gap: 0;
+    border-radius: 999px;
+    padding: 3px 6px;
+    background: hsl(var(--campus-soft) / 0.95);
+    color: hsl(var(--campus-ink));
   }
   .photo-control {
     font-size: 10px;
@@ -469,7 +495,8 @@
     border-radius: 4px;
   }
   .hero-caption {
-    color: hsl(var(--foreground) / 0.65);
+    color: hsl(var(--campus-ink));
+    background: hsl(var(--campus-soft) / 0.95);
     font-size: 11px;
     font-weight: 500;
     letter-spacing: 0.02em;
@@ -484,6 +511,26 @@
   }
   .contribute-panel {
     background: #70232e;
+  }
+  .soft-green-action {
+    border: 1px solid hsl(var(--campus-border));
+    background: hsl(var(--campus-soft));
+    color: hsl(var(--campus-ink));
+  }
+  .soft-green-action:hover {
+    background: hsl(var(--campus-border));
+    color: hsl(var(--campus-ink));
+  }
+  .site-footer {
+    background: hsl(var(--campus-soft));
+    border-color: hsl(var(--campus-border));
+  }
+  .profile-modal {
+    --card: var(--campus-soft);
+    --border: var(--campus-border);
+  }
+  .feedback-chat {
+    height: min(650px, calc(100dvh - 7rem));
   }
   .pathway-cell {
     transition: background-color 150ms ease;
@@ -519,21 +566,52 @@
     flex-shrink: 0;
   }
   .profile-marquee:hover .marquee-track,
-  .profile-marquee:focus-within .marquee-track,
-  .profile-marquee[data-paused="true"] .marquee-track {
+  .profile-marquee:focus-within .marquee-track {
     animation-play-state: paused;
+  }
+  .student-layout {
+    height: 100dvh;
+    overflow: hidden;
+  }
+  .student-layout > header {
+    flex-shrink: 0;
   }
   .student-shell {
     display: grid;
-    grid-template-columns: 210px minmax(0, 1fr);
-    gap: 40px;
+    grid-template-columns: 240px minmax(0, 1fr);
+    gap: 28px;
+    height: 100%;
+    min-height: 0;
+  }
+  .student-workspace {
+    width: 100%;
+    overflow: hidden;
+    padding-right: max(2rem, calc((100% - 1180px) / 2 + 2rem));
+  }
+  .student-navigation {
+    background: hsl(var(--campus-soft));
+    border: 1px solid hsl(var(--campus-border));
+    border-left: 0;
+    border-radius: 0 12px 12px 0;
+    min-height: 100%;
   }
   .student-sidebar {
     position: sticky;
-    top: 88px;
-    align-self: start;
-    max-height: calc(100dvh - 112px);
+    top: 0;
+    min-height: 0;
+    height: 100%;
     overflow-y: auto;
+    overscroll-behavior: contain;
+    scrollbar-width: thin;
+  }
+  .student-content {
+    min-height: 0;
+    overflow-y: auto;
+    overscroll-behavior-y: contain;
+    scrollbar-gutter: stable;
+  }
+  .student-content .site-footer > div {
+    padding-inline: 0;
   }
   .student-nav-link {
     display: flex;
@@ -549,12 +627,13 @@
       color 150ms ease;
   }
   .student-nav-link:hover {
-    background: hsl(var(--indigo-50));
+    background: hsl(var(--campus-border) / 0.3);
     color: hsl(var(--foreground));
   }
   .student-nav-link[aria-current="page"] {
-    background: hsl(var(--indigo-100));
-    color: hsl(var(--primary));
+    background: hsl(var(--campus-border) / 0.4);
+    color: hsl(var(--campus-ink));
+    box-shadow: inset 3px 0 hsl(var(--campus-ink));
   }
   .student-nav-link svg {
     width: 17px;
@@ -575,20 +654,38 @@
     top: 12px;
     right: 16px;
   }
-  .campus-veil {
-    background: hsl(var(--background) / 0.88);
-  }
   .marquee-group > * {
     width: 275px;
   }
   .student-shell {
     grid-template-columns: minmax(0, 1fr);
-    gap: 24px;
+    grid-template-rows: auto minmax(0, 1fr);
+    gap: 12px;
   }
   .student-sidebar {
-    position: static;
-    max-height: none;
-    overflow: visible;
+    height: auto;
+    max-height: 45dvh;
+    overflow-y: auto;
+  }
+  .student-workspace {
+    padding-inline: 1.25rem;
+    padding-top: 12px;
+  }
+  .student-navigation {
+    border: 1px solid hsl(var(--campus-border));
+    border-radius: 8px;
+    min-height: 0;
+  }
+  .hero-copy h1 {
+    font-size: clamp(2.35rem, 10vw, 3.5rem);
+  }
+  input,
+  select,
+  textarea {
+    font-size: 16px;
+  }
+  .site-footer > div {
+    padding-right: 5.5rem;
   }
 }
 @media (prefers-reduced-motion: reduce) {
@@ -613,4 +710,39 @@
 }
 
 /* Keep editorial headings consistent inside shared dialog and card primitives. */
-.editorial-title { font-family: Georgia, "Times New Roman", serif; font-weight: 400; letter-spacing: -0.035em; }
+.editorial-title {
+  font-family: Georgia, "Times New Roman", serif;
+  font-weight: 400;
+  letter-spacing: -0.035em;
+}
+
+/* Compact phones keep the essential auth fields in view without clipping errors. */
+@media (max-height: 680px) {
+  .auth-shell header .container {
+    height: 56px;
+  }
+  .auth-shell main {
+    padding-block: 8px;
+  }
+  .auth-shell footer {
+    padding-block: 8px;
+  }
+  .auth-form > div {
+    margin: 0;
+  }
+  .auth-form > .space-y-4 > :not([hidden]) ~ :not([hidden]) {
+    margin-top: 12px;
+  }
+  .auth-form form > :not([hidden]) ~ :not([hidden]) {
+    margin-top: 12px;
+  }
+  .auth-form .p-5 {
+    padding: 16px;
+  }
+  .auth-form .pt-0 {
+    padding-top: 0;
+  }
+  .auth-form .pb-4 {
+    padding-bottom: 12px;
+  }
+}

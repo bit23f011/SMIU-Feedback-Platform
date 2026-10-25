@@ -3,7 +3,6 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
-import { ShieldCheck } from "@/components/ui/icons";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { SignupForm } from "@/features/auth/signup-form";
@@ -35,9 +34,6 @@ export default async function SignupPage() {
       <Card>
         <CardHeader className="pb-4">
           <CardTitle className="text-xl">Create your account</CardTitle>
-          <p className="text-sm leading-relaxed text-muted-foreground">
-            Enter your student ID and choose a password to create your account.
-          </p>
         </CardHeader>
 
         <CardContent className="space-y-4">
@@ -53,16 +49,6 @@ export default async function SignupPage() {
               nonce={headers().get("x-nonce") ?? undefined}
             />
           )}
-
-          <p className="flex items-start gap-2 rounded-md border border-state-success/25 bg-state-success-soft px-3 py-2 text-xs leading-relaxed text-ink-700">
-            <ShieldCheck
-              aria-hidden="true"
-              className="mt-px size-3.5 shrink-0 text-state-success"
-            />
-            <span>
-              Your account opens as soon as you sign up. Your name and student ID never appear on a public page.
-            </span>
-          </p>
         </CardContent>
       </Card>
 

@@ -19,7 +19,7 @@ import {
 
 export const metadata: Metadata = {
   title: "Your favourites",
-  description: "Profiles you saved on ProfAura.",
+  description: "Profiles you saved on SMIU Feedback Platform.",
   robots: { index: false, follow: false },
 };
 
@@ -35,9 +35,16 @@ export const metadata: Metadata = {
 */
 export const dynamic = "force-dynamic";
 
-export default async function FavoritesPage({ searchParams }: { searchParams?: QueryParams }) {
+export default async function FavoritesPage({
+  searchParams,
+}: {
+  searchParams?: QueryParams;
+}) {
   const page = parsePage(firstParam(searchParams, "page"));
-  const { people, total, failed } = await getMyFavorites({ page, perPage: FAVORITES_PER_PAGE });
+  const { people, total, failed } = await getMyFavorites({
+    page,
+    perPage: FAVORITES_PER_PAGE,
+  });
   const pageCount = totalPages(total, FAVORITES_PER_PAGE);
 
   return (
@@ -49,8 +56,9 @@ export default async function FavoritesPage({ searchParams }: { searchParams?: Q
         Your favourites
       </h1>
       <p className="mt-1.5 max-w-2xl text-sm leading-relaxed text-muted-foreground">
-        Profiles you saved while browsing. This list is private to you and is never shown on any
-        public page. Select two to four to compare them side by side.
+        Profiles you saved while browsing. This list is private to you and is
+        never shown on any public page. Select two to four to compare them side
+        by side.
       </p>
 
       <div className="mt-6">
@@ -88,7 +96,11 @@ export default async function FavoritesPage({ searchParams }: { searchParams?: Q
         ) : (
           <div className="space-y-6">
             <FavoritesBrowser people={people} />
-            <Pagination page={page} totalPages={pageCount} pathname="/student/favorites" />
+            <Pagination
+              page={page}
+              totalPages={pageCount}
+              pathname="/student/favorites"
+            />
           </div>
         )}
       </div>

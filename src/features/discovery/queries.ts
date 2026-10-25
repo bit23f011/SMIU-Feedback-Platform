@@ -1,4 +1,5 @@
 import { cache } from "react";
+import { createSupabasePublicClient } from "@/lib/supabase/public";
 
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { RANKING } from "@/lib/constants";
@@ -80,8 +81,12 @@ interface PersonRowLike {
   department_name?: string | null;
 }
 
-function toPerson(row: PersonRowLike, fallbackCategory: PersonCategory | null): PersonSummary {
-  const category = row.category ?? fallbackCategory ?? row.primary_category ?? null;
+function toPerson(
+  row: PersonRowLike,
+  fallbackCategory: PersonCategory | null,
+): PersonSummary {
+  const category =
+    row.category ?? fallbackCategory ?? row.primary_category ?? null;
 
   const roles: PersonRoleSummary[] = category
     ? [
@@ -95,7 +100,8 @@ function toPerson(row: PersonRowLike, fallbackCategory: PersonCategory | null): 
     : [];
 
   const reviewCount = row.review_count ?? 0;
-  const average = row.average_rating === null ? null : Number(row.average_rating);
+  const average =
+    row.average_rating === null ? null : Number(row.average_rating);
 
   return {
     id: row.person_id,
@@ -127,12 +133,15 @@ function toCriteria(value: unknown): CriterionAggregate[] {
       key: item.key as string,
       label: item.label as string,
       kind: item.kind as ReviewCriterionKind,
-      averageStar: item.averageStar === null || item.averageStar === undefined
-        ? null
-        : Number(item.averageStar),
-      starResponses: typeof item.starResponses === "number" ? item.starResponses : 0,
+      averageStar:
+        item.averageStar === null || item.averageStar === undefined
+          ? null
+          : Number(item.averageStar),
+      starResponses:
+        typeof item.starResponses === "number" ? item.starResponses : 0,
       yesCount: typeof item.yesCount === "number" ? item.yesCount : 0,
-      boolResponses: typeof item.boolResponses === "number" ? item.boolResponses : 0,
+      boolResponses:
+        typeof item.boolResponses === "number" ? item.boolResponses : 0,
     }));
 }
 
@@ -140,13 +149,17 @@ function toStrengths(value: unknown): RecommendationStrength[] {
   if (!Array.isArray(value)) return [];
 
   return (value as Record<string, unknown>[])
-    .filter((item) => typeof item?.key === "string" && typeof item?.label === "string")
+    .filter(
+      (item) =>
+        typeof item?.key === "string" && typeof item?.label === "string",
+    )
     .map((item) => ({
       key: item.key as string,
       label: item.label as string,
-      averageStar: item.averageStar === null || item.averageStar === undefined
-        ? null
-        : Number(item.averageStar),
+      averageStar:
+        item.averageStar === null || item.averageStar === undefined
+          ? null
+          : Number(item.averageStar),
     }));
 }
 
@@ -164,7 +177,7 @@ export async function searchPeople(options: {
   const empty: PeoplePage = { people: [], total: 0, failed: false };
 
   try {
-    const supabase = createSupabaseServerClient();
+    const supabase = createSupabasePublicClient();
 
     const { data, error } = await supabase.rpc("directory_people", {
       p_category: category,
@@ -203,7 +216,7 @@ export async function searchCourses(options: {
   const page = options.page && options.page > 0 ? options.page : 1;
 
   try {
-    const supabase = createSupabaseServerClient();
+    const supabase = createSupabasePublicClient();
 
     const { data, error } = await supabase.rpc("directory_courses", {
       p_search: options.search?.trim() || null,
@@ -214,7 +227,8 @@ export async function searchCourses(options: {
     });
 
     if (error) return { courses: [], total: 0, failed: true };
-    if (!data || data.length === 0) return { courses: [], total: 0, failed: false };
+    if (!data || data.length === 0)
+      return { courses: [], total: 0, failed: false };
 
     return {
       total: Number(data[0].total_count ?? 0),
@@ -223,7 +237,8 @@ export async function searchCourses(options: {
         slug: row.slug,
         code: row.code,
         title: row.title,
-        creditHours: row.credit_hours === null ? null : Number(row.credit_hours),
+        creditHours:
+          row.credit_hours === null ? null : Number(row.credit_hours),
         departmentName: row.department_name,
         departmentShort: row.department_short,
         teacherCount: row.teacher_count ?? 0,
@@ -235,29 +250,35 @@ export async function searchCourses(options: {
   }
 }
 
-export async function getCourseBySlug(slug: string): Promise<CourseSummary | null> {
+export async function getCourseBySlug(
+  slug: string,
+): Promise<CourseSummary | null> {
   try {
     const supabase = createSupabaseServerClient();
 
     const { data, error } = await supabase
       .from("courses")
-      .select("id, slug, code, title, credit_hours, departments ( name, short_name )")
+      .select(
+        "id, slug, code, title, credit_hours, departments ( name, short_name )",
+      )
       .eq("slug", slug)
       .eq("is_active", true)
       .maybeSingle();
 
     if (error || !data) return null;
 
-    const department = data.departments as unknown as
-      | { name: string; short_name: string | null }
-      | null;
+    const department = data.departments as unknown as {
+      name: string;
+      short_name: string | null;
+    } | null;
 
     return {
       id: data.id,
       slug: data.slug,
       code: data.code,
       title: data.title,
-      creditHours: data.credit_hours === null ? null : Number(data.credit_hours),
+      creditHours:
+        data.credit_hours === null ? null : Number(data.credit_hours),
       departmentName: department?.name ?? null,
       departmentShort: department?.short_name ?? null,
       teacherCount: 0,
@@ -285,11 +306,13 @@ export async function getCourseTeachers(
     });
 
     if (error) return { teachers: [], total: 0, failed: true };
-    if (!data || data.length === 0) return { teachers: [], total: 0, failed: false };
+    if (!data || data.length === 0)
+      return { teachers: [], total: 0, failed: false };
 
     const teachers: CourseTeacher[] = data.map((row) => ({
       ...toPerson(row, null),
-      courseAverage: row.course_average === null ? null : Number(row.course_average),
+      courseAverage:
+        row.course_average === null ? null : Number(row.course_average),
       courseReviewCount: row.course_review_count ?? null,
       semestersTaught: row.semesters_taught ?? 0,
     }));
@@ -309,9 +332,11 @@ export async function getCourseTeachers(
   yeh ke abhi itna data nahi ke course/semester ki alag rating dikhayi ja sake.
   Threshold DB me hai (platform_settings.breakdown_min_reviews), UI me nahi.
 */
-export async function getPersonCourseRatings(personId: string): Promise<CourseRating[]> {
+export async function getPersonCourseRatings(
+  personId: string,
+): Promise<CourseRating[]> {
   try {
-    const supabase = createSupabaseServerClient();
+    const supabase = createSupabasePublicClient();
     const { data, error } = await supabase.rpc("person_course_ratings", {
       p_person_id: personId,
     });
@@ -324,7 +349,8 @@ export async function getPersonCourseRatings(personId: string): Promise<CourseRa
       courseCode: row.course_code,
       courseTitle: row.course_title,
       reviewCount: row.review_count ?? 0,
-      averageRating: row.average_rating === null ? null : Number(row.average_rating),
+      averageRating:
+        row.average_rating === null ? null : Number(row.average_rating),
       criteria: toCriteria(row.criteria),
     }));
   } catch {
@@ -332,9 +358,11 @@ export async function getPersonCourseRatings(personId: string): Promise<CourseRa
   }
 }
 
-export async function getPersonSemesterRatings(personId: string): Promise<SemesterRating[]> {
+export async function getPersonSemesterRatings(
+  personId: string,
+): Promise<SemesterRating[]> {
   try {
-    const supabase = createSupabaseServerClient();
+    const supabase = createSupabasePublicClient();
     const { data, error } = await supabase.rpc("person_semester_ratings", {
       p_person_id: personId,
     });
@@ -347,7 +375,8 @@ export async function getPersonSemesterRatings(personId: string): Promise<Semest
       season: row.semester_season,
       year: row.semester_year,
       reviewCount: row.review_count ?? 0,
-      averageRating: row.average_rating === null ? null : Number(row.average_rating),
+      averageRating:
+        row.average_rating === null ? null : Number(row.average_rating),
     }));
   } catch {
     return [];
@@ -380,16 +409,21 @@ export async function getRankings(options: {
 
     if (error || !data) return [];
 
-    return data.map((row) => ({ ...toPerson(row, options.category), rank: row.rank }));
+    return data.map((row) => ({
+      ...toPerson(row, options.category),
+      rank: row.rank,
+    }));
   } catch {
     return [];
   }
 }
 
-export async function getMostReviewed(options: {
-  category?: PersonCategory | null;
-  limit?: number;
-} = {}): Promise<PersonSummary[]> {
+export async function getMostReviewed(
+  options: {
+    category?: PersonCategory | null;
+    limit?: number;
+  } = {},
+): Promise<PersonSummary[]> {
   try {
     const supabase = createSupabaseServerClient();
 
@@ -406,10 +440,12 @@ export async function getMostReviewed(options: {
   }
 }
 
-export async function getTrending(options: {
-  category?: PersonCategory | null;
-  limit?: number;
-} = {}): Promise<TrendingPerson[]> {
+export async function getTrending(
+  options: {
+    category?: PersonCategory | null;
+    limit?: number;
+  } = {},
+): Promise<TrendingPerson[]> {
   try {
     const supabase = createSupabaseServerClient();
 
@@ -518,7 +554,9 @@ export async function getRecommendations(
 // Private lists (README §45, §46)
 // -----------------------------------------------------------------------------
 
-export async function getMyFavorites(options: { page?: number; perPage?: number } = {}): Promise<{
+export async function getMyFavorites(
+  options: { page?: number; perPage?: number } = {},
+): Promise<{
   people: SavedPerson[];
   total: number;
   failed: boolean;
@@ -535,11 +573,15 @@ export async function getMyFavorites(options: { page?: number; perPage?: number 
     });
 
     if (error) return { people: [], total: 0, failed: true };
-    if (!data || data.length === 0) return { people: [], total: 0, failed: false };
+    if (!data || data.length === 0)
+      return { people: [], total: 0, failed: false };
 
     return {
       total: Number(data[0].total_count ?? 0),
-      people: data.map((row) => ({ ...toPerson(row, null), savedAt: row.saved_at })),
+      people: data.map((row) => ({
+        ...toPerson(row, null),
+        savedAt: row.saved_at,
+      })),
       failed: false,
     };
   } catch {
@@ -560,14 +602,21 @@ export const getMyFavoriteIds = cache(async (): Promise<Set<string>> => {
   }
 });
 
-export async function getMyRecentlyViewed(limit = RECENTLY_VIEWED_LIMIT): Promise<ViewedPerson[]> {
+export async function getMyRecentlyViewed(
+  limit = RECENTLY_VIEWED_LIMIT,
+): Promise<ViewedPerson[]> {
   try {
     const supabase = createSupabaseServerClient();
-    const { data, error } = await supabase.rpc("my_recently_viewed", { p_limit: limit });
+    const { data, error } = await supabase.rpc("my_recently_viewed", {
+      p_limit: limit,
+    });
 
     if (error || !data) return [];
 
-    return data.map((row) => ({ ...toPerson(row, null), viewedAt: row.viewed_at }));
+    return data.map((row) => ({
+      ...toPerson(row, null),
+      viewedAt: row.viewed_at,
+    }));
   } catch {
     return [];
   }

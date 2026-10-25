@@ -1,6 +1,6 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
+import { revalidateReviewPath } from "@/lib/supabase/cache-invalidation";
 
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { logBackendError } from "@/lib/server/diagnostics";
@@ -68,6 +68,7 @@ const SAFE_DB_MESSAGES = new Set<string>([
   "You have already reviewed this course for this semester.",
   "You have already reviewed this person for this semester.",
   "You have reached the daily limit for new reviews.",
+  "Another review is being saved from your account. Please try again in a moment.",
   "You have used all edits for this review.",
   "Give an overall rating between 1 and 10.",
   "Keep your comment to 150 words or fewer.",
@@ -240,14 +241,17 @@ export async function submitReviewAction(
     };
   }
 
-  if (!(await isFeatureEnabled("review_submission"))) {
+  const [submissionEnabled, person] = await Promise.all([
+    isFeatureEnabled("review_submission"),
+    getPersonContext(personId),
+  ]);
+  if (!submissionEnabled) {
     return {
       ok: false,
       formError: "New reviews are paused right now. Please try again later.",
     };
   }
 
-  const person = await getPersonContext(personId);
   if (!person) {
     return { ok: false, formError: "That profile is not available." };
   }
@@ -309,8 +313,8 @@ export async function submitReviewAction(
     return { ok: false, formError: GENERIC_ERROR };
   }
 
-  revalidatePath(`/people/${person.slug}`);
-  revalidatePath("/student");
+  revalidateReviewPath(`/people/${person.slug}`);
+  revalidateReviewPath("/student");
 
   return { ok: true };
 }
@@ -370,8 +374,8 @@ export async function updateReviewAction(
     return { ok: false, formError: GENERIC_ERROR };
   }
 
-  revalidatePath(`/people/${person.slug}`);
-  revalidatePath("/student");
+  revalidateReviewPath(`/people/${person.slug}`);
+  revalidateReviewPath("/student");
 
   return { ok: true };
 }
@@ -406,9 +410,9 @@ export async function deleteReviewAction(
   }
 
   if (/^[a-z0-9-]+$/.test(slug)) {
-    revalidatePath(`/people/${slug}`);
+    revalidateReviewPath(`/people/${slug}`);
   }
-  revalidatePath("/student");
+  revalidateReviewPath("/student");
 
   return { ok: true };
 }

@@ -39,7 +39,13 @@ const motionClasses: Record<TooltipSide, string> = {
   right: "-translate-x-1",
 };
 
-export function Tooltip({ content, side = "top", children, className, delay = 120 }: TooltipProps) {
+export function Tooltip({
+  content,
+  side = "top",
+  children,
+  className,
+  delay = 120,
+}: TooltipProps) {
   const id = React.useId();
   const [open, setOpen] = React.useState(false);
   const timer = React.useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -71,7 +77,9 @@ export function Tooltip({ content, side = "top", children, className, delay = 12
   }, [clear]);
 
   const trigger = React.cloneElement(
-    React.Children.only(children) as React.ReactElement<{ "aria-describedby"?: string }>,
+    React.Children.only(children) as React.ReactElement<{
+      "aria-describedby"?: string;
+    }>,
     { "aria-describedby": id },
   );
 
@@ -90,13 +98,19 @@ export function Tooltip({ content, side = "top", children, className, delay = 12
       <span
         role="tooltip"
         id={id}
-        className={cn("pointer-events-none absolute z-50 hidden sm:block", sideClasses[side])}
+        className={cn(
+          "pointer-events-none absolute z-50",
+          !open && "hidden",
+          sideClasses[side],
+        )}
       >
         <span
           className={cn(
-            "block whitespace-nowrap rounded-md border border-ink-800 bg-ink-900 px-2 py-1 text-xs font-medium text-white shadow-pop",
+            "block max-w-[min(18rem,80vw)] rounded-md border border-border bg-popover px-2 py-1 text-xs font-medium text-popover-foreground shadow-pop",
             "transition-[opacity,transform] duration-150 ease-out",
-            open ? "translate-x-0 translate-y-0 opacity-100" : cn("opacity-0", motionClasses[side]),
+            open
+              ? "translate-x-0 translate-y-0 opacity-100"
+              : cn("opacity-0", motionClasses[side]),
             className,
           )}
         >

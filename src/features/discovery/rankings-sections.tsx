@@ -1,7 +1,12 @@
 import * as React from "react";
 
 import Link from "next/link";
-import { Flame, MessageSquareText, MousePointerClick, Trophy } from "@/components/ui/icons";
+import {
+  Flame,
+  MessageSquareText,
+  MousePointerClick,
+  Trophy,
+} from "@/components/ui/icons";
 
 import { EmptyState } from "@/components/common/empty-state";
 import { Button } from "@/components/ui/button";
@@ -12,7 +17,10 @@ import {
   getRankingThreshold,
   getTrending,
 } from "@/features/discovery/queries";
-import { RankedList, type RankedListItem } from "@/features/discovery/ranked-list";
+import {
+  RankedList,
+  type RankedListItem,
+} from "@/features/discovery/ranked-list";
 import type { RankingScope } from "@/features/discovery/types";
 import type { PersonCategory } from "@/features/people/types";
 import { getCategoryMeta } from "@/lib/constants";
@@ -23,7 +31,10 @@ import { getCategoryMeta } from "@/lib/constants";
   koi lamba "yeh spot kaise milta hai" wala block nahi.
 */
 
-const SCOPE_NEEDS_ID: Record<RankingScope, "department" | "course" | "semester" | null> = {
+const SCOPE_NEEDS_ID: Record<
+  RankingScope,
+  "department" | "course" | "semester" | null
+> = {
   university: null,
   department: "department",
   course: "course",
@@ -46,7 +57,13 @@ export async function RankingsResult({
   const meta = getCategoryMeta(category);
   const needs = SCOPE_NEEDS_ID[scope];
   const scopeId =
-    needs === "department" ? departmentId : needs === "course" ? courseId : needs === "semester" ? semesterId : null;
+    needs === "department"
+      ? departmentId
+      : needs === "course"
+        ? courseId
+        : needs === "semester"
+          ? semesterId
+          : null;
 
   // Scope ke liye id chahiye magar chuni nahi: pehle wo maango, khali list nahi.
   if (needs && !scopeId) {
@@ -61,7 +78,14 @@ export async function RankingsResult({
   }
 
   const [ranked, threshold] = await Promise.all([
-    getRankings({ category, scope, departmentId, courseId, semesterId, limit: 10 }),
+    getRankings({
+      category,
+      scope,
+      departmentId,
+      courseId,
+      semesterId,
+      limit: 10,
+    }),
     getRankingThreshold(),
   ]);
 
@@ -73,40 +97,54 @@ export async function RankingsResult({
         description={`A profile joins the ranking once it has at least ${threshold} verified reviews. Until then, you can browse the full directory.`}
         action={
           <Button asChild variant="outline" size="sm">
-            <Link href={`/${meta.slug}`}>Browse {meta.label.toLowerCase()}</Link>
+            <Link href={`/${meta.slug}`}>
+              Browse {meta.label.toLowerCase()}
+            </Link>
           </Button>
         }
       />
     );
   }
 
-  const items: RankedListItem[] = ranked.map((person) => ({ person, rank: person.rank }));
+  const items: RankedListItem[] = ranked.map((person) => ({
+    person,
+    rank: person.rank,
+  }));
 
   return (
     <div className="space-y-3">
       <p className="text-xs text-muted-foreground">
-        Ranked by student ratings. Profiles need at least {threshold} reviews to appear.
+        Ranked by student ratings. Profiles need at least {threshold} reviews to
+        appear.
       </p>
       <RankedList items={items} />
     </div>
   );
 }
 
-export async function MostReviewedSection({ category }: { category: PersonCategory }) {
+export async function MostReviewedSection({
+  category,
+}: {
+  category: PersonCategory;
+}) {
   const people = await getMostReviewed({ category, limit: 10 });
 
   return (
     <Card>
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
-          <MessageSquareText aria-hidden="true" className="size-4 text-indigo-600" />
+          <MessageSquareText
+            aria-hidden="true"
+            className="size-4 text-primary"
+          />
           Most reviewed
         </CardTitle>
       </CardHeader>
       <CardContent>
         {people.length === 0 ? (
           <p className="text-sm text-muted-foreground">
-            No reviews have been collected yet. This list fills in as students post reviews.
+            No reviews have been collected yet. This list fills in as students
+            post reviews.
           </p>
         ) : (
           <RankedList
@@ -123,7 +161,11 @@ export async function MostReviewedSection({ category }: { category: PersonCatego
   );
 }
 
-export async function TrendingSection({ category }: { category: PersonCategory }) {
+export async function TrendingSection({
+  category,
+}: {
+  category: PersonCategory;
+}) {
   const people = await getTrending({ category, limit: 10 });
 
   return (
@@ -137,7 +179,8 @@ export async function TrendingSection({ category }: { category: PersonCategory }
       <CardContent>
         {people.length === 0 ? (
           <p className="text-sm text-muted-foreground">
-            Nothing is trending right now. This list reflects recent verified review activity.
+            Nothing is trending right now. This list reflects recent verified
+            review activity.
           </p>
         ) : (
           <RankedList

@@ -19,18 +19,20 @@ const badgeVariants = cva(
     variants: {
       variant: {
         // Default = quiet neutral. 90% jagah yehi use hota hai.
-        default: "border-ink-200 bg-ink-50 text-ink-700 hover:border-ink-300 hover:bg-ink-100",
+        default:
+          "border-ink-200 bg-ink-50 text-ink-700 hover:border-ink-300 hover:bg-ink-100",
         // Indigo = primary/structural meta (department, semester).
         brand:
-          "border-indigo-200 bg-indigo-50 text-indigo-700 hover:border-indigo-300 hover:bg-indigo-100",
+          "border-indigo-200 bg-indigo-50 text-primary hover:border-indigo-300 hover:bg-indigo-100",
         // Coral = signature highlight (ratings, "Top rated").
         accent:
-          "border-coral-200 bg-coral-50 text-coral-700 hover:border-coral-300 hover:bg-coral-100",
+          "border-coral-200 bg-coral-50 text-accent-foreground hover:border-coral-300 hover:bg-coral-100",
         // Magenta = category chips.
         category:
-          "border-magenta-200 bg-magenta-50 text-magenta-700 hover:border-magenta-300 hover:bg-magenta-100",
+          "border-magenta-200 bg-magenta-50 text-magenta-700 dark:text-magenta-300 hover:border-magenta-300 hover:bg-magenta-100",
         // Sirf border, koi fill nahi.
-        outline: "border-input bg-transparent text-ink-700 hover:border-ink-400",
+        outline:
+          "border-input bg-transparent text-ink-700 hover:border-ink-400",
       },
     },
     defaultVariants: {
@@ -40,11 +42,14 @@ const badgeVariants = cva(
 );
 
 export interface BadgeProps
-  extends React.HTMLAttributes<HTMLSpanElement>,
+  extends
+    React.HTMLAttributes<HTMLSpanElement>,
     VariantProps<typeof badgeVariants> {}
 
 function Badge({ className, variant, ...props }: BadgeProps) {
-  return <span className={cn(badgeVariants({ variant }), className)} {...props} />;
+  return (
+    <span className={cn(badgeVariants({ variant }), className)} {...props} />
+  );
 }
 
 export { Badge, badgeVariants };

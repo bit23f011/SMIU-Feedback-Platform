@@ -1,6 +1,6 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
+import { revalidateReviewPath } from "@/lib/supabase/cache-invalidation";
 
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { isModerationAction } from "@/features/admin/reviews/types";
@@ -23,7 +23,8 @@ import type { ModerationState } from "@/features/admin/reviews/form-state";
   kar sakti hai - type/object yahan se export karna build par error deta.
 */
 
-const GENERIC_ERROR = "We could not apply that change right now. Please try again.";
+const GENERIC_ERROR =
+  "We could not apply that change right now. Please try again.";
 
 /*
   Sirf yeh messages user tak jate hain. Yeh wahi text hai jo migration ki
@@ -45,7 +46,9 @@ function safeMessage(message: string | undefined): string {
 function isUuid(value: unknown): value is string {
   return (
     typeof value === "string" &&
-    /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(value)
+    /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(
+      value,
+    )
   );
 }
 
@@ -81,9 +84,9 @@ export async function moderateReviewAction(
   }
 
   // Queue khud badalti hai, aur public profile par text ab dikh ya chhup sakta hai.
-  revalidatePath("/admin/reviews");
+  revalidateReviewPath("/admin/reviews");
   if (/^[a-z0-9-]+$/.test(personSlug)) {
-    revalidatePath(`/people/${personSlug}`);
+    revalidateReviewPath(`/people/${personSlug}`);
   }
 
   return { ok: true, reviewId };

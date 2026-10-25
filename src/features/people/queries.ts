@@ -1,7 +1,20 @@
-import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { cache } from "react";
+import { createSupabasePublicClient } from "@/lib/supabase/public";
 import { RANKING } from "@/lib/constants";
-import type { PersonCategory, PersonRoleSummary, PersonSummary } from "@/features/people/types";
-import { getPersonRatingStats, getRatingStatsForPeople } from "@/features/reviews/queries";
+import type {
+  PersonCategory,
+  PersonRoleSummary,
+  PersonSummary,
+} from "@/features/people/types";
+import {
+  getPersonRatingStats,
+  getRatingStatsForPeople,
+} from "@/features/reviews/queries";
+import {
+  PEOPLE_PER_PAGE,
+  parsePage,
+  type PeoplePage,
+} from "@/features/discovery/types";
 
 /*
   Public directory queries (server-side).
@@ -26,7 +39,10 @@ export interface DirectoryResult {
 // input se yeh characters nikal dete hain. (Yeh injection fix nahi - PostgREST
 // khud parameterise karta hai - yeh sirf predictable matching ke liye hai.)
 function sanitizeSearch(term: string): string {
-  return term.replace(/[%,*()]/g, " ").trim().slice(0, 80);
+  return term
+    .replace(/[%,*()"\\]/g, " ")
+    .trim()
+    .slice(0, 80);
 }
 
 const PERSON_SELECT = `
@@ -76,7 +92,8 @@ function toPersonSummary(row: PersonRow): PersonSummary {
       category: role.category,
       // Pehle approved position ka title, warna "Other" wala free-text override.
       title: role.positions?.title ?? role.title_override ?? null,
-      department: role.departments?.short_name ?? role.departments?.name ?? null,
+      department:
+        role.departments?.short_name ?? role.departments?.name ?? null,
       isPrimary: role.is_primary,
     }));
 
@@ -108,13 +125,19 @@ function toPersonSummary(row: PersonRow): PersonSummary {
 async function withRatings(people: PersonSummary[]): Promise<PersonSummary[]> {
   if (people.length === 0) return people;
 
-  const stats = await getRatingStatsForPeople(people.map((person) => person.id));
+  const stats = await getRatingStatsForPeople(
+    people.map((person) => person.id),
+  );
   if (stats.size === 0) return people;
 
   return people.map((person) => {
     const stat = stats.get(person.id);
     if (!stat || stat.reviewCount === 0) return person;
-    return { ...person, rating: stat.averageRating, reviewCount: stat.reviewCount };
+    return {
+      ...person,
+      rating: stat.averageRating,
+      reviewCount: stat.reviewCount,
+    };
   });
 }
 
@@ -126,7 +149,7 @@ export async function listPeopleByCategory(options: {
   const { category, search, limit = 48 } = options;
 
   try {
-    const supabase = createSupabaseServerClient();
+    const supabase = createSupabasePublicClient();
 
     let query = supabase
       .from("people")
@@ -148,7 +171,9 @@ export async function listPeopleByCategory(options: {
     }
 
     return {
-      people: await withRatings((data as unknown as PersonRow[]).map(toPersonSummary)),
+      people: await withRatings(
+        (data as unknown as PersonRow[]).map(toPersonSummary),
+      ),
       failed: false,
     };
   } catch {
@@ -156,13 +181,15 @@ export async function listPeopleByCategory(options: {
   }
 }
 
-export async function getPersonBySlug(slug: string): Promise<PersonSummary | null> {
-  try {
-    const supabase = createSupabaseServerClient();
+const getPersonRecordBySlug = cache(
+  async (slug: string): Promise<PersonSummary | null> => {
+    try {
+      const supabase = createSupabasePublicClient();
 
-    const { data, error } = await supabase
-      .from("people")
-      .select(`
+      const { data, error } = await supabase
+        .from("people")
+        .select(
+          `
         id,
         slug,
         full_name,
@@ -179,21 +206,71 @@ export async function getPersonBySlug(slug: string): Promise<PersonSummary | nul
           positions ( title ),
           departments ( name, short_name )
         )
-      `)
-      .eq("slug", slug)
+      `,
+        )
+        .eq("slug", slug)
+        .eq("is_active", true)
+        .maybeSingle();
+
+      if (error || !data) return null;
+
+      const person = toPersonSummary(data as unknown as PersonRow);
+      return person;
+    } catch {
+      return null;
+    }
+  },
+);
+
+export async function getPersonBySlug(
+  slug: string,
+  includeRatings = true,
+): Promise<PersonSummary | null> {
+  const person = await getPersonRecordBySlug(slug);
+  if (!person || !includeRatings) return person;
+  const stats = await getPersonRatingStats(person.id);
+  return stats.reviewCount === 0
+    ? person
+    : {
+        ...person,
+        rating: stats.averageRating,
+        reviewCount: stats.reviewCount,
+      };
+}
+
+/** Name search across every active public role; each person appears once. */
+export async function searchAllPeople(options: {
+  search?: string;
+  page?: number;
+}): Promise<PeoplePage> {
+  const page = parsePage(String(options.page ?? 1));
+  const offset = (page - 1) * PEOPLE_PER_PAGE;
+  try {
+    const supabase = createSupabasePublicClient();
+    let query = supabase
+      .from("people")
+      .select(PERSON_SELECT, { count: "exact" })
       .eq("is_active", true)
-      .maybeSingle();
-
-    if (error || !data) return null;
-
-    const person = toPersonSummary(data as unknown as PersonRow);
-    const stats = await getPersonRatingStats(person.id);
-
-    return stats.reviewCount === 0
-      ? person
-      : { ...person, rating: stats.averageRating, reviewCount: stats.reviewCount };
+      .eq("person_roles.is_active", true)
+      .order("full_name", { ascending: true })
+      .order("id", { ascending: true })
+      .range(offset, offset + PEOPLE_PER_PAGE - 1);
+    const term = sanitizeSearch(options.search ?? "");
+    if (term)
+      query = query.or(
+        `full_name.ilike.%${term}%,display_name.ilike.%${term}%`,
+      );
+    const { data, count, error } = await query;
+    if (error) return { people: [], total: 0, failed: true };
+    return {
+      people: await withRatings(
+        ((data as unknown as PersonRow[]) ?? []).map(toPersonSummary),
+      ),
+      total: count ?? 0,
+      failed: false,
+    };
   } catch {
-    return null;
+    return { people: [], total: 0, failed: true };
   }
 }
 
@@ -214,7 +291,7 @@ export async function getTopPersonByCategory(options: {
   const { category, minReviews = RANKING.minReviews } = options;
 
   try {
-    const supabase = createSupabaseServerClient();
+    const supabase = createSupabasePublicClient();
 
     const { data: stats, error: statsError } = await supabase
       .from("person_rating_stats")
@@ -254,7 +331,8 @@ export async function getTopPersonByCategory(options: {
 
       return {
         ...person,
-        rating: stat.average_rating === null ? null : Number(stat.average_rating),
+        rating:
+          stat.average_rating === null ? null : Number(stat.average_rating),
         reviewCount: stat.review_count ?? 0,
       };
     }

@@ -1,9 +1,14 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
+import { revalidatePublicPath } from "@/lib/supabase/cache-invalidation";
 
 import { createSupabaseServerClient } from "@/lib/supabase/server";
-import { GENERIC_ADMIN_ERROR, isSlug, isUuid, pickSafeMessage } from "@/features/admin/shared";
+import {
+  GENERIC_ADMIN_ERROR,
+  isSlug,
+  isUuid,
+  pickSafeMessage,
+} from "@/features/admin/shared";
 import { isReportResolveAction } from "@/features/admin/reports/types";
 import type { ReportActionState } from "@/features/admin/reports/form-state";
 
@@ -39,9 +44,9 @@ const SAFE_MESSAGES = new Set<string>([
 
 function revalidateReportViews(personSlug: unknown) {
   // Queue khud badalti hai; profile ki public halat bhi badal sakti hai.
-  revalidatePath("/admin/reports");
+  revalidatePublicPath("/admin/reports");
   if (isSlug(personSlug)) {
-    revalidatePath(`/people/${personSlug}`);
+    revalidatePublicPath(`/people/${personSlug}`);
   }
 }
 
@@ -70,7 +75,11 @@ export async function resolveReportAction(
       p_note: note.trim() ? note.trim() : null,
     });
     if (error) {
-      return { ok: false, error: pickSafeMessage(error.message, SAFE_MESSAGES), reportId };
+      return {
+        ok: false,
+        error: pickSafeMessage(error.message, SAFE_MESSAGES),
+        reportId,
+      };
     }
   } catch {
     return { ok: false, error: GENERIC_ADMIN_ERROR, reportId };
@@ -108,7 +117,11 @@ export async function setPersonActiveAction(
       p_reason: reason.trim(),
     });
     if (error) {
-      return { ok: false, error: pickSafeMessage(error.message, SAFE_MESSAGES), personId };
+      return {
+        ok: false,
+        error: pickSafeMessage(error.message, SAFE_MESSAGES),
+        personId,
+      };
     }
   } catch {
     return { ok: false, error: GENERIC_ADMIN_ERROR, personId };
@@ -136,7 +149,11 @@ export async function mergePeopleAction(
     return { ok: false, error: GENERIC_ADMIN_ERROR };
   }
   if (canonicalId === duplicateId) {
-    return { ok: false, error: "Choose two different profiles.", personId: canonicalId };
+    return {
+      ok: false,
+      error: "Choose two different profiles.",
+      personId: canonicalId,
+    };
   }
   if (!reason.trim()) {
     return { ok: false, error: "A reason is required.", personId: canonicalId };
@@ -160,9 +177,9 @@ export async function mergePeopleAction(
     return { ok: false, error: GENERIC_ADMIN_ERROR, personId: canonicalId };
   }
 
-  revalidatePath("/admin/reports");
-  if (isSlug(canonicalSlug)) revalidatePath(`/people/${canonicalSlug}`);
-  if (isSlug(duplicateSlug)) revalidatePath(`/people/${duplicateSlug}`);
+  revalidatePublicPath("/admin/reports");
+  if (isSlug(canonicalSlug)) revalidatePublicPath(`/people/${canonicalSlug}`);
+  if (isSlug(duplicateSlug)) revalidatePublicPath(`/people/${duplicateSlug}`);
   return { ok: true, personId: canonicalId };
 }
 
@@ -192,7 +209,11 @@ export async function resetPersonReviewsAction(
       p_reason: reason.trim(),
     });
     if (error) {
-      return { ok: false, error: pickSafeMessage(error.message, SAFE_MESSAGES), personId };
+      return {
+        ok: false,
+        error: pickSafeMessage(error.message, SAFE_MESSAGES),
+        personId,
+      };
     }
   } catch {
     return { ok: false, error: GENERIC_ADMIN_ERROR, personId };

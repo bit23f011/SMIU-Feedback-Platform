@@ -28,6 +28,7 @@ const ids = {
 const migrationName = "20261024100000_shared_review_catalog.sql";
 const ratingRepairName = "20261024110000_review_rating_constraint_repair.sql";
 const commentRepairName = "20261024120000_review_comment_constraint_repair.sql";
+const concurrencyName = "20261025090000_review_concurrency_and_indexes.sql";
 let db: PGlite;
 let teacher: string;
 let staff: string;
@@ -48,6 +49,7 @@ let legacyRatingFailure: { code?: string; constraint?: string } | undefined;
 let ratingRepairReadiness: unknown[];
 let legacyCommentFailure: { code?: string; constraint?: string } | undefined;
 let commentRepairReadiness: unknown[];
+let concurrencyReadiness: unknown[];
 
 async function scalar<T>(sql: string, params: unknown[] = []): Promise<T> {
   const result = await db.query<{ value: T }>(sql, params);
@@ -280,6 +282,9 @@ beforeAll(async () => {
   );
   await db.exec(commentRepair);
   commentRepairReadiness = (await db.exec(commentRepair)).at(-1)!.rows;
+  const concurrency = readFileSync(resolve(folder, concurrencyName), "utf8");
+  await db.exec(concurrency);
+  concurrencyReadiness = (await db.exec(concurrency)).at(-1)!.rows;
   criteriaAfter = (
     await db.query("select * from public.review_criteria order by id")
   ).rows;
@@ -299,6 +304,60 @@ afterEach(async () => {
 });
 afterAll(async () => {
   await db?.close();
+});
+
+describe("review burst safeguards", () => {
+  it("reapplies the guard and indexes without changing reviews or criteria", () => {
+    expect(concurrencyReadiness).toEqual([
+      {
+        concurrent_review_guard_ready: true,
+        review_daily_limit_index_ready: true,
+        public_review_index_ready: true,
+      },
+    ]);
+    expect(preservedAfter).toEqual(preservedBefore);
+    expect(criteriaAfter).toEqual(criteriaBefore);
+  });
+
+  it("enforces the daily limit separately for each student", async () => {
+    await db.exec(
+      "reset role; create or replace function public.review_limits() returns table (max_per_day int, max_edits int) language sql immutable as $$ select 1, 2 $$;",
+    );
+    await db.query(
+      "update public.review_authors set created_at = now() - interval '2 days' where author_id = $1",
+      [ids.otherStudent],
+    );
+    await signIn(ids.student);
+    await submit();
+    const failure = await rejection(submitSql, submitParams(secondCourse));
+    expect(failure.message).toBe(
+      "You have reached the daily limit for new reviews.",
+    );
+    await signIn(ids.otherStudent);
+    expect(await submit(secondCourse)).toMatch(/^[0-9a-f-]{36}$/);
+  });
+
+  it("rolls back review, authorship and answers together on invalid answers", async () => {
+    const before = await scalar<number>(
+      "select count(*)::int as value from public.reviews",
+    );
+    await rejection(submitSql, [teacher, "[]", course, semester]);
+    expect(
+      await scalar<number>("select count(*)::int as value from public.reviews"),
+    ).toBe(before);
+    expect(
+      await scalar<number>(
+        "select count(*)::int as value from public.review_authors where author_id = $1",
+        [ids.student],
+      ),
+    ).toBe(0);
+    expect(
+      await scalar<number>(
+        "select count(*)::int as value from public.review_answers a left join public.reviews r on r.id = a.review_id where r.id is null",
+      ),
+    ).toBe(0);
+    expect(await submit()).toMatch(/^[0-9a-f-]{36}$/);
+  });
 });
 
 describe("experience text and admin moderation", () => {

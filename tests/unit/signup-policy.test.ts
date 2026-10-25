@@ -67,6 +67,12 @@ describe("actual Auth confirmation policy", () => {
       captchaRequired: false,
       available: true,
     });
+    expect(fetch).toHaveBeenCalledWith(
+      "https://backend.example/auth/v1/settings",
+      expect.objectContaining({
+        next: { revalidate: 30 },
+      }),
+    );
   });
 
   it("requires a real CAPTCHA only when a widget is configured", async () => {

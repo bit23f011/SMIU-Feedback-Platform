@@ -1,7 +1,12 @@
 import * as React from "react";
 
 import { cva, type VariantProps } from "class-variance-authority";
-import { AlertTriangle, CheckCircle2, Info, XCircle } from "@/components/ui/icons";
+import {
+  AlertTriangle,
+  CheckCircle2,
+  Info,
+  XCircle,
+} from "@/components/ui/icons";
 
 import { cn } from "@/lib/utils";
 
@@ -11,11 +16,14 @@ import { cn } from "@/lib/utils";
   Icon default tone se aata hai, magar override bhi kiya ja sakta hai.
 */
 const alertVariants = cva(
-  ["relative flex w-full gap-3 rounded-lg border px-4 py-3 text-sm", "[&_svg]:mt-0.5 [&_svg]:size-4 [&_svg]:shrink-0"],
+  [
+    "relative flex w-full gap-3 rounded-lg border px-4 py-3 text-sm",
+    "[&_svg]:mt-0.5 [&_svg]:size-4 [&_svg]:shrink-0",
+  ],
   {
     variants: {
       tone: {
-        info: "border-indigo-200 bg-indigo-50 text-indigo-800 [&_svg]:text-indigo-600",
+        info: "border-indigo-200 bg-indigo-50 text-foreground [&_svg]:text-primary",
         success:
           "border-state-success/25 bg-state-success-soft text-state-success [&_svg]:text-state-success",
         warning:
@@ -40,7 +48,8 @@ const toneIcon = {
 } as const;
 
 export interface AlertProps
-  extends React.HTMLAttributes<HTMLDivElement>,
+  extends
+    React.HTMLAttributes<HTMLDivElement>,
     VariantProps<typeof alertVariants> {
   icon?: React.ReactNode;
   /** false karo to koi icon nahi aayega. */
@@ -48,7 +57,10 @@ export interface AlertProps
 }
 
 const Alert = React.forwardRef<HTMLDivElement, AlertProps>(
-  ({ className, tone = "info", icon, showIcon = true, children, ...props }, ref) => {
+  (
+    { className, tone = "info", icon, showIcon = true, children, ...props },
+    ref,
+  ) => {
     const Icon = toneIcon[tone ?? "info"];
 
     return (
@@ -68,18 +80,27 @@ const Alert = React.forwardRef<HTMLDivElement, AlertProps>(
 );
 Alert.displayName = "Alert";
 
-const AlertTitle = React.forwardRef<HTMLParagraphElement, React.HTMLAttributes<HTMLParagraphElement>>(
-  ({ className, ...props }, ref) => (
-    <p ref={ref} className={cn("font-medium leading-snug", className)} {...props} />
-  ),
-);
+const AlertTitle = React.forwardRef<
+  HTMLParagraphElement,
+  React.HTMLAttributes<HTMLParagraphElement>
+>(({ className, ...props }, ref) => (
+  <p
+    ref={ref}
+    className={cn("font-medium leading-snug", className)}
+    {...props}
+  />
+));
 AlertTitle.displayName = "AlertTitle";
 
 const AlertDescription = React.forwardRef<
   HTMLParagraphElement,
   React.HTMLAttributes<HTMLParagraphElement>
 >(({ className, ...props }, ref) => (
-  <p ref={ref} className={cn("mt-0.5 leading-relaxed opacity-90", className)} {...props} />
+  <p
+    ref={ref}
+    className={cn("mt-0.5 leading-relaxed opacity-90", className)}
+    {...props}
+  />
 ));
 AlertDescription.displayName = "AlertDescription";
 

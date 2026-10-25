@@ -1,5 +1,11 @@
 import Link from "next/link";
-import { ChevronLeft, ChevronRight, Inbox, Search, TriangleAlert } from "@/components/ui/icons";
+import {
+  ChevronLeft,
+  ChevronRight,
+  Inbox,
+  Search,
+  TriangleAlert,
+} from "@/components/ui/icons";
 
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
@@ -31,7 +37,10 @@ import { cn } from "@/lib/utils";
 const BASE_HREF = "/admin/website-feedback";
 
 /* Mojooda filters ko base bana kar, kuch override ke saath query string. */
-function buildQuery(filters: AdminFeedbackFilters, overrides: Record<string, string | null>): string {
+function buildQuery(
+  filters: AdminFeedbackFilters,
+  overrides: Record<string, string | null>,
+): string {
   const params = new URLSearchParams();
   if (filters.status) params.set("status", filters.status);
   if (filters.type) params.set("type", filters.type);
@@ -66,7 +75,7 @@ function StatusTabs({ filters }: { filters: AdminFeedbackFilters }) {
                   "transition-[background-color,border-color,color] duration-150 ease-out",
                   "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
                   isActive
-                    ? "border-indigo-200 bg-indigo-50 text-indigo-700"
+                    ? "border-indigo-200 bg-indigo-50 text-primary"
                     : "border-border bg-background text-ink-600 hover:bg-ink-50 hover:text-foreground",
                 )}
               >
@@ -87,14 +96,23 @@ function StatusTabs({ filters }: { filters: AdminFeedbackFilters }) {
 */
 function FilterBar({ filters }: { filters: AdminFeedbackFilters }) {
   return (
-    <form method="get" action={BASE_HREF} className="mt-4 flex flex-wrap items-end gap-3">
+    <form
+      method="get"
+      action={BASE_HREF}
+      className="mt-4 flex flex-wrap items-end gap-3"
+    >
       <input type="hidden" name="status" value={filters.status ?? ""} />
 
       <div className="space-y-1.5">
         <Label htmlFor="feedback-type" className="text-xs">
           Type
         </Label>
-        <Select id="feedback-type" name="type" defaultValue={filters.type ?? ""} className="h-9 w-44">
+        <Select
+          id="feedback-type"
+          name="type"
+          defaultValue={filters.type ?? ""}
+          className="h-9 w-44"
+        >
           <option value="">All types</option>
           {FEEDBACK_TYPE_ORDER.map((value) => (
             <option key={value} value={value}>
@@ -136,7 +154,12 @@ function FilterBar({ filters }: { filters: AdminFeedbackFilters }) {
 
       {filters.type || filters.search.trim() || filters.importantOnly ? (
         <Link
-          href={buildQuery(filters, { type: null, q: null, important: null, page: null })}
+          href={buildQuery(filters, {
+            type: null,
+            q: null,
+            important: null,
+            page: null,
+          })}
           className="inline-flex h-9 items-center text-sm font-medium text-primary hover:underline"
         >
           Clear filters
@@ -161,7 +184,10 @@ function QueuePagination({
     "inline-flex cursor-not-allowed items-center gap-1 rounded-md border border-border/60 px-3 py-1.5 text-sm font-medium text-muted-foreground/60";
 
   return (
-    <nav aria-label="Queue pages" className="flex items-center justify-between gap-3 pt-2">
+    <nav
+      aria-label="Queue pages"
+      className="flex items-center justify-between gap-3 pt-2"
+    >
       {filters.page > 1 ? (
         <Link
           href={buildQuery(filters, { page: String(filters.page - 1) })}
@@ -178,7 +204,10 @@ function QueuePagination({
         </span>
       )}
 
-      <p className="text-sm tabular-nums text-muted-foreground" aria-live="polite">
+      <p
+        className="text-sm tabular-nums text-muted-foreground"
+        aria-live="polite"
+      >
         Page {filters.page} of {pageCount}
       </p>
 
@@ -201,11 +230,19 @@ function QueuePagination({
   );
 }
 
-export async function FeedbackQueue({ filters }: { filters: AdminFeedbackFilters }) {
+export async function FeedbackQueue({
+  filters,
+}: {
+  filters: AdminFeedbackFilters;
+}) {
   const queue = await getAdminFeedbackQueue(filters);
   const activeStatus: FeedbackStatus | null = filters.status;
-  const tab = FEEDBACK_TABS.find((entry) => entry.status === activeStatus) ?? null;
-  const pageCount = Math.max(1, Math.ceil(queue.total / ADMIN_FEEDBACK_PER_PAGE));
+  const tab =
+    FEEDBACK_TABS.find((entry) => entry.status === activeStatus) ?? null;
+  const pageCount = Math.max(
+    1,
+    Math.ceil(queue.total / ADMIN_FEEDBACK_PER_PAGE),
+  );
 
   return (
     <>
@@ -213,7 +250,9 @@ export async function FeedbackQueue({ filters }: { filters: AdminFeedbackFilters
       <FilterBar filters={filters} />
 
       {tab ? (
-        <p className="mt-4 text-sm leading-relaxed text-muted-foreground">{tab.help}</p>
+        <p className="mt-4 text-sm leading-relaxed text-muted-foreground">
+          {tab.help}
+        </p>
       ) : null}
 
       {queue.failed ? (
@@ -222,8 +261,8 @@ export async function FeedbackQueue({ filters }: { filters: AdminFeedbackFilters
           <div>
             <AlertTitle>This list did not load</AlertTitle>
             <AlertDescription>
-              Nothing has changed. Reload the page, and if it keeps failing, check that your
-              account still has the admin role.
+              Nothing has changed. Reload the page, and if it keeps failing,
+              check that your account still has the admin role.
             </AlertDescription>
           </div>
         </Alert>
@@ -242,7 +281,8 @@ export async function FeedbackQueue({ filters }: { filters: AdminFeedbackFilters
       {queue.feedback.length > 0 ? (
         <div className="mt-4 space-y-4">
           <p className="text-sm tabular-nums text-muted-foreground">
-            {queue.total} {queue.total === 1 ? "message" : "messages"} in this list
+            {queue.total} {queue.total === 1 ? "message" : "messages"} in this
+            list
           </p>
 
           <ul className="list-none space-y-4">

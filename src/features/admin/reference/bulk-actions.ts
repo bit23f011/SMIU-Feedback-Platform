@@ -1,6 +1,6 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
+import { revalidatePublicPath } from "@/lib/supabase/cache-invalidation";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { logBackendError } from "@/lib/server/diagnostics";
 import { isUuid, pickSafeMessage } from "@/features/admin/shared";
@@ -46,7 +46,7 @@ export async function addCourseListAction(
         ok: false,
         error: "We could not save this list. Please try again.",
       };
-    revalidatePath("/", "layout");
+    revalidatePublicPath("/", "layout");
     return {
       ok: true,
       added: result.added,
@@ -90,7 +90,7 @@ export async function addSemesterListAction(
         ok: false,
         error: "We could not save this list. Please try again.",
       };
-    revalidatePath("/", "layout");
+    revalidatePublicPath("/", "layout");
     return {
       ok: true,
       added: result.added,

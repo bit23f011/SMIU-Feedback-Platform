@@ -1,30 +1,39 @@
 import Link from "next/link";
+import { Suspense } from "react";
 import { HomeImageCarousel } from "@/features/home/home-image-carousel";
 import { getActiveHomeImages } from "@/features/home/home-images-data";
 import { HomeSearch } from "@/features/home/home-search";
 import { ArrowRight } from "@/components/ui/icons";
-export async function Hero() {
+async function CampusPhotos() {
   const images = await getActiveHomeImages();
+  return <HomeImageCarousel images={images} />;
+}
+
+export function Hero() {
   return (
     <section className="campus-hero" aria-labelledby="home-heading">
-      <HomeImageCarousel images={images} />
+      <Suspense fallback={null}>
+        <CampusPhotos />
+      </Suspense>
       <div className="container relative z-10 flex min-h-[610px] flex-col justify-center py-12 md:min-h-[650px] md:py-16">
-        <div className="max-w-[670px]">
-          <p className="eyebrow flex items-center gap-3">
-            <span className="h-px w-7 bg-primary" />
-            Sindh Madressatul Islam University · Karachi
-          </p>
-          <h1
-            id="home-heading"
-            className="editorial-title mt-6 text-[2.8rem] leading-[1.08] text-foreground sm:text-[3.7rem] lg:text-[4.5rem]"
-          >
-            A campus.
-            <br />A thousand experiences.
-          </h1>
-          <p className="mt-5 max-w-[390px] text-[15px] leading-7 text-ink-700">
-            Before your first semester or your next course, hear from students
-            who have been there.
-          </p>
+        <div className="w-full max-w-[670px]">
+          <div className="hero-copy max-w-[580px] rounded-lg p-5 sm:p-7 md:p-8">
+            <p className="eyebrow flex items-center gap-3">
+              <span className="h-px w-7 bg-primary" />
+              Sindh Madressatul Islam University · Karachi
+            </p>
+            <h1
+              id="home-heading"
+              className="editorial-title mt-6 text-[2.8rem] leading-[1.08] text-foreground sm:text-[3.7rem] lg:text-[4.5rem]"
+            >
+              A campus.
+              <br />A thousand experiences.
+            </h1>
+            <p className="mt-5 max-w-[390px] text-[15px] leading-7 text-ink-700">
+              Before your first semester or your next course, hear from students
+              who have been there.
+            </p>
+          </div>
           <HomeSearch className="mt-8 max-w-[510px]" />
           <div className="mt-5 flex flex-wrap items-center gap-x-6 gap-y-3 text-[13px]">
             <Link
@@ -39,7 +48,7 @@ export async function Hero() {
             </span>
           </div>
         </div>
-        <div className="hero-caption mt-10 flex items-center gap-3 lg:absolute lg:bottom-12 lg:right-8 lg:mt-0">
+        <div className="hero-caption mt-10 flex w-fit items-center gap-3 rounded-md px-3 py-2 lg:absolute lg:bottom-12 lg:right-8 lg:mt-0">
           <span className="h-px w-8 bg-current" />
           <span>SMIU, through a student lens.</span>
         </div>

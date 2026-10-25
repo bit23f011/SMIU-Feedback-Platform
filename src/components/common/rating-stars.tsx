@@ -48,8 +48,11 @@ export function RatingStars({
     : "Not rated yet";
 
   return (
-    <span className={cn("inline-flex items-center gap-2", className)}>
-      <span className="inline-flex items-center gap-0.5" aria-hidden="true">
+    <span className={cn("inline-flex flex-wrap items-center gap-2", className)}>
+      <span
+        className="inline-flex shrink-0 items-center gap-0.5"
+        aria-hidden="true"
+      >
         {[0, 1, 2, 3, 4].map((index) => {
           const filled = hasRating && stars >= index + 0.5;
           return (
@@ -57,7 +60,8 @@ export function RatingStars({
               key={index}
               className={cn(
                 starSize,
-                filled ? "fill-coral-400 text-coral-500" : "fill-transparent text-ink-300",
+                "shrink-0",
+                filled ? "text-rating-filled" : "text-rating-empty",
               )}
               weight={filled ? "fill" : "regular"}
             />
@@ -68,7 +72,9 @@ export function RatingStars({
       {starsOnly ? null : hasRating ? (
         <span className={cn("font-medium text-foreground", textSize)}>
           {rating.toFixed(1)}
-          <span className="font-normal text-muted-foreground">/{OVERALL_MAX}</span>
+          <span className="font-normal text-muted-foreground">
+            /{OVERALL_MAX}
+          </span>
           {typeof count === "number" ? (
             <span className="ml-1 font-normal text-muted-foreground">
               ({formatCompactNumber(count)})
@@ -76,7 +82,9 @@ export function RatingStars({
           ) : null}
         </span>
       ) : (
-        <span className={cn("text-muted-foreground", textSize)}>Not rated yet</span>
+        <span className={cn("text-muted-foreground", textSize)}>
+          Not rated yet
+        </span>
       )}
 
       <span className="sr-only">{label}</span>

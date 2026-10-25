@@ -9,6 +9,7 @@ import { SITE } from "@/lib/constants";
 import { publicEnv } from "@/lib/env";
 import { cn } from "@/lib/utils";
 import { SiteExperienceProvider } from "@/components/layout/site-experience";
+import { FeedbackChat } from "@/features/feedback/feedback-chat";
 
 /*
   Type pairing:
@@ -30,8 +31,7 @@ const fontDisplay = Plus_Jakarta_Sans({
 });
 
 // Browser tab / social title. Public pehchan ab "SMIU Feedback Platform" hai
-// (SITE.platformLine). Internal product naam (SITE.name = ProfAura) sirf code aur
-// keywords me reh gaya hai; user-facing title yeh line dikhata hai.
+// (SITE.platformLine) metadata aur visible UI dono me ek hi naam rakhta hai.
 const siteTitle = SITE.platformLine;
 
 export const metadata: Metadata = {
@@ -122,7 +122,10 @@ export default function RootLayout({
           Skip to content
         </a>
         <ThemeProvider>
-          <SiteExperienceProvider>{children}</SiteExperienceProvider>
+          <SiteExperienceProvider>
+            {children}
+            <FeedbackChat />
+          </SiteExperienceProvider>
         </ThemeProvider>
       </body>
     </html>

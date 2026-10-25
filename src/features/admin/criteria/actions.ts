@@ -1,9 +1,13 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
+import { revalidatePublicPath } from "@/lib/supabase/cache-invalidation";
 
 import { createSupabaseServerClient } from "@/lib/supabase/server";
-import { GENERIC_ADMIN_ERROR, isUuid, pickSafeMessage } from "@/features/admin/shared";
+import {
+  GENERIC_ADMIN_ERROR,
+  isUuid,
+  pickSafeMessage,
+} from "@/features/admin/shared";
 import {
   isCriterionKey,
   isCriterionKind,
@@ -58,13 +62,21 @@ export async function upsertCriterionAction(
   // Category aur kind hamesha valid enum hone chahiye (create par naya, update par
   // hidden current value). Warna behtar message.
   if (!isPersonCategory(categoryRaw) || !isCriterionKind(kindRaw)) {
-    return { ok: false, error: "Category and kind are required.", criterionId: id ?? undefined };
+    return {
+      ok: false,
+      error: "Category and kind are required.",
+      criterionId: id ?? undefined,
+    };
   }
   const category: PersonCategory = categoryRaw;
   const kind: ReviewCriterionKind = kindRaw;
 
   if (!label) {
-    return { ok: false, error: "A label is required.", criterionId: id ?? undefined };
+    return {
+      ok: false,
+      error: "A label is required.",
+      criterionId: id ?? undefined,
+    };
   }
 
   // Naye criterion ke liye key ki shakal check. Update par DB key ignore karta hai,
@@ -76,7 +88,10 @@ export async function upsertCriterionAction(
     };
   }
 
-  const sortRaw = Number.parseInt((formData.get("sortOrder") ?? "").toString(), 10);
+  const sortRaw = Number.parseInt(
+    (formData.get("sortOrder") ?? "").toString(),
+    10,
+  );
   const sortOrder = Number.isFinite(sortRaw) ? sortRaw : 0;
   const isActive = formData.get("isActive") !== "false"; // default active
 
@@ -99,9 +114,16 @@ export async function upsertCriterionAction(
         criterionId: id ?? undefined,
       };
     }
-    revalidatePath("/admin/criteria");
-    return { ok: true, criterionId: typeof data === "string" ? data : (id ?? undefined) };
+    revalidatePublicPath("/admin/criteria");
+    return {
+      ok: true,
+      criterionId: typeof data === "string" ? data : (id ?? undefined),
+    };
   } catch {
-    return { ok: false, error: GENERIC_ADMIN_ERROR, criterionId: id ?? undefined };
+    return {
+      ok: false,
+      error: GENERIC_ADMIN_ERROR,
+      criterionId: id ?? undefined,
+    };
   }
 }

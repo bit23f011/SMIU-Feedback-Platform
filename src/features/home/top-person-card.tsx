@@ -43,7 +43,12 @@ export function TopPersonCard({
 }: TopPersonCardProps) {
   if (!person) {
     return (
-      <Card className={cn("flex flex-col items-start gap-4 p-6 md:flex-row md:items-center", className)}>
+      <Card
+        className={cn(
+          "flex flex-col items-start gap-4 p-6 md:flex-row md:items-center",
+          className,
+        )}
+      >
         <span
           aria-hidden="true"
           className="flex size-11 shrink-0 items-center justify-center rounded-lg border border-border bg-ink-50 text-ink-400"
@@ -56,7 +61,8 @@ export function TopPersonCard({
             No {noun} has taken this spot yet
           </p>
           <p className="mt-1 text-sm leading-relaxed text-muted-foreground">
-            Top {noun} rankings will appear here once enough verified reviews are available.
+            Top {noun} rankings will appear here once enough verified reviews
+            are available.
           </p>
         </div>
 
@@ -68,11 +74,19 @@ export function TopPersonCard({
   }
 
   const role = person.roles.find((item) => item.isPrimary) ?? person.roles[0];
-  const categoryMeta = getCategoryMeta(role?.category ?? person.primaryCategory ?? "teacher");
+  const categoryMeta = getCategoryMeta(
+    role?.category ?? person.primaryCategory ?? "teacher",
+  );
   const subtitle = role?.title ?? person.headline ?? categoryMeta.singular;
 
   return (
-    <Card interactive className={cn("group relative flex flex-col gap-4 p-6 sm:flex-row", className)}>
+    <Card
+      interactive
+      className={cn(
+        "group relative flex flex-col gap-4 p-6 sm:flex-row",
+        className,
+      )}
+    >
       <PersonAvatar
         name={person.name}
         gender={person.gender}
@@ -89,16 +103,20 @@ export function TopPersonCard({
         <h3 className="mt-2.5 font-display text-lg font-semibold leading-snug tracking-tight text-foreground">
           <Link
             href={`/people/${person.slug}`}
-            className="rounded-sm outline-none transition-colors duration-150 ease-out after:absolute after:inset-0 after:content-[''] group-hover:text-indigo-700 dark:group-hover:text-indigo-300 focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+            className="rounded-sm outline-none transition-colors duration-150 ease-out after:absolute after:inset-0 after:content-[''] group-hover:text-primary dark:group-hover:text-indigo-300 focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
           >
             {person.name}
           </Link>
         </h3>
-        <p className="mt-1 truncate text-sm text-muted-foreground">{subtitle}</p>
+        <p className="mt-1 truncate text-sm text-muted-foreground">
+          {subtitle}
+        </p>
 
         <div className="mt-3 flex flex-wrap items-center gap-1.5">
           <Badge variant="category">{categoryMeta.singular}</Badge>
-          {role?.department ? <Badge variant="brand">{role.department}</Badge> : null}
+          {role?.department ? (
+            <Badge variant="brand">{role.department}</Badge>
+          ) : null}
         </div>
 
         <div className="mt-4 border-t border-border/80 pt-3.5">

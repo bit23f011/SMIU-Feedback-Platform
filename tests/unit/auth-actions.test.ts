@@ -53,11 +53,17 @@ beforeEach(() => {
   });
   mocks.getTurnstileSiteKey.mockReturnValue(null);
   mocks.signUp.mockResolvedValue({
-    data: { session: { access_token: "test-session" }, user: { email_confirmed_at: "2026-10-24" } },
+    data: {
+      session: { access_token: "test-session" },
+      user: { email_confirmed_at: "2026-10-24" },
+    },
     error: null,
   });
   mocks.signIn.mockResolvedValue({
-    data: { user: { email_confirmed_at: "2026-10-24" } },
+    data: {
+      session: { access_token: "test-session" },
+      user: { email_confirmed_at: "2026-10-24" },
+    },
     error: null,
   });
 });
@@ -82,9 +88,13 @@ describe("signup outcomes", () => {
 
   it("does not send a signup request while the backend still requires email confirmation", async () => {
     mocks.getSignupPolicy.mockResolvedValue({
-      available: true, emailConfirmationRequired: true, captchaRequired: false,
+      available: true,
+      emailConfirmationRequired: true,
+      captchaRequired: false,
     });
-    expect((await signUpAction(EMPTY_AUTH_STATE, signupForm())).formError).toContain("temporarily unavailable");
+    expect(
+      (await signUpAction(EMPTY_AUTH_STATE, signupForm())).formError,
+    ).toContain("temporarily unavailable");
     expect(mocks.signUp).not.toHaveBeenCalled();
   });
 
@@ -131,13 +141,125 @@ describe("signup outcomes", () => {
       "redirect:/student",
     );
     expect(mocks.signUp).toHaveBeenCalledWith({
-      email: "bit21f002@stu.smiu.edu.pk", password: "a long test passphrase",
+      email: "bit21f002@stu.smiu.edu.pk",
+      password: "a long test passphrase",
     });
   });
 
   it("reports a missing session instead of redirecting to email verification", async () => {
-    mocks.signUp.mockResolvedValue({ data: { session: null, user: { email_confirmed_at: null } }, error: null });
-    expect((await signUpAction(EMPTY_AUTH_STATE, signupForm())).formError).toContain("could not finish creating");
+    mocks.signUp.mockResolvedValue({
+      data: { session: null, user: { email_confirmed_at: null } },
+      error: null,
+    });
+    expect(
+      (await signUpAction(EMPTY_AUTH_STATE, signupForm())).formError,
+    ).toContain("could not finish creating");
+    expect(mocks.signIn).not.toHaveBeenCalled();
+  });
+
+  it("automatically signs in a confirmed new account when signup omits the session", async () => {
+    mocks.signUp.mockResolvedValue({
+      data: { session: null, user: { email_confirmed_at: "2026-10-24" } },
+      error: null,
+    });
+    await expect(signUpAction(EMPTY_AUTH_STATE, signupForm())).rejects.toThrow(
+      "redirect:/student",
+    );
+    expect(mocks.signIn).toHaveBeenCalledWith({
+      email: "bit21f002@stu.smiu.edu.pk",
+      password: "a long test passphrase",
+    });
+  });
+
+  it("uses a fresh CAPTCHA on the same signup form to recover a missing session", async () => {
+    mocks.getSignupPolicy.mockResolvedValue({
+      available: true,
+      emailConfirmationRequired: false,
+      captchaRequired: true,
+    });
+    mocks.getTurnstileSiteKey.mockReturnValue("configured-site-key");
+    mocks.signUp.mockResolvedValue({
+      data: { session: null, user: { email_confirmed_at: "2026-10-24" } },
+      error: null,
+    });
+    const form = signupForm();
+    form.set("cf-turnstile-response", "signup-token");
+    const state = await signUpAction(EMPTY_AUTH_STATE, form);
+    expect(state.completeSignIn).toBe(true);
+    expect(mocks.signIn).not.toHaveBeenCalled();
+    form.set("cf-turnstile-response", "fresh-login-token");
+    await expect(signUpAction(state, form)).rejects.toThrow(
+      "redirect:/student",
+    );
+    expect(mocks.signIn).toHaveBeenCalledWith({
+      email: "bit21f002@stu.smiu.edu.pk",
+      password: "a long test passphrase",
+      options: { captchaToken: "fresh-login-token" },
+    });
+    expect(mocks.signUp).toHaveBeenCalledTimes(1);
+  });
+
+  it("does not let a continuation flag bypass login CAPTCHA", async () => {
+    mocks.getTurnstileSiteKey.mockReturnValue("configured-site-key");
+    const state = await signUpAction(
+      { ok: false, completeSignIn: true },
+      signupForm(),
+    );
+    expect(state.formError).toContain("security check");
+    expect(mocks.signIn).not.toHaveBeenCalled();
+    expect(mocks.signUp).not.toHaveBeenCalled();
+  });
+
+  it("retains same-form recovery when automatic login is rate limited", async () => {
+    mocks.signUp.mockResolvedValue({
+      data: { session: null, user: { email_confirmed_at: "2026-10-24" } },
+      error: null,
+    });
+    mocks.signIn.mockResolvedValue({
+      data: {},
+      error: { status: 429, message: "private backend detail" },
+    });
+    const state = await signUpAction(EMPTY_AUTH_STATE, signupForm());
+    expect(state.completeSignIn).toBe(true);
+    expect(state.formError).toContain("Too many attempts");
+    expect(state.formError).not.toContain("private backend detail");
+  });
+
+  it("does not redirect if automatic login also omits a session", async () => {
+    mocks.signUp.mockResolvedValue({
+      data: { session: null, user: { email_confirmed_at: "2026-10-24" } },
+      error: null,
+    });
+    mocks.signIn.mockResolvedValue({
+      data: { session: null, user: { email_confirmed_at: "2026-10-24" } },
+      error: null,
+    });
+    expect(
+      (await signUpAction(EMPTY_AUTH_STATE, signupForm())).completeSignIn,
+    ).toBe(true);
+  });
+
+  it("keeps an already created account recoverable after a login connection failure", async () => {
+    mocks.signUp.mockResolvedValue({
+      data: { session: null, user: { email_confirmed_at: "2026-10-24" } },
+      error: null,
+    });
+    mocks.signIn.mockRejectedValue(new Error("offline"));
+    expect(
+      (await signUpAction(EMPTY_AUTH_STATE, signupForm())).completeSignIn,
+    ).toBe(true);
+  });
+
+  it("surfaces signup burst rate limits without automatically retrying account creation", async () => {
+    mocks.signUp.mockResolvedValue({
+      data: {},
+      error: { status: 429, code: "over_request_rate_limit" },
+    });
+    expect(
+      (await signUpAction(EMPTY_AUTH_STATE, signupForm())).formError,
+    ).toContain("Too many attempts");
+    expect(mocks.signUp).toHaveBeenCalledTimes(1);
+    expect(mocks.signIn).not.toHaveBeenCalled();
   });
 
   it("reports backend failures without blaming the student ID or starting email verification", async () => {
@@ -184,9 +306,35 @@ describe("signup outcomes", () => {
 });
 
 describe("sign-in with Auth CAPTCHA protection", () => {
+  it("does not redirect a confirmed user without a session", async () => {
+    mocks.signIn.mockResolvedValue({
+      data: { session: null, user: { email_confirmed_at: "2026-10-24" } },
+      error: null,
+    });
+    expect(
+      (await signInAction(EMPTY_AUTH_STATE, signupForm())).formError,
+    ).toContain("could not complete sign in");
+  });
+
+  it("keeps a recovery login connection failure on the signup form", async () => {
+    mocks.signIn.mockRejectedValue(new Error("connection failed"));
+    const state = await signUpAction(
+      { ok: false, completeSignIn: true },
+      signupForm(),
+    );
+    expect(state.completeSignIn).toBe(true);
+    expect(state.formError).toContain("could not complete sign in");
+    expect(mocks.signUp).not.toHaveBeenCalled();
+  });
+
   it("keeps legacy incomplete accounts out of the removed email verification flow", async () => {
-    mocks.signIn.mockResolvedValue({ data: {}, error: { code: "email_not_confirmed", status: 400 } });
-    expect((await signInAction(EMPTY_AUTH_STATE, signupForm())).formError).toContain("site administrator");
+    mocks.signIn.mockResolvedValue({
+      data: {},
+      error: { code: "email_not_confirmed", status: 400 },
+    });
+    expect(
+      (await signInAction(EMPTY_AUTH_STATE, signupForm())).formError,
+    ).toContain("site administrator");
   });
   it("supplies the login challenge and preserves the requested destination", async () => {
     mocks.getTurnstileSiteKey.mockReturnValue("configured-site-key");

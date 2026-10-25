@@ -31,7 +31,11 @@ export interface DirectorySearchProps {
   className?: string;
 }
 
-function DirectorySearchInput({ placeholder = "Search by name", label, className }: DirectorySearchProps) {
+function DirectorySearchInput({
+  placeholder = "Search by name",
+  label,
+  className,
+}: DirectorySearchProps) {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -49,6 +53,7 @@ function DirectorySearchInput({ placeholder = "Search by name", label, className
   const commit = React.useCallback(
     (next: string) => {
       const params = new URLSearchParams(searchParams.toString());
+      params.delete("page");
       const trimmed = next.trim();
       if (trimmed) {
         params.set("q", trimmed);
@@ -57,7 +62,9 @@ function DirectorySearchInput({ placeholder = "Search by name", label, className
       }
       const query = params.toString();
       startTransition(() => {
-        router.replace(query ? `${pathname}?${query}` : pathname, { scroll: false });
+        router.replace(query ? `${pathname}?${query}` : pathname, {
+          scroll: false,
+        });
       });
     },
     [pathname, router, searchParams],
@@ -136,7 +143,10 @@ function DirectorySearchInput({ placeholder = "Search by name", label, className
   Fallback - bilkul wahi box, magar inert. Height/border/radius same rakhe hain
   taake hydrate hote waqt layout hile na (CLS zero).
 */
-function DirectorySearchFallback({ placeholder = "Search by name", className }: DirectorySearchProps) {
+function DirectorySearchFallback({
+  placeholder = "Search by name",
+  className,
+}: DirectorySearchProps) {
   return (
     <div aria-hidden="true" className={cn("w-full", className)}>
       <div className="relative flex items-center rounded-md border border-input bg-background shadow-xs">

@@ -59,7 +59,11 @@ export const ADMIN_NAV: readonly AdminNavGroup[] = [
     items: [
       { label: "Reviews", href: "/admin/reviews", icon: Star },
       { label: "Reports", href: "/admin/reports", icon: Flag },
-      { label: "Website feedback", href: "/admin/website-feedback", icon: MessageSquareText },
+      {
+        label: "Website feedback",
+        href: "/admin/website-feedback",
+        icon: MessageSquareText,
+      },
     ],
   },
   {
@@ -104,7 +108,10 @@ export function AdminNav({ className }: { className?: string }) {
     <nav aria-label="Admin" className={className}>
       <ul className="-mx-1 flex list-none gap-1.5 overflow-x-auto px-1 pb-1 md:mx-0 md:block md:space-y-4 md:overflow-visible md:px-0 md:pb-0">
         {ADMIN_NAV.map((group, index) => (
-          <li key={group.heading ?? `group-${index}`} className="contents md:block">
+          <li
+            key={group.heading ?? `group-${index}`}
+            className="contents md:block"
+          >
             {group.heading ? (
               <p className="hidden px-3 pb-1 text-[0.6875rem] font-semibold uppercase tracking-wider text-ink-500 md:block">
                 {group.heading}
@@ -126,7 +133,7 @@ export function AdminNav({ className }: { className?: string }) {
                         "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
                         "[&_svg]:size-4 [&_svg]:shrink-0",
                         isActive
-                          ? "border-indigo-200 bg-indigo-50 text-indigo-700 [&_svg]:text-indigo-600"
+                          ? "border-indigo-200 bg-indigo-50 text-primary [&_svg]:text-primary"
                           : "border-border bg-background text-ink-700 hover:bg-ink-100 hover:text-foreground md:bg-transparent [&_svg]:text-ink-500",
                       )}
                     >

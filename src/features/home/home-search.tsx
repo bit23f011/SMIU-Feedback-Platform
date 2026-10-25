@@ -3,12 +3,12 @@ import * as React from "react";
 import { useRouter } from "next/navigation";
 import { Search, ArrowRight } from "@/components/ui/icons";
 import { cn } from "@/lib/utils";
-type Mode = "teachers" | "courses";
+type Mode = "people" | "courses";
 const MODES = [
   {
-    value: "teachers" as const,
-    label: "Find a teacher",
-    placeholder: "Teacher name",
+    value: "people" as const,
+    label: "Find a person",
+    placeholder: "Teacher, faculty or staff name",
   },
   {
     value: "courses" as const,
@@ -18,7 +18,7 @@ const MODES = [
 ];
 export function HomeSearch({ className }: { className?: string }) {
   const router = useRouter();
-  const [mode, setMode] = React.useState<Mode>("teachers");
+  const [mode, setMode] = React.useState<Mode>("people");
   const [query, setQuery] = React.useState("");
   const id = React.useId();
   const active = MODES.find((m) => m.value === mode)!;

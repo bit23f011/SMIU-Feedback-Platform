@@ -47,10 +47,7 @@ export function StudentNav({ className }: { className?: string }) {
   return (
     <nav
       aria-label="Student area"
-      className={cn(
-        "rounded-lg border border-border bg-card p-2 md:border-0 md:bg-transparent md:p-0",
-        className,
-      )}
+      className={cn("student-navigation p-2 md:p-4", className)}
     >
       <button
         className="flex w-full items-center justify-between px-3 py-2 text-sm font-medium md:hidden"
@@ -65,15 +62,15 @@ export function StudentNav({ className }: { className?: string }) {
         id="student-navigation"
         className={cn(open ? "block" : "hidden", "md:block")}
       >
-        <p className="eyebrow px-3 pb-3 pt-4 md:pt-0">Your workspace</p>
         <ul className="space-y-1">
-          {STUDENT_NAV.map((item, index) => {
+          {STUDENT_NAV.map((item) => {
             const Icon = item.icon;
             return (
               <li
                 key={item.href}
                 className={cn(
-                  (item.href === "/student/reviews" || item.href === "/student/favorites") &&
+                  (item.href === "/student/reviews" ||
+                    item.href === "/student/favorites") &&
                     "mt-5 border-t border-border pt-4",
                 )}
               >

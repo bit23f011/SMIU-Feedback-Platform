@@ -10,7 +10,11 @@ import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 import { PersonAvatar } from "@/features/people/person-avatar";
 import { FavoriteButton } from "@/features/discovery/favorite-button";
-import { COMPARE_MAX, COMPARE_MIN, type SavedPerson } from "@/features/discovery/types";
+import {
+  COMPARE_MAX,
+  COMPARE_MIN,
+  type SavedPerson,
+} from "@/features/discovery/types";
 import type { PersonCategory } from "@/features/people/types";
 import { getCategoryMeta } from "@/lib/constants";
 import { cn } from "@/lib/utils";
@@ -59,12 +63,16 @@ function SavedCard({
       )}
     >
       <div className="flex items-start gap-3.5">
-        <PersonAvatar name={person.name} gender={person.gender} photoUrl={person.photoUrl} />
+        <PersonAvatar
+          name={person.name}
+          gender={person.gender}
+          photoUrl={person.photoUrl}
+        />
         <div className="min-w-0 flex-1">
           <h2 className="font-display text-base font-semibold leading-snug tracking-tight text-foreground">
             <Link
               href={`/people/${person.slug}`}
-              className="rounded-sm outline-none transition-colors duration-150 ease-out hover:text-indigo-700 focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+              className="rounded-sm outline-none transition-colors duration-150 ease-out hover:text-primary focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
             >
               {person.name}
             </Link>
@@ -77,7 +85,9 @@ function SavedCard({
 
       <div className="mt-4 flex flex-wrap items-center gap-1.5">
         <Badge variant="category">{meta.singular}</Badge>
-        {role?.department ? <Badge variant="brand">{role.department}</Badge> : null}
+        {role?.department ? (
+          <Badge variant="brand">{role.department}</Badge>
+        ) : null}
       </div>
 
       <div className="mt-4 border-t border-border/80 pt-3.5">
@@ -89,7 +99,9 @@ function SavedCard({
           htmlFor={checkboxId}
           className={cn(
             "inline-flex items-center gap-2 text-sm font-medium",
-            disabled ? "cursor-not-allowed text-ink-400" : "cursor-pointer text-ink-700",
+            disabled
+              ? "cursor-not-allowed text-ink-400"
+              : "cursor-pointer text-ink-700",
           )}
         >
           <input
@@ -103,7 +115,11 @@ function SavedCard({
           Compare
         </label>
 
-        <FavoriteButton personId={person.id} personName={person.name} initialSaved />
+        <FavoriteButton
+          personId={person.id}
+          personName={person.name}
+          initialSaved
+        />
       </div>
     </Card>
   );
@@ -129,7 +145,8 @@ export function FavoritesBrowser({ people }: { people: SavedPerson[] }) {
     );
   }, []);
 
-  const canCompare = selected.length >= COMPARE_MIN && selected.length <= COMPARE_MAX;
+  const canCompare =
+    selected.length >= COMPARE_MIN && selected.length <= COMPARE_MAX;
   const compareHref = canCompare
     ? `/compare?ids=${selected.join(",")}&category=${lockedCategory ?? "teacher"}`
     : "#";
@@ -141,7 +158,8 @@ export function FavoritesBrowser({ people }: { people: SavedPerson[] }) {
           const isSelected = selected.includes(person.id);
           // Alag category ho, ya 4 pehle hi chune hue hon, to naya chunao band.
           const blockedByCategory =
-            lockedCategory !== null && compareCategory(person) !== lockedCategory;
+            lockedCategory !== null &&
+            compareCategory(person) !== lockedCategory;
           const blockedByMax = !isSelected && selected.length >= COMPARE_MAX;
 
           return (
@@ -162,7 +180,10 @@ export function FavoritesBrowser({ people }: { people: SavedPerson[] }) {
         <div className="sticky bottom-4 z-20 mt-6">
           <div className="mx-auto flex max-w-xl flex-wrap items-center justify-between gap-3 rounded-lg border border-border bg-card px-4 py-3 shadow-card-hover">
             <p className="text-sm text-ink-700">
-              <span className="font-semibold text-foreground">{selected.length}</span> selected
+              <span className="font-semibold text-foreground">
+                {selected.length}
+              </span>{" "}
+              selected
               {!canCompare ? (
                 <span className="text-muted-foreground">
                   {" "}

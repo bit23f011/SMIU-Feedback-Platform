@@ -3,6 +3,8 @@ import { SiteFooter } from "@/components/layout/site-footer";
 import { SiteHeader } from "@/components/layout/site-header";
 import { getHeaderAccount } from "@/features/auth/session";
 import { NotificationBanner } from "@/features/notifications/notification-banner";
+import { PublicProfilePreview } from "@/features/people/profile-modal";
+import { Suspense } from "react";
 
 /*
   Public route group ka shell: header + main + footer.
@@ -23,13 +25,17 @@ export default async function PublicLayout({
   const account = await getHeaderAccount();
 
   return (
-    <div className="flex min-h-dvh flex-col">
-      <SiteHeader account={account} />
-      <NotificationBanner />
-      <main id="main-content" className="flex-1">
-        <PageTransition>{children}</PageTransition>
-      </main>
-      <SiteFooter />
-    </div>
+    <PublicProfilePreview>
+      <div className="flex min-h-dvh flex-col">
+        <SiteHeader account={account} />
+        <Suspense fallback={null}>
+          <NotificationBanner />
+        </Suspense>
+        <main id="main-content" className="flex-1">
+          <PageTransition>{children}</PageTransition>
+        </main>
+        <SiteFooter />
+      </div>
+    </PublicProfilePreview>
   );
 }

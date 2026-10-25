@@ -1,6 +1,6 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
+import { revalidatePublicPath } from "@/lib/supabase/cache-invalidation";
 
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { GENERIC_ADMIN_ERROR, pickSafeMessage } from "@/features/admin/shared";
@@ -31,12 +31,17 @@ const FIELD_LABELS: Record<keyof typeof RANKING_BOUNDS, string> = {
 
 type FieldKey = keyof typeof RANKING_BOUNDS;
 
-function parseBounded(formData: FormData, key: FieldKey): number | { error: string } {
+function parseBounded(
+  formData: FormData,
+  key: FieldKey,
+): number | { error: string } {
   const bound = RANKING_BOUNDS[key];
   const raw = (formData.get(key) ?? "").toString().trim();
   const value = Number.parseInt(raw, 10);
   if (!Number.isFinite(value) || value < bound.min || value > bound.max) {
-    return { error: `${FIELD_LABELS[key]} must be between ${bound.min} and ${bound.max}.` };
+    return {
+      error: `${FIELD_LABELS[key]} must be between ${bound.min} and ${bound.max}.`,
+    };
   }
   return value;
 }
@@ -48,11 +53,14 @@ export async function updateRankingsSettingsAction(
   const ranking = parseBounded(formData, "rankingMinReviews");
   if (typeof ranking !== "number") return { ok: false, error: ranking.error };
   const breakdown = parseBounded(formData, "breakdownMinReviews");
-  if (typeof breakdown !== "number") return { ok: false, error: breakdown.error };
+  if (typeof breakdown !== "number")
+    return { ok: false, error: breakdown.error };
   const trendingWindow = parseBounded(formData, "trendingWindowDays");
-  if (typeof trendingWindow !== "number") return { ok: false, error: trendingWindow.error };
+  if (typeof trendingWindow !== "number")
+    return { ok: false, error: trendingWindow.error };
   const trendingMin = parseBounded(formData, "trendingMinReviews");
-  if (typeof trendingMin !== "number") return { ok: false, error: trendingMin.error };
+  if (typeof trendingMin !== "number")
+    return { ok: false, error: trendingMin.error };
 
   try {
     const supabase = createSupabaseServerClient();
@@ -62,8 +70,12 @@ export async function updateRankingsSettingsAction(
       p_trending_window_days: trendingWindow,
       p_trending_min_reviews: trendingMin,
     });
-    if (error) return { ok: false, error: pickSafeMessage(error.message, SAFE_MESSAGES) };
-    revalidatePath("/admin/rankings");
+    if (error)
+      return {
+        ok: false,
+        error: pickSafeMessage(error.message, SAFE_MESSAGES),
+      };
+    revalidatePublicPath("/admin/rankings");
     return { ok: true };
   } catch {
     return { ok: false, error: GENERIC_ADMIN_ERROR };

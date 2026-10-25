@@ -38,7 +38,7 @@ function RankBadge({ rank }: { rank: number }) {
       className={cn(
         "flex size-7 shrink-0 items-center justify-center rounded-full text-[0.8125rem] font-semibold tabular-nums",
         highlight
-          ? "bg-coral-100 text-coral-700"
+          ? "bg-coral-100 text-accent-foreground"
           : "bg-ink-100 text-ink-600",
       )}
     >
@@ -60,7 +60,10 @@ export function RankedList({ items }: { items: RankedListItem[] }) {
               {typeof rank === "number" ? (
                 <RankBadge rank={rank} />
               ) : (
-                <span aria-hidden="true" className="size-1.5 shrink-0 rounded-full bg-ink-300" />
+                <span
+                  aria-hidden="true"
+                  className="size-1.5 shrink-0 rounded-full bg-ink-300"
+                />
               )}
 
               <PersonAvatar
@@ -72,23 +75,35 @@ export function RankedList({ items }: { items: RankedListItem[] }) {
 
               <div className="min-w-0 flex-1">
                 <h3 className="truncate font-display text-sm font-semibold leading-snug tracking-tight text-foreground">
-                  <Link href={`/people/${person.slug}`} className="outline-none">
-                    <span aria-hidden="true" className="absolute inset-0 rounded-lg" />
+                  <Link
+                    href={`/people/${person.slug}`}
+                    className="outline-none"
+                  >
+                    <span
+                      aria-hidden="true"
+                      className="absolute inset-0 rounded-lg"
+                    />
                     {person.name}
                   </Link>
                 </h3>
                 <div className="mt-1 flex flex-wrap items-center gap-1.5">
                   {role ? (
-                    <Badge variant="category">{role.title ?? meta?.singular ?? "Role"}</Badge>
+                    <Badge variant="category">
+                      {role.title ?? meta?.singular ?? "Role"}
+                    </Badge>
                   ) : null}
-                  {role?.department ? <Badge variant="brand">{role.department}</Badge> : null}
+                  {role?.department ? (
+                    <Badge variant="brand">{role.department}</Badge>
+                  ) : null}
                 </div>
               </div>
 
               <div className="shrink-0 text-right">
                 <RatingStars value={person.rating} count={person.reviewCount} />
                 {metric ? (
-                  <p className="mt-0.5 text-xs text-muted-foreground">{metric}</p>
+                  <p className="mt-0.5 text-xs text-muted-foreground">
+                    {metric}
+                  </p>
                 ) : null}
               </div>
             </div>

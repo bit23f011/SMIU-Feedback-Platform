@@ -25,7 +25,7 @@ export async function BestTeacher() {
         {person ? (
           <Link
             href={"/people/" + person.slug}
-            className="flex items-center gap-4 rounded-lg border border-border bg-card px-5 py-4 sm:min-w-[330px]"
+            className="flex min-w-0 items-center gap-3 rounded-lg border border-border bg-card px-4 py-4 sm:min-w-[330px]"
           >
             <PersonAvatar
               name={person.name}

@@ -29,12 +29,9 @@ export function HomeCta() {
           >
             <Link href="/auth/signup">Share your experience</Link>
           </Button>
-          <Link
-            href="/auth/login"
-            className="px-2 text-sm text-white underline-offset-4 hover:underline"
-          >
-            Sign in
-          </Link>
+          <Button asChild className="soft-green-action">
+            <Link href="/auth/login">Sign in</Link>
+          </Button>
         </div>
       </div>
     </section>

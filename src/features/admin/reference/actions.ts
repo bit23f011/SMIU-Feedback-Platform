@@ -1,9 +1,13 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
+import { revalidatePublicPath } from "@/lib/supabase/cache-invalidation";
 
 import { createSupabaseServerClient } from "@/lib/supabase/server";
-import { GENERIC_ADMIN_ERROR, isUuid, pickSafeMessage } from "@/features/admin/shared";
+import {
+  GENERIC_ADMIN_ERROR,
+  isUuid,
+  pickSafeMessage,
+} from "@/features/admin/shared";
 import {
   isProgramLevel,
   isSemesterSeason,
@@ -67,7 +71,8 @@ export async function upsertDepartmentAction(
 ): Promise<ReferenceActionState> {
   const id = idOrNull(formData);
   const name = str(formData, "name");
-  if (!name) return { ok: false, error: "A name is required.", id: id ?? undefined };
+  if (!name)
+    return { ok: false, error: "A name is required.", id: id ?? undefined };
 
   try {
     const supabase = createSupabaseServerClient();
@@ -78,10 +83,17 @@ export async function upsertDepartmentAction(
       p_is_active: activeDefaultTrue(formData),
     });
     if (error) {
-      return { ok: false, error: pickSafeMessage(error.message, SAFE_MESSAGES), id: id ?? undefined };
+      return {
+        ok: false,
+        error: pickSafeMessage(error.message, SAFE_MESSAGES),
+        id: id ?? undefined,
+      };
     }
-    revalidatePath("/admin/departments");
-    return { ok: true, id: typeof data === "string" ? data : (id ?? undefined) };
+    revalidatePublicPath("/admin/departments");
+    return {
+      ok: true,
+      id: typeof data === "string" ? data : (id ?? undefined),
+    };
   } catch {
     return { ok: false, error: GENERIC_ADMIN_ERROR, id: id ?? undefined };
   }
@@ -99,8 +111,13 @@ export async function setDepartmentActiveAction(
       p_id: id,
       p_active: activeFlag(formData),
     });
-    if (error) return { ok: false, error: pickSafeMessage(error.message, SAFE_MESSAGES), id };
-    revalidatePath("/admin/departments");
+    if (error)
+      return {
+        ok: false,
+        error: pickSafeMessage(error.message, SAFE_MESSAGES),
+        id,
+      };
+    revalidatePublicPath("/admin/departments");
     return { ok: true, id };
   } catch {
     return { ok: false, error: GENERIC_ADMIN_ERROR, id };
@@ -116,7 +133,8 @@ export async function upsertProgramAction(
 ): Promise<ReferenceActionState> {
   const id = idOrNull(formData);
   const name = str(formData, "name");
-  if (!name) return { ok: false, error: "A name is required.", id: id ?? undefined };
+  if (!name)
+    return { ok: false, error: "A name is required.", id: id ?? undefined };
 
   const departmentId = idOrNull(formData, "departmentId");
   if (departmentId === null) {
@@ -136,10 +154,17 @@ export async function upsertProgramAction(
       p_is_active: activeDefaultTrue(formData),
     });
     if (error) {
-      return { ok: false, error: pickSafeMessage(error.message, SAFE_MESSAGES), id: id ?? undefined };
+      return {
+        ok: false,
+        error: pickSafeMessage(error.message, SAFE_MESSAGES),
+        id: id ?? undefined,
+      };
     }
-    revalidatePath("/admin/programs");
-    return { ok: true, id: typeof data === "string" ? data : (id ?? undefined) };
+    revalidatePublicPath("/admin/programs");
+    return {
+      ok: true,
+      id: typeof data === "string" ? data : (id ?? undefined),
+    };
   } catch {
     return { ok: false, error: GENERIC_ADMIN_ERROR, id: id ?? undefined };
   }
@@ -157,8 +182,13 @@ export async function setProgramActiveAction(
       p_id: id,
       p_active: activeFlag(formData),
     });
-    if (error) return { ok: false, error: pickSafeMessage(error.message, SAFE_MESSAGES), id };
-    revalidatePath("/admin/programs");
+    if (error)
+      return {
+        ok: false,
+        error: pickSafeMessage(error.message, SAFE_MESSAGES),
+        id,
+      };
+    revalidatePublicPath("/admin/programs");
     return { ok: true, id };
   } catch {
     return { ok: false, error: GENERIC_ADMIN_ERROR, id };
@@ -174,7 +204,8 @@ export async function upsertCourseAction(
 ): Promise<ReferenceActionState> {
   const id = idOrNull(formData);
   const title = str(formData, "title");
-  if (!title) return { ok: false, error: "A title is required.", id: id ?? undefined };
+  if (!title)
+    return { ok: false, error: "A title is required.", id: id ?? undefined };
 
   const departmentId = idOrNull(formData, "departmentId");
   if (departmentId === null) {
@@ -184,7 +215,8 @@ export async function upsertCourseAction(
 
   const chRaw = str(formData, "creditHours");
   const chParsed = chRaw === "" ? null : Number.parseFloat(chRaw);
-  const creditHours = chParsed !== null && Number.isFinite(chParsed) ? chParsed : null;
+  const creditHours =
+    chParsed !== null && Number.isFinite(chParsed) ? chParsed : null;
 
   try {
     const supabase = createSupabaseServerClient();
@@ -198,10 +230,17 @@ export async function upsertCourseAction(
       p_is_active: activeDefaultTrue(formData),
     });
     if (error) {
-      return { ok: false, error: pickSafeMessage(error.message, SAFE_MESSAGES), id: id ?? undefined };
+      return {
+        ok: false,
+        error: pickSafeMessage(error.message, SAFE_MESSAGES),
+        id: id ?? undefined,
+      };
     }
-    revalidatePath("/admin/courses");
-    return { ok: true, id: typeof data === "string" ? data : (id ?? undefined) };
+    revalidatePublicPath("/admin/courses");
+    return {
+      ok: true,
+      id: typeof data === "string" ? data : (id ?? undefined),
+    };
   } catch {
     return { ok: false, error: GENERIC_ADMIN_ERROR, id: id ?? undefined };
   }
@@ -219,8 +258,13 @@ export async function setCourseActiveAction(
       p_id: id,
       p_active: activeFlag(formData),
     });
-    if (error) return { ok: false, error: pickSafeMessage(error.message, SAFE_MESSAGES), id };
-    revalidatePath("/admin/courses");
+    if (error)
+      return {
+        ok: false,
+        error: pickSafeMessage(error.message, SAFE_MESSAGES),
+        id,
+      };
+    revalidatePublicPath("/admin/courses");
     return { ok: true, id };
   } catch {
     return { ok: false, error: GENERIC_ADMIN_ERROR, id };
@@ -236,7 +280,8 @@ export async function upsertSemesterAction(
 ): Promise<ReferenceActionState> {
   const id = idOrNull(formData);
   const label = str(formData, "label");
-  if (!label) return { ok: false, error: "A name is required.", id: id ?? undefined };
+  if (!label)
+    return { ok: false, error: "A name is required.", id: id ?? undefined };
 
   const seasonRaw = formData.get("season");
   if (!isSemesterSeason(seasonRaw)) {
@@ -249,7 +294,11 @@ export async function upsertSemesterAction(
   const startsOn = nullableStr(formData, "startsOn");
   const endsOn = nullableStr(formData, "endsOn");
   if (startsOn && endsOn && endsOn < startsOn) {
-    return { ok: false, error: "The end date cannot be before the start date.", id: id ?? undefined };
+    return {
+      ok: false,
+      error: "The end date cannot be before the start date.",
+      id: id ?? undefined,
+    };
   }
 
   try {
@@ -264,10 +313,17 @@ export async function upsertSemesterAction(
       p_ends_on: endsOn,
     });
     if (error) {
-      return { ok: false, error: pickSafeMessage(error.message, SAFE_MESSAGES), id: id ?? undefined };
+      return {
+        ok: false,
+        error: pickSafeMessage(error.message, SAFE_MESSAGES),
+        id: id ?? undefined,
+      };
     }
-    revalidatePath("/admin/semesters");
-    return { ok: true, id: typeof data === "string" ? data : (id ?? undefined) };
+    revalidatePublicPath("/admin/semesters");
+    return {
+      ok: true,
+      id: typeof data === "string" ? data : (id ?? undefined),
+    };
   } catch {
     return { ok: false, error: GENERIC_ADMIN_ERROR, id: id ?? undefined };
   }
@@ -282,7 +338,8 @@ export async function upsertPositionAction(
 ): Promise<ReferenceActionState> {
   const id = idOrNull(formData);
   const title = str(formData, "title");
-  if (!title) return { ok: false, error: "A title is required.", id: id ?? undefined };
+  if (!title)
+    return { ok: false, error: "A title is required.", id: id ?? undefined };
 
   const categoryRaw = formData.get("category");
   const category = isPersonCategory(categoryRaw) ? categoryRaw : null;
@@ -300,10 +357,17 @@ export async function upsertPositionAction(
       p_is_active: activeDefaultTrue(formData),
     });
     if (error) {
-      return { ok: false, error: pickSafeMessage(error.message, SAFE_MESSAGES), id: id ?? undefined };
+      return {
+        ok: false,
+        error: pickSafeMessage(error.message, SAFE_MESSAGES),
+        id: id ?? undefined,
+      };
     }
-    revalidatePath("/admin/positions");
-    return { ok: true, id: typeof data === "string" ? data : (id ?? undefined) };
+    revalidatePublicPath("/admin/positions");
+    return {
+      ok: true,
+      id: typeof data === "string" ? data : (id ?? undefined),
+    };
   } catch {
     return { ok: false, error: GENERIC_ADMIN_ERROR, id: id ?? undefined };
   }
@@ -321,8 +385,13 @@ export async function setPositionActiveAction(
       p_id: id,
       p_active: activeFlag(formData),
     });
-    if (error) return { ok: false, error: pickSafeMessage(error.message, SAFE_MESSAGES), id };
-    revalidatePath("/admin/positions");
+    if (error)
+      return {
+        ok: false,
+        error: pickSafeMessage(error.message, SAFE_MESSAGES),
+        id,
+      };
+    revalidatePublicPath("/admin/positions");
     return { ok: true, id };
   } catch {
     return { ok: false, error: GENERIC_ADMIN_ERROR, id };
