@@ -5,9 +5,7 @@ import { ArrowLeft } from "@/components/ui/icons";
 
 import { RatingStars } from "@/components/common/rating-stars";
 import { Badge } from "@/components/ui/badge";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { PersonAvatar } from "@/features/people/person-avatar";
-import { TEACHER_TYPE_LABELS } from "@/features/people/types";
 import type { PersonProfileData } from "@/features/people/profile-data";
 import { RatingSummary } from "@/features/reviews/rating-summary";
 import { FeaturedReviews, ReviewList } from "@/features/reviews/review-list";
@@ -114,6 +112,19 @@ export function PersonProfileView({
             />
           </div>
         </div>
+        {data.reviewPanel.status === "signed-out" ? (
+          <div
+            id="write-review"
+            className="w-full sm:w-auto sm:max-w-xs sm:shrink-0 sm:self-center"
+          >
+            <ReviewPanelView
+              data={data.reviewPanel}
+              person={person}
+              initialCourseId={context.course}
+              initialSemesterId={context.semester}
+            />
+          </div>
+        ) : null}
       </header>
 
       {/* Recently viewed me darj karo (§46). Kuch render nahi karta. */}
@@ -123,17 +134,19 @@ export function PersonProfileView({
 
       <div className="mt-8 grid gap-6 lg:grid-cols-3">
         <div className="space-y-8 lg:col-span-2">
-          <section id="write-review" aria-labelledby="write-review-heading">
-            <h2 id="write-review-heading" className="sr-only">
-              Write a review
-            </h2>
-            <ReviewPanelView
-              data={data.reviewPanel}
-              person={person}
-              initialCourseId={context.course}
-              initialSemesterId={context.semester}
-            />
-          </section>
+          {data.reviewPanel.status !== "signed-out" ? (
+            <section id="write-review" aria-labelledby="write-review-heading">
+              <h2 id="write-review-heading" className="sr-only">
+                Write a review
+              </h2>
+              <ReviewPanelView
+                data={data.reviewPanel}
+                person={person}
+                initialCourseId={context.course}
+                initialSemesterId={context.semester}
+              />
+            </section>
+          ) : null}
 
           <section aria-labelledby="reviews-heading">
             <div className="flex flex-wrap items-baseline justify-between gap-2">
@@ -184,69 +197,6 @@ export function PersonProfileView({
 
         <aside className="space-y-4">
           <RatingSummary stats={stats} criteria={criteriaStats} />
-
-          <Card>
-            <CardHeader>
-              <CardTitle>Roles</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              {person.roles.length === 0 ? (
-                <p className="text-sm text-muted-foreground">
-                  No roles recorded.
-                </p>
-              ) : (
-                <ul className="list-none space-y-3">
-                  {person.roles.map((role) => {
-                    const meta = getCategoryMeta(role.category);
-                    return (
-                      <li
-                        key={`${role.category}-${role.title ?? "role"}-detail`}
-                        className="text-sm"
-                      >
-                        <p className="font-medium text-foreground">
-                          {role.title ?? meta.singular}
-                        </p>
-                        <p className="text-muted-foreground">
-                          {meta.label}
-                          {role.department ? ` · ${role.department}` : ""}
-                        </p>
-                      </li>
-                    );
-                  })}
-                </ul>
-              )}
-
-              {/*
-                README §30. Internal teacher ko DB khud faculty role bhi deti
-                hai, isi ek profile par. Yeh line sirf us ka sabab batati hai.
-              */}
-              {person.teacherType ? (
-                <p className="border-t border-border pt-3 text-sm text-muted-foreground">
-                  Teacher type:{" "}
-                  <span className="font-medium text-foreground">
-                    {TEACHER_TYPE_LABELS[person.teacherType]}
-                  </span>
-                  {person.teacherType === "internal"
-                    ? ". Internal teachers are listed under Faculty as well, on this same profile."
-                    : "."}
-                </p>
-              ) : null}
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle>How ratings work</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-sm leading-relaxed text-muted-foreground">
-                Ratings are averaged from student reviews. A profile with no
-                reviews stays unrated, and is never shown as zero. Every review
-                is posted anonymously: the reviewer&apos;s name is never stored
-                next to it.
-              </p>
-            </CardContent>
-          </Card>
         </aside>
       </div>
     </div>

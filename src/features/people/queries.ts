@@ -247,26 +247,17 @@ export async function searchAllPeople(options: {
   const offset = (page - 1) * PEOPLE_PER_PAGE;
   try {
     const supabase = createSupabasePublicClient();
-    let query = supabase
-      .from("people")
-      .select(PERSON_SELECT, { count: "exact" })
-      .eq("is_active", true)
-      .eq("person_roles.is_active", true)
-      .order("full_name", { ascending: true })
-      .order("id", { ascending: true })
-      .range(offset, offset + PEOPLE_PER_PAGE - 1);
-    const term = sanitizeSearch(options.search ?? "");
-    if (term)
-      query = query.or(
-        `full_name.ilike.%${term}%,display_name.ilike.%${term}%`,
-      );
-    const { data, count, error } = await query;
+    const { data, error } = await supabase.rpc("search_all_people", {
+      p_search: options.search?.trim().slice(0, 80) || null,
+      p_limit: PEOPLE_PER_PAGE,
+      p_offset: offset,
+    });
     if (error) return { people: [], total: 0, failed: true };
     return {
       people: await withRatings(
         ((data as unknown as PersonRow[]) ?? []).map(toPersonSummary),
       ),
-      total: count ?? 0,
+      total: Number(data?.[0]?.total_count ?? 0),
       failed: false,
     };
   } catch {

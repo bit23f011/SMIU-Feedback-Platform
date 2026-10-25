@@ -35,19 +35,14 @@ export function ProfileMarquee({
               </li>
             ))}
           </ul>
-          <div
-            aria-hidden="true"
-            ref={(element) => {
-              element?.setAttribute("inert", "");
-            }}
-            className="marquee-group marquee-copy"
-          >
+          <div aria-hidden="true" className="marquee-group marquee-copy">
             {people.map((person) => (
               <div key={person.id}>
                 <PersonCard
                   person={person}
                   contextCategory={category}
                   className="h-full"
+                  tabIndex={-1}
                 />
               </div>
             ))}

@@ -285,6 +285,12 @@ beforeAll(async () => {
   const concurrency = readFileSync(resolve(folder, concurrencyName), "utf8");
   await db.exec(concurrency);
   concurrencyReadiness = (await db.exec(concurrency)).at(-1)!.rows;
+  await db.exec(
+    readFileSync(
+      resolve(folder, "20261025100000_search_and_duplicate_courses.sql"),
+      "utf8",
+    ),
+  );
   criteriaAfter = (
     await db.query("select * from public.review_criteria order by id")
   ).rows;
@@ -304,6 +310,126 @@ afterEach(async () => {
 });
 afterAll(async () => {
   await db?.close();
+});
+
+describe("word search and duplicate course cleanup", () => {
+  it("matches title variants, partial words, reversed names and department keywords under public RLS", async () => {
+    await db.exec("reset role");
+    await db.query(
+      "update public.people set full_name = 'Ma’am Sarah Khan', display_name = 'Sarah', gender = 'female', headline = 'Computer Science' where id = $1",
+      [teacher],
+    );
+    await db.exec("set role anon");
+    for (const term of [
+      "mam sar",
+      "maam Sarah",
+      "MA'AM khan",
+      "Khan Sarah",
+      "Computer Sarah",
+      "CTT Sarah",
+    ]) {
+      const result = await db.query<{ id: string }>(
+        "select id from public.search_all_people($1, 24, 0)",
+        [term],
+      );
+      expect(result.rows.map((row) => row.id)).toContain(teacher);
+      const category = await db.query<{ person_id: string }>(
+        "select person_id from public.directory_people('teacher', $1)",
+        [term],
+      );
+      expect(category.rows.map((row) => row.person_id)).toContain(teacher);
+    }
+    await db.exec("reset role");
+    await db.query("update public.people set is_active = false where id = $1", [
+      teacher,
+    ]);
+    await db.exec("set role anon");
+    expect(
+      (await db.query("select * from public.search_all_people('Sarah', 24, 0)"))
+        .rows,
+    ).toHaveLength(0);
+  });
+
+  it("rejects cleanup for students", async () => {
+    expect(
+      (await rejection("select public.admin_delete_duplicate_courses()"))
+        .message,
+    ).toBe("You do not have access to this.");
+  });
+
+  it("merges courses across departments and archived records while preserving conflicting reviews and offerings", async () => {
+    await db.exec("reset role");
+    const otherDepartment = await scalar<string>(
+      "insert into public.departments (university_id, slug, name) select university_id, 'duplicate-course-test', 'Duplicate Test' from public.departments where id = $1 returning id as value",
+      [department],
+    );
+    const duplicate = await scalar<string>(
+      "insert into public.courses (department_id, slug, title, code) values ($1, 'catalog-test-ai-copy', 'CATALOG   TEST-AI', 'DIFFERENT-CODE') returning id as value",
+      [otherDepartment],
+    );
+    const archived = await scalar<string>(
+      "insert into public.courses (department_id, slug, title, is_active) values ($1, 'archived-ai-copy', 'Catalog Test AI', false) returning id as value",
+      [otherDepartment],
+    );
+    await signIn(ids.student);
+    const originalReview = await submit();
+    const duplicateReview = await submit(duplicate);
+    await db.exec("reset role");
+    const firstOffering = await scalar<string>(
+      "insert into public.course_offerings (course_id, semester_id) values ($1, $2) returning id as value",
+      [course, semester],
+    );
+    const duplicateOffering = await scalar<string>(
+      "insert into public.course_offerings (course_id, semester_id) values ($1, $2) returning id as value",
+      [duplicate, semester],
+    );
+    await db.query(
+      "insert into public.teacher_assignments (person_id, course_offering_id) values ($1, $2), ($1, $3)",
+      [teacher, firstOffering, duplicateOffering],
+    );
+    const reviewCount = await scalar<number>(
+      "select count(*)::int as value from public.reviews",
+    );
+    await signIn(ids.admin);
+    const removed = await scalar<number>(
+      "select public.admin_delete_duplicate_courses() as value",
+    );
+    expect(removed).toBeGreaterThanOrEqual(2);
+    await db.exec("reset role");
+    expect(
+      await scalar<number>(
+        "select count(*)::int as value from public.courses where id in ($1, $2)",
+        [duplicate, archived],
+      ),
+    ).toBe(0);
+    expect(
+      await scalar<number>("select count(*)::int as value from public.reviews"),
+    ).toBe(reviewCount);
+    expect(
+      (
+        await db.query<{ course_id: string }>(
+          "select course_id from public.reviews where id in ($1, $2)",
+          [originalReview, duplicateReview],
+        )
+      ).rows.map((row) => row.course_id),
+    ).toEqual([course, course]);
+    expect(
+      await scalar<number>(
+        "select count(*)::int as value from public.teacher_assignments where person_id = $1 and course_offering_id = $2",
+        [teacher, firstOffering],
+      ),
+    ).toBe(1);
+    await signIn(ids.student);
+    expect((await rejection(submitSql, submitParams())).message).toContain(
+      "already reviewed",
+    );
+    await signIn(ids.admin);
+    expect(
+      await scalar<number>(
+        "select public.admin_delete_duplicate_courses() as value",
+      ),
+    ).toBe(0);
+  });
 });
 
 describe("review burst safeguards", () => {

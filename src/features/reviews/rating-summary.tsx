@@ -19,7 +19,15 @@ import {
 */
 const MIN_RESPONSES_TO_SHOW = 3;
 
-function Bar({ label, value, total }: { label: string; value: number; total: number }) {
+function Bar({
+  label,
+  value,
+  total,
+}: {
+  label: string;
+  value: number;
+  total: number;
+}) {
   const percent = total > 0 ? Math.round((value / total) * 100) : 0;
 
   return (
@@ -55,7 +63,8 @@ export function RatingSummary({
         </CardHeader>
         <CardContent>
           <p className="text-sm leading-relaxed text-muted-foreground">
-            This profile has no reviews yet, so it stays unrated instead of being shown as zero.
+            This profile has no reviews yet, so it stays unrated instead of
+            being shown as zero.
           </p>
         </CardContent>
       </Card>
@@ -90,7 +99,10 @@ export function RatingSummary({
             </p>
           )}
           <div className="mt-1.5">
-            <RatingStars value={stats.averageRating} count={stats.reviewCount} />
+            <RatingStars
+              value={stats.averageRating}
+              count={stats.reviewCount}
+            />
           </div>
         </div>
 
@@ -112,7 +124,10 @@ export function RatingSummary({
         {visibleCriteria.length > 0 ? (
           <div className="space-y-2.5 border-t border-border pt-4">
             {visibleCriteria.map((criterion) => (
-              <div key={criterion.criterionId} className="flex items-baseline justify-between gap-3">
+              <div
+                key={criterion.criterionId}
+                className="flex items-baseline justify-between gap-3"
+              >
                 <span className="text-sm text-ink-700">{criterion.label}</span>
                 <span className="shrink-0 text-sm font-medium tabular-nums text-foreground">
                   {criterion.kind === "star"
@@ -124,12 +139,7 @@ export function RatingSummary({
               </div>
             ))}
           </div>
-        ) : (
-          <p className="border-t border-border pt-4 text-xs leading-relaxed text-muted-foreground">
-            The question-by-question breakdown appears once at least {MIN_RESPONSES_TO_SHOW}{" "}
-            students have answered.
-          </p>
-        )}
+        ) : null}
       </CardContent>
     </Card>
   );

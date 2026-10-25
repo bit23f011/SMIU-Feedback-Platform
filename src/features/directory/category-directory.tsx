@@ -7,7 +7,6 @@ import { EmptyState } from "@/components/common/empty-state";
 import { ErrorState } from "@/components/common/error-state";
 import { Button } from "@/components/ui/button";
 import { PersonGrid } from "@/features/people/person-card";
-import { getReviewCatalogsForPeople } from "@/features/reviews/queries";
 import { searchPeople } from "@/features/discovery/queries";
 import { Pagination, pageHref } from "@/features/discovery/pagination";
 import {
@@ -111,10 +110,6 @@ export async function CategoryDirectory({
   const last = first + people.length - 1;
   const noun =
     total === 1 ? meta.singular.toLowerCase() : meta.label.toLowerCase();
-  const reviewCatalogs =
-    category === "teacher" || category === "lab_instructor"
-      ? await getReviewCatalogsForPeople(people.map((person) => person.id))
-      : undefined;
 
   return (
     <div className="space-y-5">
@@ -143,11 +138,7 @@ export async function CategoryDirectory({
         ) : null}
       </p>
 
-      <PersonGrid
-        people={people}
-        contextCategory={category}
-        reviewCatalogs={reviewCatalogs}
-      />
+      <PersonGrid people={people} contextCategory={category} />
 
       <Pagination
         page={filters.page}

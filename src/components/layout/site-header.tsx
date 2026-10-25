@@ -39,7 +39,7 @@ export function SiteHeader({ account }: { account: HeaderAccount | null }) {
     pathname === href || pathname.startsWith(href + "/");
   return (
     <header className="glass-bar sticky top-0 z-40 w-full border-b border-border">
-      <div className="container flex h-16 items-center justify-between gap-4">
+      <div className="container flex h-16 items-center justify-between gap-2 sm:gap-4">
         <div className="flex min-w-0 shrink-0 items-center gap-4">
           <ProfAuraLogo size="md" />
           <div className="hidden border-l border-border pl-4 xl:block">
@@ -74,10 +74,36 @@ export function SiteHeader({ account }: { account: HeaderAccount | null }) {
           <GuideButton className="px-3 py-2 text-[13px]">Help</GuideButton>
         </nav>
         <div className="hidden items-center gap-2 lg:flex">
+          {account ? (
+            <Button asChild size="sm" variant="outline">
+              <Link
+                href={account.isAdmin ? "/admin" : "/student"}
+                aria-current={
+                  active(account.isAdmin ? "/admin" : "/student")
+                    ? "page"
+                    : undefined
+                }
+              >
+                {account.isAdmin ? "Admin" : "My area"}
+              </Link>
+            </Button>
+          ) : null}
           <ThemeToggle />
           <AccountMenu account={account} />
         </div>
         <div className="ml-auto flex items-center gap-2 lg:hidden">
+          {account ? (
+            <Button
+              asChild
+              size="sm"
+              variant="outline"
+              className="px-2 text-xs sm:px-3 sm:text-sm"
+            >
+              <Link href={account.isAdmin ? "/admin" : "/student"}>
+                {account.isAdmin ? "Admin" : "My area"}
+              </Link>
+            </Button>
+          ) : null}
           <ThemeToggle />
           <Sheet open={open} onOpenChange={setOpen}>
             <SheetTrigger asChild>

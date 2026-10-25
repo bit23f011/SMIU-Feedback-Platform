@@ -26,6 +26,7 @@ function person(id: string, category: string) {
     headline: null,
     primary_category: category,
     teacher_type: null,
+    total_count: 2,
     person_roles: [
       {
         category,
@@ -39,14 +40,9 @@ function person(id: string, category: string) {
   };
 }
 function queryResult(result: object) {
-  const query: Record<string, any> = {
-    then: (resolve: (value: object) => unknown) =>
-      Promise.resolve(result).then(resolve),
-  };
-  for (const method of ["select", "eq", "order", "range", "or"])
-    query[method] = vi.fn(() => query);
-  mocks.client.mockReturnValue({ from: vi.fn(() => query) });
-  return query;
+  const rpc = vi.fn().mockResolvedValue(result);
+  mocks.client.mockReturnValue({ rpc });
+  return rpc;
 }
 beforeEach(() => {
   mocks.client.mockReset();
@@ -66,16 +62,15 @@ it("returns teacher and staff matches together without adding a category filter"
     "hr_staff",
   ]);
   expect(result.total).toBe(2);
-  expect(query.eq.mock.calls).toEqual([
-    ["is_active", true],
-    ["person_roles.is_active", true],
-  ]);
-  expect(query.or).toHaveBeenCalledWith(
-    "full_name.ilike.%Ahmed%,display_name.ilike.%Ahmed%",
-  );
+  expect(query).toHaveBeenCalledWith("search_all_people", {
+    p_search: "Ahmed",
+    p_limit: 24,
+    p_offset: 0,
+  });
 });
 it("keeps multiple public roles on one result and preserves the paginated total", async () => {
   const row = person("teacher-a", "teacher");
+  row.total_count = 49;
   row.person_roles.push({
     ...row.person_roles[0],
     category: "faculty",
@@ -86,7 +81,11 @@ it("keeps multiple public roles on one result and preserves the paginated total"
   expect(result.people).toHaveLength(1);
   expect(result.people[0].roles).toHaveLength(2);
   expect(result.total).toBe(49);
-  expect(query.range).toHaveBeenCalledWith(24, 47);
+  expect(query).toHaveBeenCalledWith("search_all_people", {
+    p_search: null,
+    p_limit: 24,
+    p_offset: 24,
+  });
 });
 it("reports a failed query separately from no matching people", async () => {
   queryResult({

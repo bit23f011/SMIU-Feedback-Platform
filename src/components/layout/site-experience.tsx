@@ -33,7 +33,7 @@ const GUIDE = [
 ] as const;
 type ExperienceContext = {
   openGuide: () => void;
-  announce: (notice: NotificationRow) => void;
+  announce: (notices: NotificationRow[]) => void;
 };
 const Context = React.createContext<ExperienceContext | null>(null);
 function noticeKey(n: NotificationRow) {
@@ -95,21 +95,27 @@ export function SiteExperienceProvider({
   const pathname = usePathname();
   const [ready, setReady] = React.useState(false);
   const [guideOpen, setGuideOpen] = React.useState(false);
-  const [notice, setNotice] = React.useState<NotificationRow | null>(null);
+  const [notices, setNotices] = React.useState<NotificationRow[]>([]);
+  const notice = notices[0] ?? null;
+  const seenNotices = React.useRef(new Set<string>());
   const initialized = React.useRef(false);
   React.useEffect(() => {
     if (initialized.current || /^\/(admin|student|auth)(\/|$)/.test(pathname))
       return;
     initialized.current = true;
     setGuideOpen(!wasSeen(GUIDE_KEY));
-    setReady(true);
   }, [pathname]);
   const openGuide = React.useCallback(() => {
     setReady(true);
     setGuideOpen(true);
   }, []);
-  const announce = React.useCallback((next: NotificationRow) => {
-    if (!wasSeen(noticeKey(next))) setNotice(next);
+  const announce = React.useCallback((incoming: NotificationRow[]) => {
+    const unseen = incoming.filter(
+      (item) =>
+        !seenNotices.current.has(noticeKey(item)) && !wasSeen(noticeKey(item)),
+    );
+    for (const item of unseen) seenNotices.current.add(noticeKey(item));
+    setNotices((current) => [...current, ...unseen]);
     setReady(true);
   }, []);
   function closeGuide(open: boolean) {
@@ -119,7 +125,7 @@ export function SiteExperienceProvider({
   function dismissNotice(open: boolean) {
     if (!open && notice) {
       remember(noticeKey(notice));
-      setNotice(null);
+      setNotices((current) => current.slice(1));
     }
   }
   const style = notice
@@ -132,7 +138,7 @@ export function SiteExperienceProvider({
   return (
     <Context.Provider value={value}>
       {children}
-      <Dialog open={ready && guideOpen} onOpenChange={closeGuide}>
+      <Dialog open={ready && guideOpen && !notice} onOpenChange={closeGuide}>
         <DialogContent className="max-h-[88dvh] max-w-[560px] overflow-y-auto p-0">
           <div className="border-b border-border bg-surface px-6 pb-6 pt-7 sm:px-8">
             <p className="eyebrow">A student perspective</p>
@@ -164,10 +170,7 @@ export function SiteExperienceProvider({
           </div>
         </DialogContent>
       </Dialog>
-      <Dialog
-        open={ready && !guideOpen && Boolean(notice)}
-        onOpenChange={dismissNotice}
-      >
+      <Dialog open={ready && Boolean(notice)} onOpenChange={dismissNotice}>
         <DialogContent
           className={cn(
             "max-h-[85dvh] overflow-y-auto p-7 sm:p-8",
@@ -193,7 +196,7 @@ export function SiteExperienceProvider({
               </Button>
             ) : null}
             <Button variant="outline" onClick={() => dismissNotice(false)}>
-              Got it
+              {notices.length > 1 ? "Next" : "Done"}
             </Button>
           </div>
         </DialogContent>

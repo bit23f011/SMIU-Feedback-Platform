@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 
-import { Inbox, ShieldCheck } from "@/components/ui/icons";
+import { Inbox } from "@/components/ui/icons";
 
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
@@ -15,6 +15,7 @@ import { setCourseActiveAction } from "@/features/admin/reference/actions";
 import { CourseForm } from "@/features/admin/reference/course-form";
 import { BulkListForm } from "@/features/admin/reference/bulk-list-form";
 import { ActiveToggleForm } from "@/features/admin/reference/reference-controls";
+import { DuplicateCoursesForm } from "@/features/admin/reference/duplicate-courses-form";
 import type {
   AdminCourse,
   AdminDepartment,
@@ -113,21 +114,18 @@ export default async function AdminCoursesPage() {
           Courses
         </h1>
         <p className="mt-1.5 max-w-2xl text-sm leading-relaxed text-muted-foreground">
-          Add courses once and they appear on every teacher card and review
-          form. No teacher assignments are required.
+          Add courses once and they appear in every teacher review form. No
+          teacher assignments are required.
         </p>
       </header>
 
-      <Alert tone="info" className="mt-6">
-        <ShieldCheck aria-hidden="true" />
-        <div>
-          <AlertTitle>Courses are archived, never deleted</AlertTitle>
-          <AlertDescription>
-            Archiving keeps past offerings and reviews intact. A course needs a
-            department, so add departments first if the list below is empty.
-          </AlertDescription>
-        </div>
-      </Alert>
+      <Card className="mt-6 space-y-3 p-5">
+        <p className="text-sm text-muted-foreground">
+          Remove repeated course names across the whole list. Linked reviews are
+          kept.
+        </p>
+        <DuplicateCoursesForm />
+      </Card>
 
       <section className="mt-6">
         <Card className="p-5 sm:p-6">

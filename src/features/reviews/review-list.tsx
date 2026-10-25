@@ -127,11 +127,7 @@ export function ReviewCard({ review }: { review: PublicReview }) {
         <p className="mt-3 whitespace-pre-line text-sm leading-relaxed text-ink-800">
           {review.comment}
         </p>
-      ) : (
-        <p className="mt-3 text-sm italic leading-relaxed text-muted-foreground">
-          This student submitted a rating without a written comment.
-        </p>
-      )}
+      ) : null}
 
       {review.answers.length > 0 ? (
         <div className="mt-4 flex flex-wrap gap-1.5 border-t border-border pt-4">

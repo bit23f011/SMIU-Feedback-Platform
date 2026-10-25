@@ -8,7 +8,7 @@ import type { NotificationRow } from "@/features/notifications/types";
   - Content DB (site_notifications) se aata hai, koi hardcoded text nahi.
   - Schedule-aware: sirf woh notice jo is waqt active hai (starts_at/ends_at window)
     aur is_active = true. Server time (now) se compare hota hai - frontend clock trust nahi.
-  - Sabse latest active notice dikhata hai.
+  - Har active notice ek ke baad ek dikhata hai.
   - Fail-safe: agar table abhi nahi bani (migration apply se pehle) ya koi error ho,
     to banner silently skip ho jata hai (site kabhi crash nahi karti).
 
@@ -17,7 +17,7 @@ import type { NotificationRow } from "@/features/notifications/types";
   zaroorat nahi).
 */
 export async function NotificationBanner() {
-  let row: NotificationRow | null = null;
+  let notifications: NotificationRow[] = [];
 
   try {
     const supabase = createSupabaseServerClient();
@@ -30,18 +30,15 @@ export async function NotificationBanner() {
       .or(`starts_at.is.null,starts_at.lte.${nowIso}`)
       .or(`ends_at.is.null,ends_at.gte.${nowIso}`)
       .order("created_at", { ascending: false })
-      .limit(1)
-      .maybeSingle();
+      .order("id", { ascending: true });
 
     if (!error && data) {
-      row = data as unknown as NotificationRow;
+      notifications = data as unknown as NotificationRow[];
     }
   } catch {
     // Table missing / env missing / network - banner ko skip karo, site chalti rahe.
-    row = null;
+    notifications = [];
   }
 
-  if (!row) return null;
-
-  return <NotificationBannerClient notification={row} />;
+  return <NotificationBannerClient notifications={notifications} />;
 }

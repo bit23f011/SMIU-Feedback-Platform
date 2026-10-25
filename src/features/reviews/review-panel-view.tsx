@@ -86,19 +86,19 @@ export function ReviewPanelView({
 
   if (data.status === "signed-out") {
     return (
-      <ReviewGate
-        title="Sign in to write a review"
-        description="Sign in with your student account to review. Your review is posted anonymously, and your name is never stored with it."
-      >
-        <Button asChild size="sm">
-          <Link href={`/auth/login?next=${encodeURIComponent(nextPath)}`}>
-            Sign in
-          </Link>
-        </Button>
-        <Button asChild variant="outline" size="sm">
-          <Link href="/auth/signup">Create account</Link>
-        </Button>
-      </ReviewGate>
+      <div className="rounded-lg border border-border bg-background/70 p-4">
+        <p className="text-sm font-medium">Sign in to write a review.</p>
+        <div className="mt-3 flex flex-wrap gap-2">
+          <Button asChild size="sm">
+            <Link href={`/auth/login?next=${encodeURIComponent(nextPath)}`}>
+              Sign in
+            </Link>
+          </Button>
+          <Button asChild variant="outline" size="sm">
+            <Link href="/auth/signup">Create account</Link>
+          </Button>
+        </div>
+      </div>
     );
   }
 

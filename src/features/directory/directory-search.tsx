@@ -43,15 +43,23 @@ function DirectorySearchInput({
 
   const initial = searchParams.get("q") ?? "";
   const [value, setValue] = React.useState(initial);
+  const lastCommitted = React.useRef(initial);
+  const editVersion = React.useRef(0);
+  const committedVersion = React.useRef(0);
   const inputId = React.useId();
 
   // Back/forward ya link se aane par input ko URL ke saath sync rakho.
   React.useEffect(() => {
-    setValue(initial);
-  }, [initial]);
+    if (editVersion.current === committedVersion.current && !isPending) {
+      setValue(initial);
+      lastCommitted.current = initial;
+    }
+  }, [initial, isPending]);
 
   const commit = React.useCallback(
     (next: string) => {
+      lastCommitted.current = next.trim();
+      committedVersion.current = editVersion.current;
       const params = new URLSearchParams(searchParams.toString());
       params.delete("page");
       const trimmed = next.trim();
@@ -69,6 +77,12 @@ function DirectorySearchInput({
     },
     [pathname, router, searchParams],
   );
+
+  React.useEffect(() => {
+    if (value.trim() === lastCommitted.current) return;
+    const timer = window.setTimeout(() => commit(value), 250);
+    return () => window.clearTimeout(timer);
+  }, [value, commit]);
 
   return (
     <form
@@ -100,7 +114,10 @@ function DirectorySearchInput({
           type="search"
           name="q"
           value={value}
-          onChange={(event) => setValue(event.target.value)}
+          onChange={(event) => {
+            editVersion.current += 1;
+            setValue(event.target.value);
+          }}
           placeholder={placeholder}
           autoComplete="off"
           maxLength={80}

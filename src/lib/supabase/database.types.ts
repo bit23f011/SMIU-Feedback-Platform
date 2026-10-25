@@ -742,6 +742,7 @@ export type Database = {
       }
       review_authors: {
         Row: {
+          merged_course_duplicate: boolean
           author_id: string
           category: Database["public"]["Enums"]["person_category"] | null
           course_id: string | null
@@ -751,6 +752,7 @@ export type Database = {
           semester_id: string | null
         }
         Insert: {
+          merged_course_duplicate?: boolean
           author_id: string
           category?: Database["public"]["Enums"]["person_category"] | null
           course_id?: string | null
@@ -760,6 +762,7 @@ export type Database = {
           semester_id?: string | null
         }
         Update: {
+          merged_course_duplicate?: boolean
           author_id?: string
           category?: Database["public"]["Enums"]["person_category"] | null
           course_id?: string | null
@@ -1008,6 +1011,18 @@ export type Database = {
       }
     }
     Functions: {
+      search_all_people: {
+        Args: { p_search?: string | null; p_limit?: number; p_offset?: number }
+        Returns: {
+          id: string; slug: string; full_name: string; display_name: string | null;
+          gender: Database["public"]["Enums"]["person_gender"] | null;
+          photo_url: string | null; headline: string | null;
+          primary_category: Database["public"]["Enums"]["person_category"] | null;
+          teacher_type: Database["public"]["Enums"]["teacher_type"] | null;
+          person_roles: Json; total_count: number;
+        }[]
+      }
+      admin_delete_duplicate_courses: { Args: Record<PropertyKey, never>; Returns: number }
       admin_add_assignment: {
         Args: {
           p_person_id: string

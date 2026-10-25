@@ -2,11 +2,6 @@ import Link from "next/link";
 import { ArrowRight } from "@/components/ui/icons";
 import { Card } from "@/components/ui/card";
 import { PersonAvatar } from "@/features/people/person-avatar";
-import { PersonReviewPicker } from "@/features/reviews/person-review-picker";
-import {
-  categoryNeedsCourse,
-  type ReviewCatalog,
-} from "@/features/reviews/types";
 import type { PersonCategory, PersonSummary } from "@/features/people/types";
 import { getCategoryMeta } from "@/lib/constants";
 import { cn } from "@/lib/utils";
@@ -14,13 +9,13 @@ export interface PersonCardProps {
   person: PersonSummary;
   contextCategory?: PersonCategory;
   className?: string;
-  reviewCatalog?: ReviewCatalog;
+  tabIndex?: number;
 }
 export function PersonCard({
   person,
   contextCategory,
   className,
-  reviewCatalog,
+  tabIndex,
 }: PersonCardProps) {
   const role =
     (contextCategory
@@ -37,7 +32,6 @@ export function PersonCard({
       interactive
       className={cn(
         "group relative flex flex-col overflow-visible p-5",
-        reviewCatalog && "focus-within:z-30",
         className,
       )}
     >
@@ -61,6 +55,7 @@ export function PersonCard({
           <h3 className="text-[15px] font-semibold leading-snug">
             <Link
               href={"/people/" + person.slug}
+              tabIndex={tabIndex}
               className="outline-none after:absolute after:inset-0 after:content-[''] group-hover:text-primary focus-visible:ring-2 focus-visible:ring-ring"
             >
               {person.name}
@@ -98,10 +93,6 @@ export function PersonCard({
           <ArrowRight className="size-3.5" aria-hidden="true" />
         </span>
       </div>
-      {reviewCatalog &&
-      categoryNeedsCourse(person.primaryCategory ?? category) ? (
-        <PersonReviewPicker personSlug={person.slug} catalog={reviewCatalog} />
-      ) : null}
     </Card>
   );
 }
@@ -109,12 +100,10 @@ export function PersonGrid({
   people,
   contextCategory,
   className,
-  reviewCatalogs,
 }: {
   people: PersonSummary[];
   contextCategory?: PersonCategory;
   className?: string;
-  reviewCatalogs?: Record<string, ReviewCatalog>;
 }) {
   return (
     <ul
@@ -129,7 +118,6 @@ export function PersonGrid({
             person={person}
             contextCategory={contextCategory}
             className="w-full"
-            reviewCatalog={reviewCatalogs?.[person.id]}
           />
         </li>
       ))}

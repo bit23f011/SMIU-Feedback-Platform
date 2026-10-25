@@ -3,7 +3,7 @@
 import * as React from "react";
 
 import Link from "next/link";
-import { LayoutDashboard, LogOut, Shield, User } from "@/components/ui/icons";
+import { LogOut, Shield, User } from "@/components/ui/icons";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -112,24 +112,24 @@ export function AccountMenu({ account }: { account: HeaderAccount | null }) {
             >
               {initial(account.email)}
             </span>
-            <span className="max-w-[10rem] truncate">{localPart(account.email)}</span>
+            <span className="max-w-[10rem] truncate">
+              {localPart(account.email)}
+            </span>
             <span className="sr-only">Account menu</span>
           </button>
         </DropdownMenuTrigger>
 
         <DropdownMenuContent align="end" sideOffset={8} className="w-60">
           <DropdownMenuLabel className="font-normal">
-            <span className="block text-xs text-muted-foreground">Signed in as</span>
-            <span className="block truncate font-medium text-foreground">{account.email}</span>
+            <span className="block text-xs text-muted-foreground">
+              Signed in as
+            </span>
+            <span className="block truncate font-medium text-foreground">
+              {account.email}
+            </span>
           </DropdownMenuLabel>
           <DropdownMenuSeparator />
 
-          <DropdownMenuItem asChild>
-            <Link href="/student" className="gap-2">
-              <LayoutDashboard aria-hidden="true" className="size-4 text-ink-400" />
-              My area
-            </Link>
-          </DropdownMenuItem>
           <DropdownMenuItem asChild>
             <Link href="/student/favorites" className="gap-2">
               <User aria-hidden="true" className="size-4 text-ink-400" />
@@ -155,7 +155,11 @@ export function AccountMenu({ account }: { account: HeaderAccount | null }) {
 }
 
 /** Mobile sheet ka neeche wala account block. */
-export function AccountSheetActions({ account }: { account: HeaderAccount | null }) {
+export function AccountSheetActions({
+  account,
+}: {
+  account: HeaderAccount | null;
+}) {
   if (!account) {
     return (
       <div className="mt-6 flex flex-col gap-2 border-t border-border pt-5">
@@ -172,7 +176,8 @@ export function AccountSheetActions({ account }: { account: HeaderAccount | null
   return (
     <div className="mt-6 space-y-3 border-t border-border pt-5">
       <p className="px-1 text-xs leading-snug text-muted-foreground">
-        Signed in as <span className="font-medium text-foreground">{account.email}</span>
+        Signed in as{" "}
+        <span className="font-medium text-foreground">{account.email}</span>
       </p>
 
       <div className="flex flex-col gap-2">
