@@ -3,11 +3,13 @@ import { listPeopleByCategory } from "@/features/people/queries";
 import { ProfileMarquee } from "@/features/home/profile-marquee";
 import { ArrowRight } from "@/components/ui/icons";
 import { ErrorState } from "@/components/common/error-state";
+import { isDemoDataEnabled } from "@/features/demo-data/queries";
 export async function FeaturedPeople() {
-  const [teachers, labs, staff] = await Promise.all([
+  const [teachers, labs, staff, demo] = await Promise.all([
     listPeopleByCategory({ category: "teacher", limit: 10 }),
     listPeopleByCategory({ category: "lab_instructor", limit: 10 }),
     listPeopleByCategory({ category: "university_staff", limit: 10 }),
+    isDemoDataEnabled(),
   ]);
   const campus = [...labs.people, ...staff.people]
     .filter(
@@ -31,7 +33,7 @@ export async function FeaturedPeople() {
             Get to know your campus.
           </h2>
           <p className="mt-3 text-sm text-muted-foreground">
-            Real profiles. Student ratings. A clearer picture.
+            {demo ? "Campus profiles with labelled sample ratings." : "Real profiles. Student ratings. A clearer picture."}
           </p>
         </div>
         <Link

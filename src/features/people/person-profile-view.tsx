@@ -15,6 +15,8 @@ import { ProfileBreakdownsView } from "@/features/discovery/profile-breakdowns-v
 import { RecordView } from "@/features/discovery/record-view";
 import { SaveProfileView } from "@/features/discovery/save-profile-view";
 import { getCategoryMeta } from "@/lib/constants";
+import { isZeeshanSpotlight } from "@/features/demo-data/presentation";
+import { SpotlightBadge, SpotlightCelebration } from "./spotlight-accent";
 
 /*
   Public profile page.
@@ -40,6 +42,7 @@ export function PersonProfileView({
 
   const primaryRole =
     person.roles.find((role) => role.isPrimary) ?? person.roles[0];
+  const spotlight = isZeeshanSpotlight(person);
   const backCategory = getCategoryMeta(
     primaryRole?.category ?? person.primaryCategory ?? "teacher",
   );
@@ -61,7 +64,10 @@ export function PersonProfileView({
         </Link>
       ) : null}
 
-      <header className="mt-6 flex flex-col gap-5 border-b border-border pb-8 sm:flex-row sm:items-start sm:gap-6">
+      <header
+        className={`relative mt-6 flex flex-col gap-5 border-b border-border pb-8 sm:flex-row sm:items-start sm:gap-6 ${spotlight ? "spotlight-surface rounded-xl border border-amber-200 p-5" : ""}`}
+      >
+        {spotlight ? <SpotlightCelebration /> : null}
         <PersonAvatar
           name={person.name}
           gender={person.gender}
@@ -69,7 +75,12 @@ export function PersonProfileView({
           className="h-20 w-20 shrink-0"
         />
 
-        <div className="min-w-0 flex-1">
+        <div className="relative min-w-0 flex-1">
+          {spotlight ? (
+            <div className="mb-3">
+              <SpotlightBadge demo={person.demoMode} />
+            </div>
+          ) : null}
           <h1 className="text-display-sm font-semibold text-foreground">
             {person.name}
           </h1>
@@ -154,7 +165,9 @@ export function PersonProfileView({
                 id="reviews-heading"
                 className="text-lg font-semibold text-foreground"
               >
-                Student reviews
+                {person.demoMode
+                  ? "Reviews."
+                  : "Student reviews"}
               </h2>
               {stats.reviewCount > 0 ? (
                 <p className="text-sm text-muted-foreground">

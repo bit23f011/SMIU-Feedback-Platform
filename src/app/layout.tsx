@@ -98,6 +98,7 @@ export default function RootLayout({
   // hi layout dynamic ho jata hai, jo theek hai: har response ka nonce alag hona
   // hi chahiye. Na mile (edge case) to undefined - report-only me koi farq nahi.
   const nonce = headers().get("x-nonce") ?? undefined;
+  const websiteClosed = headers().get("x-website-closed") === "true";
 
   return (
     /*
@@ -122,10 +123,14 @@ export default function RootLayout({
           Skip to content
         </a>
         <ThemeProvider>
-          <SiteExperienceProvider>
-            {children}
-            <FeedbackChat />
-          </SiteExperienceProvider>
+          {websiteClosed ? (
+            children
+          ) : (
+            <SiteExperienceProvider>
+              {children}
+              <FeedbackChat />
+            </SiteExperienceProvider>
+          )}
         </ThemeProvider>
       </body>
     </html>

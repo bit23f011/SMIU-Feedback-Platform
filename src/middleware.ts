@@ -2,6 +2,11 @@ import { NextResponse, type NextRequest } from "next/server";
 
 import { buildContentSecurityPolicy } from "@/lib/security/csp";
 import { updateSession } from "@/lib/supabase/middleware";
+import { readWebsiteState } from "@/features/website-availability/read-state";
+import {
+  isAdminPath,
+  isWebsiteRecoveryPath,
+} from "@/features/website-availability/types";
 
 /*
   Next.js middleware.
@@ -48,12 +53,33 @@ export async function middleware(request: NextRequest) {
   // Modified request headers: Next inhe server render par forward karta hai, wahan
   // se ThemeScript/framework nonce uthate hain.
   const requestHeaders = new Headers(request.headers);
+  requestHeaders.delete("x-website-closed");
   requestHeaders.set("x-nonce", nonce);
+
+  const { pathname, search } = request.nextUrl;
+  if (
+    !isWebsiteRecoveryPath(pathname, request.nextUrl.searchParams.get("next"))
+  ) {
+    const website = await readWebsiteState();
+    if (website.status !== "open") {
+      requestHeaders.set("x-website-closed", "true");
+      const closedUrl = new URL("/closed", request.url);
+      const closedResponse = NextResponse.rewrite(closedUrl, {
+        status: 503,
+        request: { headers: requestHeaders },
+      });
+      closedResponse.headers.set(csp.header, csp.value);
+      closedResponse.headers.set("Cache-Control", "no-store, max-age=0");
+      closedResponse.headers.set("X-Robots-Tag", "noindex, nofollow");
+      closedResponse.headers.set("Retry-After", "300");
+      return closedResponse;
+    }
+    if (pathname === "/closed")
+      return NextResponse.redirect(new URL("/", request.url));
+  }
 
   const { response, user } = await updateSession(request, requestHeaders);
   response.headers.set(csp.header, csp.value);
-
-  const { pathname, search } = request.nextUrl;
 
   if (!user && isProtected(pathname)) {
     const loginUrl = new URL("/auth/login", request.url);
@@ -62,14 +88,24 @@ export async function middleware(request: NextRequest) {
 
     const redirectResponse = NextResponse.redirect(loginUrl);
     // Refresh hui cookies redirect par bhi saath le jao, warna session gir jata hai.
-    response.cookies.getAll().forEach((cookie) => redirectResponse.cookies.set(cookie));
+    response.cookies
+      .getAll()
+      .forEach((cookie) => redirectResponse.cookies.set(cookie));
     redirectResponse.headers.set(csp.header, csp.value);
     return redirectResponse;
   }
 
-  if (user?.email_confirmed_at && AUTH_ONLY_PATHS.some((path) => pathname === path)) {
-    const redirectResponse = NextResponse.redirect(new URL("/student", request.url));
-    response.cookies.getAll().forEach((cookie) => redirectResponse.cookies.set(cookie));
+  if (
+    user?.email_confirmed_at &&
+    AUTH_ONLY_PATHS.some((path) => pathname === path)
+  ) {
+    const nextPath = request.nextUrl.searchParams.get("next");
+    const redirectResponse = NextResponse.redirect(
+      new URL(isAdminPath(nextPath) ? nextPath! : "/student", request.url),
+    );
+    response.cookies
+      .getAll()
+      .forEach((cookie) => redirectResponse.cookies.set(cookie));
     redirectResponse.headers.set(csp.header, csp.value);
     return redirectResponse;
   }

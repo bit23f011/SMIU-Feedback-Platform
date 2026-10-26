@@ -1,6 +1,7 @@
 import { cache } from "react";
 import { createSupabasePublicClient } from "@/lib/supabase/public";
 import { RANKING } from "@/lib/constants";
+import { isDemoDataEnabled } from "@/features/demo-data/queries";
 import type {
   PersonCategory,
   PersonRoleSummary,
@@ -125,16 +126,17 @@ function toPersonSummary(row: PersonRow): PersonSummary {
 async function withRatings(people: PersonSummary[]): Promise<PersonSummary[]> {
   if (people.length === 0) return people;
 
-  const stats = await getRatingStatsForPeople(
-    people.map((person) => person.id),
-  );
-  if (stats.size === 0) return people;
+  const [stats, demoMode] = await Promise.all([
+    getRatingStatsForPeople(people.map((person) => person.id)),
+    isDemoDataEnabled(),
+  ]);
 
   return people.map((person) => {
     const stat = stats.get(person.id);
-    if (!stat || stat.reviewCount === 0) return person;
+    if (!stat || stat.reviewCount === 0) return { ...person, demoMode };
     return {
       ...person,
+      demoMode,
       rating: stat.averageRating,
       reviewCount: stat.reviewCount,
     };
@@ -226,7 +228,10 @@ export async function getPersonBySlug(
   slug: string,
   includeRatings = true,
 ): Promise<PersonSummary | null> {
-  const person = await getPersonRecordBySlug(slug);
+  const [record, demoMode] = await Promise.all([
+    getPersonRecordBySlug(slug), isDemoDataEnabled(),
+  ]);
+  const person = record ? { ...record, demoMode } : null;
   if (!person || !includeRatings) return person;
   const stats = await getPersonRatingStats(person.id);
   return stats.reviewCount === 0
@@ -322,6 +327,7 @@ export async function getTopPersonByCategory(options: {
 
       return {
         ...person,
+        demoMode: await isDemoDataEnabled(),
         rating:
           stat.average_rating === null ? null : Number(stat.average_rating),
         reviewCount: stat.review_count ?? 0,

@@ -710,6 +710,31 @@
 }
 
 /* Keep editorial headings consistent inside shared dialog and card primitives. */
+.spotlight-surface {
+  background-image: radial-gradient(ellipse at top right, rgb(214 164 66 / 0.14), transparent 65%);
+}
+.spotlight-confetti > span {
+  position: absolute;
+  top: -12px;
+  width: 5px;
+  height: 9px;
+  border-radius: 1px;
+  opacity: 0;
+  animation: spotlight-fall 6s linear infinite;
+}
+.spotlight-surface:hover .spotlight-confetti > span,
+.spotlight-surface:focus-within .spotlight-confetti > span {
+  animation-play-state: paused;
+}
+@keyframes spotlight-fall {
+  0% { transform: translateY(-12px) rotate(0deg); opacity: 0; }
+  12%, 70% { opacity: 0.6; }
+  100% { transform: translateY(320px) rotate(250deg); opacity: 0; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .spotlight-confetti > span { animation: none; display: none; }
+}
+
 .editorial-title {
   font-family: Georgia, "Times New Roman", serif;
   font-weight: 400;

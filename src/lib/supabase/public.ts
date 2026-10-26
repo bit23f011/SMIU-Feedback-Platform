@@ -1,6 +1,7 @@
 import { createClient } from "@supabase/supabase-js";
 import { getSupabaseClientEnv } from "@/lib/env";
 import type { Database } from "@/lib/supabase/database.types";
+import { serverRealtimeOptions } from "@/lib/supabase/server-realtime";
 
 export const PUBLIC_DATA_TAG = "public-feedback-data";
 export const PUBLIC_RATINGS_TAG = "public-feedback-ratings";
@@ -37,6 +38,7 @@ export function publicReadTags(input: string | URL | Request) {
   return tags;
 }
 const PUBLIC_TABLES = new Set([
+  "demo_data_settings",
   "people",
   "person_rating_stats",
   "person_criteria_stats",
@@ -72,6 +74,7 @@ export function isCacheablePublicRequest(
 export function createSupabasePublicClient() {
   const { url, anonKey } = getSupabaseClientEnv();
   return createClient<Database, "public">(url, anonKey, {
+    realtime: serverRealtimeOptions,
     auth: {
       persistSession: false,
       autoRefreshToken: false,

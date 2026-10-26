@@ -90,7 +90,9 @@ export function ReviewCard({ review }: { review: PublicReview }) {
     <article className="rounded-lg border border-border bg-background p-5 shadow-xs">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="flex items-center gap-2.5">
-          <Badge variant="default">Anonymous student</Badge>
+          <Badge variant={review.isDemo ? "outline" : "default"}>
+            {review.isDemo ? "Review" : "Anonymous student"}
+          </Badge>
           {review.isFeatured ? (
             /* Coral = signature highlight, wahi jo "Top rated" par chalta hai. */
             <Badge variant="accent">

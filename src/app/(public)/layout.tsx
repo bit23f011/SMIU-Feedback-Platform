@@ -4,6 +4,7 @@ import { SiteHeader } from "@/components/layout/site-header";
 import { getHeaderAccount } from "@/features/auth/session";
 import { NotificationBanner } from "@/features/notifications/notification-banner";
 import { PublicProfilePreview } from "@/features/people/profile-modal";
+import { DemoDataBanner } from "@/features/demo-data/demo-data-banner";
 import { Suspense } from "react";
 
 /*
@@ -28,6 +29,9 @@ export default async function PublicLayout({
     <PublicProfilePreview>
       <div className="flex min-h-dvh flex-col">
         <SiteHeader account={account} />
+        <Suspense fallback={null}>
+          <DemoDataBanner />
+        </Suspense>
         <Suspense fallback={null}>
           <NotificationBanner />
         </Suspense>

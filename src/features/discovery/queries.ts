@@ -3,6 +3,7 @@ import { createSupabasePublicClient } from "@/lib/supabase/public";
 
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { RANKING } from "@/lib/constants";
+import { isDemoDataEnabled } from "@/features/demo-data/queries";
 import type {
   PersonCategory,
   PersonGender,
@@ -195,9 +196,11 @@ export async function searchPeople(options: {
     if (error) return { people: [], total: 0, failed: true };
     if (!data || data.length === 0) return empty;
 
+    const demoMode = await isDemoDataEnabled();
+
     return {
       total: Number(data[0].total_count ?? 0),
-      people: data.map((row) => toPerson(row, category)),
+      people: data.map((row) => ({ ...toPerson(row, category), demoMode })),
       failed: false,
     };
   } catch {

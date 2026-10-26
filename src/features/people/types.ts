@@ -32,6 +32,8 @@ export interface PersonRoleSummary {
 }
 
 export interface PersonSummary {
+  /** Public totals may include labelled synthetic reviews while demo mode is ON. */
+  demoMode?: boolean;
   id: string;
   slug: string;
   name: string;

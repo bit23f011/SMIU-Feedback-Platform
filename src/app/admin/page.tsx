@@ -18,6 +18,8 @@ import type { InterfaceIcon } from "@/components/ui/icons";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Card } from "@/components/ui/card";
 import { getAdminDashboardStats } from "@/features/admin/dashboard/queries";
+import { DemoDataCard } from "@/features/demo-data/demo-data-card";
+import { getAdminDemoDataState } from "@/features/demo-data/queries";
 
 export const metadata: Metadata = {
   title: "Admin",
@@ -121,7 +123,7 @@ function StatCard({ stat, unavailable }: { stat: StatSpec; unavailable: boolean 
 }
 
 export default async function AdminHomePage() {
-  const stats = await getAdminDashboardStats();
+  const [stats, demoData] = await Promise.all([getAdminDashboardStats(), getAdminDemoDataState()]);
 
   const statCards: StatSpec[] = [
     {
@@ -158,6 +160,8 @@ export default async function AdminHomePage() {
           check plus row-level security, and recorded in an audit log.
         </p>
       </header>
+
+      <DemoDataCard data={demoData} />
 
       {stats.failed ? (
         <Alert tone="warning" className="mt-6">

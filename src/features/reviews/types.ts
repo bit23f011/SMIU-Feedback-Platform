@@ -83,6 +83,7 @@ export interface ReviewContext {
 /** Public par dikhne wali review. Koi identity nahi. */
 export interface PublicReview extends ReviewContext {
   id: string;
+  isDemo?: boolean;
   overallRating: number;
   /*
     null ke do matlab ho sakte hain: ya to student ne kuch likha hi nahi, ya

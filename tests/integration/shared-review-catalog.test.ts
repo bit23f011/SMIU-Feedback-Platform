@@ -312,6 +312,394 @@ afterAll(async () => {
   await db?.close();
 });
 
+describe("teacher demo reviews", () => {
+  beforeEach(async () => {
+    await db.exec("reset role");
+    const migration = readFileSync(
+      resolve("supabase/migrations/20261026100000_teacher_demo_reviews.sql"),
+      "utf8",
+    )
+      .replace(/^begin;\s*$/m, "")
+      .replace(/^commit;\s*$/m, "");
+    await db.exec(migration);
+    await signIn(ids.student);
+  });
+
+  it("seeds varied counts and comments for every teacher without student authorship or duplicates", async () => {
+    await signIn(ids.admin);
+    for (let index = 0; index < 16; index++) {
+      await db.query(
+        "select public.admin_create_person($1, 'teacher', null, 'external', $2, null, null, null)",
+        [`Demo Test Teacher ${index}`, department],
+      );
+    }
+    await db.exec("reset role");
+    const counts = (
+      await db.query<{ ratings: number; comments: number }>(`
+      select count(*)::int ratings, count(comment)::int comments
+      from public.reviews where demo_slot is not null group by person_id
+    `)
+    ).rows;
+    expect(counts.length).toBe(17);
+    expect(new Set(counts.map((row) => row.ratings)).size).toBeGreaterThan(1);
+    for (const row of counts) {
+      expect([5, 8, 10, 12, 14, 16]).toContain(row.ratings);
+      expect(row.comments).toBeGreaterThanOrEqual(3);
+      expect(row.comments).toBeLessThanOrEqual(8);
+    }
+    expect(
+      await scalar(
+        "select count(*)::int as value from public.reviews r join public.review_authors a on a.review_id = r.id where r.demo_slot is not null",
+      ),
+    ).toBe(0);
+    expect(
+      await scalar(
+        "select count(*)::int as value from public.reviews where demo_slot is not null and status <> 'hidden'",
+      ),
+    ).toBe(0);
+    expect(
+      await scalar(
+        "select count(*)::int as value from public.reviews where person_id = $1 and demo_slot is not null",
+        [staff],
+      ),
+    ).toBe(0);
+    const before = await scalar(
+      "select count(*)::int as value from public.reviews where demo_slot is not null",
+    );
+    await db.exec(
+      "select public.seed_teacher_demo_reviews(); select public.seed_teacher_demo_reviews()",
+    );
+    expect(
+      await scalar(
+        "select count(*)::int as value from public.reviews where demo_slot is not null",
+      ),
+    ).toBe(before);
+    expect(
+      await scalar(
+        "select count(*)::int as value from public.reviews r where demo_slot is not null and not exists (select 1 from public.review_answers a where a.review_id = r.id)",
+      ),
+    ).toBe(0);
+  });
+
+  it("toggles public reviews, directory totals, criteria and rankings while preserving real reviews", async () => {
+    const real = await submit();
+    await db.exec("reset role");
+    const snapshot = (
+      await db.query("select * from public.reviews where id = $1", [real])
+    ).rows;
+    const count = await scalar<number>(
+      "select count(*)::int as value from public.reviews where person_id = $1 and demo_slot is not null",
+      [teacher],
+    );
+    await signIn(ids.admin);
+    await db.exec("select public.admin_set_demo_data(true)");
+    expect(
+      (
+        await db.query<{ is_enabled: boolean }>(
+          "select * from public.admin_demo_data_state()",
+        )
+      ).rows[0].is_enabled,
+    ).toBe(true);
+    await db.exec("set role anon");
+    const rows = (
+      await db.query<{ is_demo: boolean; comment: string | null }>(
+        "select * from public.person_reviews($1, 50)",
+        [teacher],
+      )
+    ).rows;
+    expect(rows.filter((row) => row.is_demo)).toHaveLength(count);
+    expect(
+      rows.filter((row) => row.is_demo && row.comment).length,
+    ).toBeGreaterThanOrEqual(3);
+    expect(
+      await scalar(
+        "select review_count::int as value from public.person_rating_stats where person_id = $1",
+        [teacher],
+      ),
+    ).toBe(count + 2);
+    expect(
+      await scalar(
+        "select review_count::int as value from public.directory_people('teacher') where person_id = $1",
+        [teacher],
+      ),
+    ).toBe(count + 2);
+    expect(
+      await scalar(
+        "select count(*)::int as value from public.rankings('teacher') where person_id = $1",
+        [teacher],
+      ),
+    ).toBe(1);
+    const criteriaOn = (
+      await db.query(
+        "select * from public.person_criteria_stats where person_id = $1",
+        [teacher],
+      )
+    ).rows;
+    await signIn(ids.admin);
+    await db.exec("select public.admin_set_demo_data(false)");
+    await db.exec("set role anon");
+    expect(
+      (
+        await db.query(
+          "select * from public.person_reviews($1, 50) where is_demo",
+          [teacher],
+        )
+      ).rows,
+    ).toEqual([]);
+    expect(
+      await scalar(
+        "select review_count::int as value from public.person_rating_stats where person_id = $1",
+        [teacher],
+      ),
+    ).toBe(2);
+    expect(
+      await scalar(
+        "select review_count::int as value from public.directory_people('teacher') where person_id = $1",
+        [teacher],
+      ),
+    ).toBe(2);
+    expect(
+      await scalar(
+        "select count(*)::int as value from public.rankings('teacher') where person_id = $1",
+        [teacher],
+      ),
+    ).toBe(0);
+    expect(
+      (
+        await db.query(
+          "select * from public.person_criteria_stats where person_id = $1",
+          [teacher],
+        )
+      ).rows,
+    ).not.toEqual(criteriaOn);
+    await db.exec("reset role");
+    expect(
+      (await db.query("select * from public.reviews where id = $1", [real]))
+        .rows,
+    ).toEqual(snapshot);
+  });
+
+  it("rejects anonymous and student toggles, direct writes and direct seeding", async () => {
+    expect(
+      (await rejection("select public.admin_set_demo_data(true)")).code,
+    ).toBe("42501");
+    expect(
+      (await rejection("select * from public.admin_demo_data_state()")).code,
+    ).toBe("42501");
+    expect(
+      (
+        await rejection(
+          "update public.demo_data_settings set is_enabled = true",
+        )
+      ).code,
+    ).toBe("42501");
+    expect(
+      (await rejection("select public.seed_teacher_demo_reviews()")).code,
+    ).toBe("42501");
+    await db.exec("set role anon");
+    expect(
+      (await rejection("select public.admin_set_demo_data(true)")).code,
+    ).toBe("42501");
+    expect(
+      await scalar("select is_enabled as value from public.demo_data_settings"),
+    ).toBe(false);
+    await signIn(ids.admin);
+    expect(
+      (await rejection("select public.admin_set_demo_data(null)")).code,
+    ).toBe("22023");
+  });
+
+  it("does not republish removed samples or let moderation bypass OFF", async () => {
+    await db.exec("reset role");
+    const removed = await scalar<string>(
+      "update public.reviews set status = 'removed' where person_id = $1 and demo_slot = 1 returning id as value",
+      [teacher],
+    );
+    await db.query(
+      "update public.reviews set status = 'published' where person_id = $1 and demo_slot = 2",
+      [teacher],
+    );
+    expect(
+      await scalar(
+        "select status as value from public.reviews where person_id = $1 and demo_slot = 2",
+        [teacher],
+      ),
+    ).toBe("hidden");
+    await signIn(ids.admin);
+    await db.exec(
+      "select public.admin_set_demo_data(true); select public.admin_set_demo_data(false); select public.admin_set_demo_data(true)",
+    );
+    await db.exec("reset role");
+    expect(
+      await scalar("select status as value from public.reviews where id = $1", [
+        removed,
+      ]),
+    ).toBe("removed");
+  });
+
+  it("seeds newly added teachers in the current mode and keeps profile merging working", async () => {
+    await signIn(ids.admin);
+    await db.exec("select public.admin_set_demo_data(true)");
+    const added = await scalar<string>(
+      "select public.admin_create_person('New Demo Teacher', 'teacher', null, 'external', $1, null, null, null) as value",
+      [department],
+    );
+    expect(
+      (
+        await db.query(
+          "select * from public.person_reviews($1) where is_demo",
+          [added],
+        )
+      ).rows.length,
+    ).toBeGreaterThan(0);
+    const before = (
+      await db.query("select * from public.person_reviews($1, 50)", [teacher])
+    ).rows;
+    await db.query(
+      "select public.admin_merge_people($1, $2, 'Merge test profiles')",
+      [teacher, added],
+    );
+    expect(
+      (await db.query("select * from public.person_reviews($1, 50)", [teacher]))
+        .rows,
+    ).toEqual(before);
+    await db.exec("reset role");
+    expect(
+      await scalar(
+        "select count(*)::int as value from public.reviews where person_id = $1 and demo_slot is not null and status <> 'removed'",
+        [added],
+      ),
+    ).toBe(0);
+  });
+});
+
+describe("faculty, lab and HR demo samples", () => {
+  const extensionFile = "20261026120000_faculty_lab_hr_demo_reviews.sql";
+  async function applyFile(name: string) {
+    await db.exec(readFileSync(resolve("supabase/migrations", name), "utf8")
+      .replace(/^begin;\s*$/m, "").replace(/^commit;\s*$/m, ""));
+  }
+  beforeEach(async () => {
+    await db.exec("reset role");
+    await applyFile("20261026100000_teacher_demo_reviews.sql");
+    await applyFile(extensionFile);
+    await signIn(ids.admin);
+  });
+
+  it("seeds each active teaching/HR role with matching criteria, preserves teachers and safely reapplies", async () => {
+    await db.exec("reset role");
+    const teacherBefore = (await db.query("select * from public.reviews where person_id = $1 and demo_slot is not null order by id", [teacher])).rows;
+    await signIn(ids.admin);
+    for (const category of ["faculty", "lab_instructor", "hr_staff"]) {
+      await db.query("select public.admin_create_person($1, $2::public.person_category, null, null, $3, null, null, null)", [`Sample ${category}`, category, department]);
+    }
+    const internal = await scalar<string>("select public.admin_create_person('Sample Internal Teacher', 'teacher', null, 'internal', $1, null, null, null) as value", [department]);
+    await db.exec("reset role");
+    const counts = (await db.query<{ ratings: number; comments: number; category: string }>(`
+      select category, count(*)::int ratings, count(comment)::int comments
+      from public.reviews where demo_slot is not null and status <> 'removed'
+      group by person_id, category
+    `)).rows;
+    expect(new Set(counts.map(row => row.category))).toEqual(new Set(["teacher", "faculty", "lab_instructor", "hr_staff"]));
+    for (const row of counts) {
+      expect([5, 8, 10, 12, 14, 16]).toContain(row.ratings);
+      expect(row.comments).toBeGreaterThanOrEqual(0);
+      expect(row.comments).toBeLessThanOrEqual(8);
+    }
+    const profileComments = (await db.query<{ comments: number }>("select count(comment)::int comments from public.reviews where demo_slot is not null and status <> 'removed' group by person_id")).rows;
+    for (const row of profileComments) {
+      expect(row.comments).toBeGreaterThanOrEqual(3);
+      expect(row.comments).toBeLessThanOrEqual(8);
+    }
+    expect((await db.query("select distinct category from public.reviews where person_id = $1 and demo_slot is not null", [internal])).rows).toHaveLength(2);
+    expect(await scalar(`select count(*)::int value from public.review_answers a join public.reviews r on r.id = a.review_id join public.review_criteria c on c.id = a.criterion_id where r.demo_slot is not null and r.category <> c.category`)).toBe(0);
+    expect(await scalar(`select count(*)::int value from public.reviews r join public.review_authors a on a.review_id = r.id where r.demo_slot is not null`)).toBe(0);
+    const before = (await db.query("select * from public.reviews order by id")).rows;
+    await applyFile(extensionFile);
+    expect((await db.query("select * from public.reviews order by id")).rows).toEqual(before);
+    expect((await db.query("select * from public.reviews where person_id = $1 and demo_slot is not null order by id", [teacher])).rows).toEqual(teacherBefore);
+  });
+
+  it("toggles all sample categories without changing genuine reviews or bypassing admin access", async () => {
+    await signIn(ids.student);
+    const real = await submit();
+    await signIn(ids.admin);
+    for (const category of ["faculty", "lab_instructor", "hr_staff"]) {
+      await db.query("select public.admin_create_person($1, $2::public.person_category, null, null, $3, null, null, null)", [`Mode ${category}`, category, department]);
+    }
+    await db.exec("reset role");
+    const realBefore = (await db.query("select * from public.reviews where id = $1", [real])).rows;
+    expect(await scalar("select count(*)::int value from public.reviews where demo_slot is not null and status = 'published'")).toBe(0);
+    await signIn(ids.admin);
+    await db.exec("select public.admin_set_demo_data(true)");
+    await db.exec("set role anon");
+    for (const category of ["teacher", "faculty", "lab_instructor", "hr_staff"]) {
+      expect(await scalar<number>("select count(*)::int value from public.rankings($1::public.person_category)", [category])).toBeGreaterThan(0);
+    }
+    await signIn(ids.admin);
+    await db.exec("select public.admin_set_demo_data(false)");
+    await db.exec("reset role");
+    expect(await scalar("select count(*)::int value from public.reviews where demo_slot is not null and status = 'published'")).toBe(0);
+    expect((await db.query("select * from public.reviews where id = $1", [real])).rows).toEqual(realBefore);
+    await signIn(ids.student);
+    expect((await rejection("select public.admin_set_demo_data(true)")).code).toBe("42501");
+    expect((await rejection("select public.seed_teacher_demo_reviews()")).code).toBe("42501");
+  });
+
+  it("seeds new role assignments in the current mode and keeps deleted roles hidden across toggles", async () => {
+    await db.exec("select public.admin_set_demo_data(true); reset role");
+    await db.query("insert into public.person_roles (person_id, category, department_id, is_primary, is_active) values ($1, 'faculty', $2, false, true)", [teacher, department]);
+    expect(await scalar<number>("select count(*)::int value from public.reviews where person_id = $1 and category = 'faculty' and demo_slot is not null and status = 'published'", [teacher])).toBeGreaterThanOrEqual(5);
+    await db.query("delete from public.person_roles where person_id = $1 and category = 'faculty'", [teacher]);
+    await signIn(ids.admin);
+    await db.exec("select public.admin_set_demo_data(false); select public.admin_set_demo_data(true)");
+    await db.exec("reset role");
+    expect(await scalar("select count(*)::int value from public.reviews where person_id = $1 and category = 'faculty' and demo_slot is not null and status <> 'removed'", [teacher])).toBe(0);
+  });
+});
+
+describe("website availability", () => {
+  const filename = "20261026140000_website_availability.sql";
+  async function applyWebsite() {
+    await db.exec(readFileSync(resolve("supabase/migrations", filename), "utf8")
+      .replace(/^begin;\s*$/m, "").replace(/^commit;\s*$/m, ""));
+  }
+  beforeEach(async () => { await db.exec("reset role"); await applyWebsite(); await signIn(ids.admin); });
+  it("defaults ON, saves the closure content and keeps the switch/content independent", async () => {
+    expect((await db.query<{ is_enabled: boolean }>("select * from public.admin_website_availability()")).rows[0].is_enabled).toBe(true);
+    await db.exec("select public.admin_update_website_availability(false)");
+    await db.exec("select public.admin_update_website_availability(p_title => 'A fond farewell', p_message => 'Thank you, everyone.', p_greeting => '', p_signature => '')");
+    await db.exec("set role anon");
+    const row = (await db.query<{ is_enabled: boolean; title: string; signature: string }>("select * from public.website_availability")).rows[0];
+    expect(row.is_enabled).toBe(false); expect(row.title).toBe("A fond farewell"); expect(row.signature).toBe("");
+    await signIn(ids.admin);
+    await db.exec("select public.admin_update_website_availability(true)");
+    expect((await db.query<{ title: string; is_enabled: boolean }>("select * from public.admin_website_availability()")).rows[0]).toMatchObject({ title: "A fond farewell", is_enabled: true });
+    await db.exec("reset role"); await applyWebsite();
+    expect(await scalar("select title as value from public.website_availability")).toBe("A fond farewell");
+    expect(await scalar("select count(*)::int as value from public.admin_audit_log where action = 'website_availability.update'")).toBe(3);
+  });
+  it("rejects students, anonymous users and inactive admins without exposing write access", async () => {
+    await signIn(ids.student);
+    expect((await rejection("select public.admin_update_website_availability(false)")).code).toBe("42501");
+    expect((await rejection("select * from public.admin_website_availability()")).code).toBe("42501");
+    expect((await rejection("update public.website_availability set is_enabled = false")).code).toBe("42501");
+    await db.exec("set role anon");
+    expect((await rejection("select public.admin_update_website_availability(false)")).code).toBe("42501");
+    await db.exec("reset role"); await db.query("update public.profiles set is_active = false where id = $1", [ids.admin]);
+    await signIn(ids.admin);
+    expect((await rejection("select public.admin_update_website_availability(false)")).code).toBe("42501");
+  });
+  it("rejects invalid content atomically and leaves genuine reviews intact", async () => {
+    expect((await rejection("select public.admin_update_website_availability(false, null, $1)", ["x".repeat(181)])).code).toBe("23514");
+    expect((await db.query<{ is_enabled: boolean }>("select * from public.admin_website_availability()")).rows[0].is_enabled).toBe(true);
+    await db.exec("reset role");
+    const reviews = (await db.query("select * from public.reviews order by id")).rows;
+    await signIn(ids.admin); await db.exec("select public.admin_update_website_availability(false)"); await db.exec("reset role");
+    expect((await db.query("select * from public.reviews order by id")).rows).toEqual(reviews);
+  });
+});
+
 describe("word search and duplicate course cleanup", () => {
   it("matches title variants, partial words, reversed names and department keywords under public RLS", async () => {
     await db.exec("reset role");

@@ -90,6 +90,7 @@ export const ADMIN_NAV: readonly AdminNavGroup[] = [
       { label: "Rankings", href: "/admin/rankings", icon: Trophy },
       { label: "Notifications", href: "/admin/notifications", icon: Bell },
       { label: "Homepage images", href: "/admin/home-images", icon: Images },
+      { label: "Website ON/OFF", href: "/admin/website", icon: Building2 },
       { label: "Settings", href: "/admin/settings", icon: Settings },
       { label: "Audit log", href: "/admin/audit", icon: ScrollText },
     ],

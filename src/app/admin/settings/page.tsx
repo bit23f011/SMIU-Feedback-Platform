@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 
 import { Inbox, ShieldCheck } from "@/components/ui/icons";
 
@@ -6,6 +7,8 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { EmptyState } from "@/components/common/empty-state";
 import { FeatureFlagCard } from "@/features/admin/settings/feature-flag-card";
 import { getFeatureFlags } from "@/features/admin/settings/queries";
+import { DemoDataCard } from "@/features/demo-data/demo-data-card";
+import { getAdminDemoDataState } from "@/features/demo-data/queries";
 
 export const metadata: Metadata = {
   title: "Settings · Admin",
@@ -16,7 +19,10 @@ export const metadata: Metadata = {
 export const dynamic = "force-dynamic";
 
 export default async function AdminSettingsPage() {
-  const view = await getFeatureFlags();
+  const [view, demoData] = await Promise.all([
+    getFeatureFlags(),
+    getAdminDemoDataState(),
+  ]);
 
   return (
     <div className="mx-auto max-w-4xl">
@@ -25,18 +31,28 @@ export default async function AdminSettingsPage() {
           Settings
         </h1>
         <p className="mt-1.5 max-w-2xl text-sm leading-relaxed text-muted-foreground">
-          Platform switches: who can sign up, whether reviews can be submitted or edited, and the
-          student email rule. Each can be flipped now or put on a schedule.
+          Platform switches: who can sign up, whether reviews can be submitted
+          or edited, and the student email rule. Each can be flipped now or put
+          on a schedule.
         </p>
       </header>
+
+      <DemoDataCard data={demoData} />
+      <Link
+        href="/admin/website"
+        className="mt-6 block rounded-lg border border-border bg-card p-5 text-sm font-semibold text-primary"
+      >
+        Website ON/OFF · Customize the closure page →
+      </Link>
 
       <Alert tone="info" className="mt-6">
         <ShieldCheck aria-hidden="true" />
         <div>
           <AlertTitle>These switches are enforced in the database</AlertTitle>
           <AlertDescription>
-            Turning a feature off blocks it at the database, not just in the browser. Signup, review
-            submission and editing each check the switch again on the server before doing anything.
+            Turning a feature off blocks it at the database, not just in the
+            browser. Signup, review submission and editing each check the switch
+            again on the server before doing anything.
           </AlertDescription>
         </div>
       </Alert>
@@ -46,8 +62,8 @@ export default async function AdminSettingsPage() {
           <div>
             <AlertTitle>These controls did not load</AlertTitle>
             <AlertDescription>
-              Nothing has changed. Reload the page, and if it keeps failing, check that your account
-              still has the admin role.
+              Nothing has changed. Reload the page, and if it keeps failing,
+              check that your account still has the admin role.
             </AlertDescription>
           </div>
         </Alert>

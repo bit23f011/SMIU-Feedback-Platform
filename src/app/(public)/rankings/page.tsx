@@ -19,6 +19,7 @@ import {
   type QueryParams,
 } from "@/features/discovery/types";
 import { getCategoryMeta } from "@/lib/constants";
+import { isDemoDataEnabled } from "@/features/demo-data/queries";
 
 /*
   /rankings - README §40, §41, §42.
@@ -42,7 +43,7 @@ async function RankingControlsBar() {
   return <RankingControls options={options} />;
 }
 
-export default function RankingsPage({
+export default async function RankingsPage({
   searchParams,
 }: {
   searchParams?: QueryParams;
@@ -54,6 +55,7 @@ export default function RankingsPage({
   const semesterId = parseId(firstParam(searchParams, "semester"));
 
   const meta = getCategoryMeta(category);
+  const demo = await isDemoDataEnabled();
   const resultKey = `${category}|${scope}|${departmentId}|${courseId}|${semesterId}`;
 
   return (
@@ -61,7 +63,11 @@ export default function RankingsPage({
       <PageHeader
         eyebrow="Explore"
         title="Rankings"
-        description="Based on student ratings and the minimum review threshold."
+        description={
+          demo
+            ? "Display placements are labelled separately from rating-based ranks."
+            : "Based on student ratings and the minimum review threshold."
+        }
       />
 
       <div className="mt-6">
@@ -84,7 +90,12 @@ export default function RankingsPage({
             id="best-heading"
             className="text-lg font-semibold text-foreground"
           >
-            Best {meta.label.toLowerCase()}
+            {demo &&
+            scope === "university" &&
+            ["faculty", "lab_instructor", "hr_staff"].includes(category)
+              ? "Reviews · "
+              : "Best "}
+            {meta.label.toLowerCase()}
           </h2>
           <div className="mt-4">
             <React.Suspense

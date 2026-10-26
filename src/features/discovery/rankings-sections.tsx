@@ -24,6 +24,8 @@ import {
 import type { RankingScope } from "@/features/discovery/types";
 import type { PersonCategory } from "@/features/people/types";
 import { getCategoryMeta } from "@/lib/constants";
+import { isDemoDataEnabled } from "@/features/demo-data/queries";
+import { DemoRankingPreview } from "@/features/demo-data/demo-ranking-preview";
 
 /*
   Rankings, Most Reviewed aur Trending - teeno alag concept hain (README §40, §41,
@@ -77,6 +79,11 @@ export async function RankingsResult({
     );
   }
 
+  const demo = await isDemoDataEnabled();
+  if (scope === "university" && ["faculty", "lab_instructor", "hr_staff"].includes(category) && demo) {
+    return <DemoRankingPreview category={category} />;
+  }
+
   const [ranked, threshold] = await Promise.all([
     getRankings({
       category,
@@ -94,7 +101,7 @@ export async function RankingsResult({
       <EmptyState
         icon={<Trophy />}
         title="Rankings are not open here yet"
-        description={`A profile joins the ranking once it has at least ${threshold} verified reviews. Until then, you can browse the full directory.`}
+        description={`A profile joins the ranking once it has at least ${threshold} ${demo ? "reviews" : "verified reviews"}. Until then, you can browse the full directory.`}
         action={
           <Button asChild variant="outline" size="sm">
             <Link href={`/${meta.slug}`}>
@@ -114,8 +121,7 @@ export async function RankingsResult({
   return (
     <div className="space-y-3">
       <p className="text-xs text-muted-foreground">
-        Ranked by student ratings. Profiles need at least {threshold} reviews to
-        appear.
+        {demo ? "Ratings include demo samples." : "Ranked by student ratings."} Profiles need at least {threshold} reviews to appear.
       </p>
       <RankedList items={items} />
     </div>

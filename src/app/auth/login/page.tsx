@@ -31,7 +31,7 @@ export default async function LoginPage({
 }) {
   // Pehle se logged in hai to yahan rukne ka koi matlab nahi.
   const session = await getCurrentUser();
-  if (session?.isVerified) redirect("/student");
+  if (session?.isVerified) redirect(session.profile?.role === "admin" ? "/admin/website" : "/student");
 
   return (
     <div className="space-y-4">

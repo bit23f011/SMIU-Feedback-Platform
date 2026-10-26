@@ -6,6 +6,7 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 
 import { getSupabaseClientEnv } from "@/lib/env";
 import type { Database } from "@/lib/supabase/database.types";
+import { serverRealtimeOptions } from "@/lib/supabase/server-realtime";
 
 /*
   TYPING NOTE (important, warna sab kuch `never` ho jata hai):
@@ -30,6 +31,7 @@ export const createSupabaseServerClient = cache((): TypedSupabaseClient => {
   const { url, anonKey } = getSupabaseClientEnv();
 
   const client = createServerClient<Database>(url, anonKey, {
+    realtime: serverRealtimeOptions,
     cookies: {
       getAll() {
         return cookieStore.getAll();

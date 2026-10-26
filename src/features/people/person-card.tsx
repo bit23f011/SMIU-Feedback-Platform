@@ -5,6 +5,8 @@ import { PersonAvatar } from "@/features/people/person-avatar";
 import type { PersonCategory, PersonSummary } from "@/features/people/types";
 import { getCategoryMeta } from "@/lib/constants";
 import { cn } from "@/lib/utils";
+import { isZeeshanSpotlight } from "@/features/demo-data/presentation";
+import { SpotlightBadge, SpotlightCelebration } from "./spotlight-accent";
 export interface PersonCardProps {
   person: PersonSummary;
   contextCategory?: PersonCategory;
@@ -25,6 +27,7 @@ export function PersonCard({
     person.roles[0];
   const category = role?.category ?? person.primaryCategory ?? "teacher";
   const meta = getCategoryMeta(category);
+  const spotlight = isZeeshanSpotlight(person);
   const rated =
     typeof person.rating === "number" && Number.isFinite(person.rating);
   return (
@@ -32,17 +35,23 @@ export function PersonCard({
       interactive
       className={cn(
         "group relative flex flex-col overflow-visible p-5",
+        spotlight && "spotlight-surface border-amber-200",
         className,
       )}
     >
+      {spotlight ? <SpotlightCelebration /> : null}
       <div className="mb-5 flex items-center justify-between gap-3">
         <p className="text-[10px] font-medium uppercase tracking-[0.11em] text-muted-foreground">
           {meta.singular}
         </p>
-        <span
-          aria-hidden="true"
-          className="size-1.5 rounded-full bg-primary/45"
-        />
+        {spotlight ? (
+          <SpotlightBadge demo={person.demoMode} />
+        ) : (
+          <span
+            aria-hidden="true"
+            className="size-1.5 rounded-full bg-primary/45"
+          />
+        )}
       </div>
       <div className="flex items-center gap-3.5">
         <PersonAvatar
@@ -83,10 +92,15 @@ export function PersonCard({
           <p className="mt-2 text-[10px] text-muted-foreground">
             {person.reviewCount
               ? person.reviewCount +
-                " student " +
+                (person.demoMode ? " " : " student ") +
                 (person.reviewCount === 1 ? "review" : "reviews")
               : "Be the first to share"}
           </p>
+          {person.demoMode && person.reviewCount ? (
+            <p className="mt-1 text-[10px] text-muted-foreground">
+              Reviews
+            </p>
+          ) : null}
         </div>
         <span className="inline-flex items-center gap-2 pb-0.5 text-[11px] font-medium text-primary">
           View feedback

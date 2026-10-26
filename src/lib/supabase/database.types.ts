@@ -14,6 +14,18 @@ export type Database = {
   }
   public: {
     Tables: {
+      website_availability: {
+        Row: { id: boolean; is_enabled: boolean; greeting: string; title: string; message: string; farewell: string; signature: string; updated_at: string }
+        Insert: { id?: boolean; is_enabled?: boolean; greeting?: string; title?: string; message?: string; farewell?: string; signature?: string; updated_at?: string }
+        Update: { id?: boolean; is_enabled?: boolean; greeting?: string; title?: string; message?: string; farewell?: string; signature?: string; updated_at?: string }
+        Relationships: []
+      }
+      demo_data_settings: {
+        Row: { id: boolean; is_enabled: boolean }
+        Insert: { id?: boolean; is_enabled?: boolean }
+        Update: { id?: boolean; is_enabled?: boolean }
+        Relationships: []
+      }
       admin_audit_log: {
         Row: {
           action: string
@@ -847,6 +859,7 @@ export type Database = {
       }
       reviews: {
         Row: {
+          demo_slot: number | null
           category: Database["public"]["Enums"]["person_category"]
           comment: string | null
           course_id: string | null
@@ -865,6 +878,7 @@ export type Database = {
           category: Database["public"]["Enums"]["person_category"]
           comment?: string | null
           course_id?: string | null
+          demo_slot?: number | null
           created_at?: string
           edit_count?: number
           id?: string
@@ -880,6 +894,7 @@ export type Database = {
           category?: Database["public"]["Enums"]["person_category"]
           comment?: string | null
           course_id?: string | null
+          demo_slot?: number | null
           created_at?: string
           edit_count?: number
           id?: string
@@ -1011,6 +1026,27 @@ export type Database = {
       }
     }
     Functions: {
+      admin_website_availability: {
+        Args: Record<PropertyKey, never>
+        Returns: { id: boolean; is_enabled: boolean; greeting: string; title: string; message: string; farewell: string; signature: string; updated_at: string }[]
+      }
+      admin_update_website_availability: {
+        Args: { p_is_enabled?: boolean; p_greeting?: string; p_title?: string; p_message?: string; p_farewell?: string; p_signature?: string }
+        Returns: undefined
+      }
+      admin_set_demo_data: {
+        Args: { p_enabled: boolean }
+        Returns: undefined
+      }
+      admin_demo_data_state: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          is_enabled: boolean
+          teacher_count: number
+          rating_count: number
+          comment_count: number
+        }[]
+      }
       search_all_people: {
         Args: { p_search?: string | null; p_limit?: number; p_offset?: number }
         Returns: {
@@ -1840,6 +1876,7 @@ export type Database = {
         }
         Returns: {
           review_id: string
+          is_demo: boolean
           overall_rating: number
           comment: string | null
           is_featured: boolean

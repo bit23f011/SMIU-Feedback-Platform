@@ -298,6 +298,7 @@ export async function getPersonReviews(
       total: Number(data[0].total_count ?? 0),
       reviews: data.map((row) => ({
         id: row.review_id,
+        isDemo: row.is_demo === true,
         overallRating: row.overall_rating,
         comment: row.comment,
         createdAt: row.created_at,
