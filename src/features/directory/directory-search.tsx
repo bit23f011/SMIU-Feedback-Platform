@@ -87,6 +87,7 @@ function DirectorySearchInput({
   return (
     <form
       role="search"
+      data-tour="directory-search"
       className={cn("w-full", className)}
       onSubmit={(event) => {
         event.preventDefault();

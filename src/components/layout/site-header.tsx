@@ -60,6 +60,7 @@ export function SiteHeader({ account }: { account: HeaderAccount | null }) {
             <Link
               key={item.href}
               href={item.href}
+              data-tour={item.href === "/rankings" ? "rankings" : undefined}
               aria-current={active(item.href) ? "page" : undefined}
               className={cn(
                 "nav-underline relative px-3 py-2 text-[13px] font-medium",
@@ -71,13 +72,16 @@ export function SiteHeader({ account }: { account: HeaderAccount | null }) {
               {item.label}
             </Link>
           ))}
-          <GuideButton className="px-3 py-2 text-[13px]">Help</GuideButton>
+          <GuideButton tourTarget className="px-3 py-2 text-[13px]">
+            Help
+          </GuideButton>
         </nav>
         <div className="hidden items-center gap-2 lg:flex">
           {account ? (
             <Button asChild size="sm" variant="outline">
               <Link
                 href={account.isAdmin ? "/admin" : "/student"}
+                data-tour={account.isAdmin ? undefined : "my-area"}
                 aria-current={
                   active(account.isAdmin ? "/admin" : "/student")
                     ? "page"
@@ -99,7 +103,10 @@ export function SiteHeader({ account }: { account: HeaderAccount | null }) {
               variant="outline"
               className="px-2 text-xs sm:px-3 sm:text-sm"
             >
-              <Link href={account.isAdmin ? "/admin" : "/student"}>
+              <Link
+                href={account.isAdmin ? "/admin" : "/student"}
+                data-tour={account.isAdmin ? undefined : "my-area"}
+              >
                 {account.isAdmin ? "Admin" : "My area"}
               </Link>
             </Button>
@@ -107,7 +114,12 @@ export function SiteHeader({ account }: { account: HeaderAccount | null }) {
           <ThemeToggle />
           <Sheet open={open} onOpenChange={setOpen}>
             <SheetTrigger asChild>
-              <Button variant="outline" size="icon" aria-label="Open menu">
+              <Button
+                data-tour="menu"
+                variant="outline"
+                size="icon"
+                aria-label="Open menu"
+              >
                 <Menu aria-hidden="true" />
               </Button>
             </SheetTrigger>

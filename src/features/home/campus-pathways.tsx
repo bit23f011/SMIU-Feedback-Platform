@@ -72,6 +72,7 @@ export function CampusPathways() {
                 <Link
                   key={href}
                   href={href}
+                  data-tour={href === "/rankings" ? "rankings" : undefined}
                   className="text-[12px] font-medium text-primary underline decoration-primary/25 underline-offset-4 hover:decoration-primary"
                 >
                   {label}

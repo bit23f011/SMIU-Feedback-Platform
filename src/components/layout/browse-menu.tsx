@@ -111,6 +111,7 @@ export function BrowseMenu({ className }: { className?: string }) {
     >
       <button
         ref={triggerRef}
+        data-tour="browse"
         type="button"
         aria-expanded={open}
         aria-haspopup="menu"

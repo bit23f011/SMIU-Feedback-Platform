@@ -83,7 +83,9 @@ export function AccountMenu({ account }: { account: HeaderAccount | null }) {
             "hover:bg-ink-50 hover:text-foreground",
           )}
         >
-          <Link href="/auth/login">Sign in</Link>
+          <Link href="/auth/login" data-tour="account">
+            Sign in
+          </Link>
         </Button>
         <Button asChild size="sm">
           <Link href="/auth/signup">Create account</Link>

@@ -66,6 +66,7 @@ export function HomeSearch({ className }: { className?: string }) {
   return (
     <form
       role="search"
+      data-tour="search"
       onSubmit={submit}
       className={cn("home-search relative", className)}
       onFocus={() => setFocused(true)}

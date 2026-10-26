@@ -38,6 +38,7 @@ export function Hero() {
           <div className="mt-5 flex flex-wrap items-center gap-x-6 gap-y-3 text-[13px]">
             <Link
               href="/teachers"
+              data-tour="explore"
               className="inline-flex items-center gap-2 font-semibold text-primary"
             >
               Explore teacher reviews
@@ -74,6 +75,7 @@ export function Hero() {
             <Link
               key={number}
               href={href}
+              data-tour={href === "/auth/signup" ? "account" : undefined}
               className="group flex gap-3 px-4 py-2 first:pl-0 md:px-6"
             >
               <span className="pt-1 text-[10px] font-semibold text-primary">

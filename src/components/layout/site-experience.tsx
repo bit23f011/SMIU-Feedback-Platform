@@ -11,26 +11,16 @@ import {
 } from "@/components/ui/dialog";
 import type { NotificationRow } from "@/features/notifications/types";
 import { cn } from "@/lib/utils";
+import { GuidedTour } from "@/components/layout/guided-tour";
 
-const GUIDE_KEY = "profaura:guide:2026-v2";
-const GUIDE = [
-  {
-    title: "Explore before you decide",
-    body: "Read teacher, lab and campus staff feedback. No account is needed to browse.",
-  },
-  {
-    title: "Review your own experience",
-    body: "Sign in as an SMIU student. Pick a profile, course and semester, then answer the questions.",
-  },
-  {
-    title: "Keep it useful and respectful",
-    body: "Share first-hand details. Leave out student names, contact details, insults and personal allegations.",
-  },
-  {
-    title: "Your public identity stays private",
-    body: "Your name and student ID stay hidden. Written comments appear after admin approval.",
-  },
-] as const;
+const GUIDE_KEY = "profaura:tour:v1";
+function guideSeen() {
+  try {
+    return localStorage.getItem(GUIDE_KEY) === "seen";
+  } catch {
+    return false;
+  }
+}
 type ExperienceContext = {
   openGuide: () => void;
   announce: (notices: NotificationRow[]) => void;
@@ -103,7 +93,7 @@ export function SiteExperienceProvider({
     if (initialized.current || /^\/(admin|student|auth)(\/|$)/.test(pathname))
       return;
     initialized.current = true;
-    setGuideOpen(!wasSeen(GUIDE_KEY));
+    setGuideOpen(!guideSeen());
   }, [pathname]);
   const openGuide = React.useCallback(() => {
     setReady(true);
@@ -118,9 +108,13 @@ export function SiteExperienceProvider({
     setNotices((current) => [...current, ...unseen]);
     setReady(true);
   }, []);
-  function closeGuide(open: boolean) {
-    setGuideOpen(open);
-    if (!open) remember(GUIDE_KEY);
+  function closeGuide() {
+    setGuideOpen(false);
+    try {
+      localStorage.setItem(GUIDE_KEY, "seen");
+    } catch {
+      /* The tour can still be skipped when browser storage is unavailable. */
+    }
   }
   function dismissNotice(open: boolean) {
     if (!open && notice) {
@@ -138,38 +132,16 @@ export function SiteExperienceProvider({
   return (
     <Context.Provider value={value}>
       {children}
-      <Dialog open={ready && guideOpen && !notice} onOpenChange={closeGuide}>
-        <DialogContent className="max-h-[88dvh] max-w-[560px] overflow-y-auto p-0">
-          <div className="border-b border-border bg-surface px-6 pb-6 pt-7 sm:px-8">
-            <p className="eyebrow">A student perspective</p>
-            <DialogTitle className="editorial-title mt-3 text-[1.8rem] leading-tight">
-              Welcome to SMIU feedback.
-            </DialogTitle>
-            <DialogDescription className="mt-3 max-w-md leading-relaxed">
-              A little guidance before you explore. Your experience can help the
-              next student.
-            </DialogDescription>
-          </div>
-          <ol className="space-y-4 px-6 py-5 sm:space-y-5 sm:px-8 sm:py-6">
-            {GUIDE.map((item, index) => (
-              <li key={item.title} className="flex gap-4">
-                <span className="pt-0.5 text-xs font-medium tabular-nums text-primary">
-                  0{index + 1}
-                </span>
-                <div>
-                  <h3 className="text-sm font-semibold">{item.title}</h3>
-                  <p className="mt-1 text-[13px] leading-relaxed text-muted-foreground">
-                    {item.body}
-                  </p>
-                </div>
-              </li>
-            ))}
-          </ol>
-          <div className="flex flex-wrap items-center justify-between gap-4 border-t border-border px-6 py-5 sm:px-8">
-            <Button onClick={() => closeGuide(false)}>Start exploring</Button>
-          </div>
-        </DialogContent>
-      </Dialog>
+      <GuidedTour
+        key={pathname}
+        open={
+          ready &&
+          guideOpen &&
+          !notice &&
+          !/^\/(admin|auth)(\/|$)/.test(pathname)
+        }
+        onFinish={closeGuide}
+      />
       <Dialog open={ready && Boolean(notice)} onOpenChange={dismissNotice}>
         <DialogContent
           className={cn(
@@ -213,15 +185,18 @@ export function GuideButton({
   className,
   children = "How to use this site",
   onOpen,
+  tourTarget = false,
 }: {
   className?: string;
   children?: React.ReactNode;
   onOpen?: () => void;
+  tourTarget?: boolean;
 }) {
   const { openGuide } = useSiteExperience();
   return (
     <button
       type="button"
+      data-tour={tourTarget ? "help" : undefined}
       onClick={() => {
         onOpen?.();
         openGuide();
